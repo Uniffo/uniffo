@@ -1,0 +1,26 @@
+{
+  "tasks": {
+    "lint": "deno lint",
+    "fmt": "deno fmt"
+  },
+  "lint": {
+    "include": ["src/"],
+    "exclude": [],
+    "report": "pretty",
+    "rules": {
+      "tags": ["recommended"],
+      "include": [],
+      "exclude": []
+    }
+  },
+  "fmt": {
+    "useTabs": true,
+    "lineWidth": 80,
+    "indentWidth": 4,
+    "semiColons": true,
+    "singleQuote": true,
+    "proseWrap": "preserve",
+    "include": ["src/"],
+    "exclude": []
+  }
+}
