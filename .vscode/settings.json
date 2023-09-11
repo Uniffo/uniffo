@@ -1,0 +1,18 @@
+{
+  "deno.enable": true,
+  "deno.lint": true,
+  "deno.unstable": false,
+  "deno.codeLens.implementations": true,
+  "deno.codeLens.references": true,
+  "deno.codeLens.referencesAllFunctions": true,
+  "deno.codeLens.test": true,
+  "deno.inlayHints.parameterTypes.enabled": true,
+  "deno.inlayHints.propertyDeclarationTypes.enabled": true,
+  "deno.inlayHints.variableTypes.enabled": true,
+  "deno.inlayHints.enumMemberValues.enabled": true,
+  "deno.inlayHints.functionLikeReturnTypes.enabled": true,
+  "deno.inlayHints.parameterNames.enabled": "all",
+  "deno.suggest.completeFunctionCalls": true,
+  "editor.defaultFormatter": "denoland.vscode-deno",
+  "editor.formatOnSave": true
+}
