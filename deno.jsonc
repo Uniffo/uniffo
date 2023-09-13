@@ -1,7 +1,9 @@
 {
   "tasks": {
     "lint": "deno lint",
-    "fmt": "deno fmt"
+    "fmt": "deno fmt",
+    "compile": "deno compile ./src/main.ts --output dist/uniffo",
+    "test": "deno test ./src/**/*.test.ts"
   },
   "lint": {
     "include": ["src/"],
