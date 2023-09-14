@@ -1,9 +1,7 @@
-import { createAppState } from '../../utils/appState/appState.ts';
-import { createAppLogger } from '../../utils/logger/logger.ts';
+import { logger } from '../../entry.ts';
+import { IUniffoArgs } from './uniffo.d.ts';
 
-export const appState = createAppState();
-export const logger = createAppLogger();
-
-export const uniffo = () => {
+export const uniffo = (args: IUniffoArgs) => {
+	logger.info(`args: ${JSON.stringify(args)}`);
 	logger.debug('Hello, I am uniffo :)');
 };
