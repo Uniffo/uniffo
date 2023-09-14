@@ -1,11 +1,6 @@
-import { formattedDate } from '../Date/formatDate.ts';
+import { formatDate } from '../Date/formatDate.ts';
 import { writeAllSync } from 'https://deno.land/std@0.201.0/streams/write_all.ts';
-import {
-	ILogger,
-	TCreateAppLogger,
-	TLoggerLogLine,
-	TLoggerLogMethodNames,
-} from './logger.d.ts';
+import { ILogger, TCreateAppLogger, TLoggerLogLine, TLoggerLogMethodNames } from './logger.d.ts';
 
 export const createAppLogger: TCreateAppLogger = () => {
 	const maxWeight = 1024 * 1024 * 100;
@@ -84,7 +79,7 @@ export const createAppLogger: TCreateAppLogger = () => {
 		keepLogsOptimized();
 
 		const now = new Date();
-		const date = formattedDate(now);
+		const date = formatDate(now);
 		const stdColor = getStdColors();
 		const MessageColor = getMessageColor(method);
 

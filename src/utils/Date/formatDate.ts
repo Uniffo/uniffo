@@ -1,6 +1,6 @@
 import { TFormatDate } from './formatDate.d.ts';
 
-export const formattedDate: TFormatDate = (date) => {
+export const formatDate: TFormatDate = (date) => {
 	const day = date.getDate().toString().padStart(2, '0');
 	const month = (date.getMonth() + 1).toString().padStart(2, '0'); // Note: Months are zero-based, so we add 1.
 	const year = date.getFullYear().toString();
