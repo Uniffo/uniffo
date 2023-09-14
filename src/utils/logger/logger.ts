@@ -87,7 +87,7 @@ export const createAppLogger: TCreateAppLogger = () => {
 			`${stdColor.FgYellow}[${date}]${MessageColor}[${method}]: ${message}${stdColor.Reset}`;
 
 		writeAllSync(
-			Deno.stdout,
+			method == 'error' ? Deno.stderr : Deno.stdout,
 			new TextEncoder().encode(coloredText + '\n'),
 		);
 	};
