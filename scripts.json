@@ -1,0 +1,15 @@
+{
+  "$schema": "https://deno.land/x/denon@2.5.0/schema.json",
+  "scripts": {
+    "dev": {
+      "desc": "run test if sth with extension .ts will change in ./src directory",
+      "cmd": "deno task test",
+      "watch": true
+    }
+  },
+  "watcher": {
+    "interval": 50,
+    "match": ["./src/**"],
+    "exts": ["ts"]
+  }
+}
