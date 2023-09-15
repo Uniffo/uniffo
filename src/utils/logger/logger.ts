@@ -1,6 +1,7 @@
 import { writeAllSync } from 'https://deno.land/std@0.201.0/streams/write_all.ts';
 import { ILogger, TCreateAppLogger, TLoggerLogLine, TLoggerLogMethodNames } from './logger.d.ts';
 import { formatDate } from '../date/format_date.ts';
+import { ansiColors } from './colors.ts';
 
 export const createAppLogger: TCreateAppLogger = () => {
 	const maxWeight = 1024 * 1024 * 100;
@@ -23,46 +24,25 @@ export const createAppLogger: TCreateAppLogger = () => {
 			keepLogsOptimized();
 		}
 	};
-	const getStdColors = () => {
-		return {
-			Reset: '\x1b[0m',
-			Bright: '\x1b[1m',
-			Dim: '\x1b[2m',
-			Underscore: '\x1b[4m',
-			Blink: '\x1b[5m',
-			Reverse: '\x1b[7m',
-			Hidden: '\x1b[8m',
-			FgBlack: '\x1b[30m',
-			FgRed: '\x1b[31m',
-			FgGreen: '\x1b[32m',
-			FgYellow: '\x1b[33m',
-			FgBlue: '\x1b[34m',
-			FgMagenta: '\x1b[35m',
-			FgCyan: '\x1b[36m',
-			FgWhite: '\x1b[37m',
-		};
-	};
 	const getMessageColor = (method: TLoggerLogMethodNames) => {
-		const stdColor = getStdColors();
-
 		switch (method) {
 			case 'log':
-				return stdColor.Reset;
+				return ansiColors.Reset;
 
 			case 'debug':
-				return stdColor.FgMagenta;
+				return ansiColors.FgMagenta;
 
 			case 'error':
-				return stdColor.FgRed;
+				return ansiColors.FgRed;
 
 			case 'info':
-				return stdColor.FgCyan;
+				return ansiColors.FgCyan;
 
 			case 'success':
-				return stdColor.FgGreen;
+				return ansiColors.FgGreen;
 
 			default:
-				return stdColor.Reset;
+				return ansiColors.Reset;
 		}
 	};
 	const primaryLogFunction = (
@@ -80,11 +60,12 @@ export const createAppLogger: TCreateAppLogger = () => {
 
 		const now = new Date();
 		const date = formatDate(now);
-		const stdColor = getStdColors();
 		const MessageColor = getMessageColor(method);
+		const dateColor = ansiColors.FgYellow;
+		const resetColor = ansiColors.Reset;
 
 		const coloredText =
-			`${stdColor.FgYellow}[${date}]${MessageColor}[${method}]: ${message}${stdColor.Reset}`;
+			`${dateColor}[${date}]${MessageColor}[${method}]: ${message}${resetColor}`;
 
 		writeAllSync(
 			method == 'error' ? Deno.stderr : Deno.stdout,
