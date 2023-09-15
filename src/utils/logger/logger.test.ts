@@ -1,43 +1,47 @@
 import { assertEquals } from 'https://deno.land/std@0.201.0/assert/assert_equals.ts';
-import { createAppLogger } from './logger.ts';
+import { Logger } from './logger.ts';
 import { assertGreater } from 'https://deno.land/std@0.201.0/assert/assert_greater.ts';
 import { TLoggerLogLine } from './logger.d.ts';
 
 Deno.test('logger', () => {
 	const logsData: TLoggerLogLine[] = [{
 		message: 'log',
-		method: 'log',
+		logType: 'log',
 	}, {
 		message: 'debug',
-		method: 'debug',
+		logType: 'debug',
 	}, {
 		message: 'info',
-		method: 'info',
+		logType: 'info',
 	}, {
 		message: 'error',
-		method: 'error',
+		logType: 'error',
 	}, {
 		message: 'success',
-		method: 'success',
+		logType: 'success',
 	}];
 
-	const logger = createAppLogger();
+	const logger = new Logger();
 
 	logsData.forEach((log) => {
-		logger?.[log.method](log.message);
+		logger?.[log.logType](log.message);
 	});
 
 	logger.omitStorage(true);
 	logger.log('omited');
 	logger.omitStorage(false);
 
-	const logsLength = logger.storage.getLength();
-	const logsWeight = logger.storage.getWeightInBytes();
-	const logs = logger.storage.getAll();
-	const lastLog = logger.storage.getLastLog();
+	const logsLength = logger.getLength();
+	const logsWeight = logger.getWeight('b');
+	const logsWeightKb = logger.getWeight('kb');
+	const logsWeightMb = logger.getWeight('mb');
+	const logs = logger.getAllLogs();
+	const lastLog = logger.getLastLog();
 
-	assertEquals(logsLength, 5);
-	assertGreater(logsWeight, 0);
-	assertEquals(logs, logsData);
-	assertEquals(lastLog, logsData[logsData.length - 1]);
+	assertEquals(logsLength, 5, 'logs length');
+	assertGreater(logsWeight, 0, 'logs weight');
+	assertEquals(logsWeightKb, logsWeight / 1024, 'logs weight kb');
+	assertEquals(logsWeightMb, logsWeight / 1024 / 1024, 'logs weight mb');
+	assertEquals(logs, logsData, 'logs storage');
+	assertEquals(lastLog, logsData[logsData.length - 1], 'last log');
 });

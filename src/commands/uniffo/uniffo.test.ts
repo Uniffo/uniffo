@@ -8,7 +8,7 @@ Deno.test('uniffo', () => {
 
 	uniffo(args);
 
-	const lastLog = logger.storage.getLastLog();
+	const lastLog = logger.getLastLog();
 
-	assertEquals(lastLog.message, 'Hello, I am uniffo :)');
+	assertEquals(lastLog?.message, 'Hello, I am uniffo :)');
 });

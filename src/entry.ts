@@ -1,7 +1,7 @@
 import { parseCliArgs } from './utils/cli_args/parser.ts';
-import { createAppLogger } from './utils/logger/logger.ts';
+import { Logger } from './utils/logger/logger.ts';
 
-export const logger = createAppLogger();
+export const logger = new Logger();
 
 logger.info(JSON.stringify(Deno.args));
 

@@ -1,31 +1,16 @@
-export type TLoggerLogMethodName = 'log';
-export type TLoggerDebugMethodName = 'debug';
-export type TLoggerErrorMethodName = 'error';
-export type TLoggerSuccessMethodName = 'success';
-export type TInfoMethodName = 'info';
-export type TLoggerLogMethodNames =
-	| TLoggerLogMethodName
-	| TLoggerDebugMethodName
-	| TLoggerErrorMethodName
-	| TLoggerSuccessMethodName
-	| TInfoMethodName;
-export type TLoggerLogMethodDefinition = (message: string) => void;
-export type TLoggerMethods = {
-	[key in TLoggerLogMethodNames]: TLoggerLogMethodDefinition;
-};
+export type TLoggerLogTypes = 'log' | 'info' | 'debug' | 'success' | 'error';
+export type TLoggerStorageWeightUnits = 'b' | 'kb' | 'mb';
 export type TLoggerLogLine = {
 	message: string;
-	method: TLoggerLogMethodNames;
+	logType: TLoggerLogTypes;
 };
-
-export interface ILogger extends TLoggerMethods {
-	omitStorage: (bool: boolean) => void;
-	storage: {
-		getAll: () => TLoggerLogLine[];
-		getLastLog: () => TLoggerLogLine;
-		getWeightInBytes: () => number;
-		getLength: () => number;
-	};
+type TLoggerLogTypesDefinition = {
+	[key in TLoggerLogTypes]: (message: string) => void;
+};
+export interface ILogger extends TLoggerLogTypesDefinition {
+	omitStorage(bool: boolean): void;
+	getAllLogs(): TLoggerLogLine[];
+	getLastLog(): TLoggerLogLine | undefined;
+	getWeight(unit?: TLoggerStorageWeightUnits): number;
+	getLength(): number;
 }
-
-export type TCreateAppLogger = () => ILogger;
