@@ -1,4 +1,4 @@
-import { TFormatDate } from './formatDate.d.ts';
+import { TFormatDate } from './format_date.d.ts';
 
 export const formatDate: TFormatDate = (date) => {
 	const day = date.getDate().toString().padStart(2, '0');
