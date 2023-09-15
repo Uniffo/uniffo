@@ -1,4 +1,4 @@
-import { parseCliArgs } from './utils/cli_args/parse_cli_args.ts';
+import { parseCliArgs } from './utils/cli_args/parser.ts';
 import { createAppLogger } from './utils/logger/logger.ts';
 
 export const logger = createAppLogger();

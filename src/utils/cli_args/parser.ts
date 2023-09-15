@@ -1,4 +1,4 @@
-import { ICliArgs, TParseCliArgs } from './parse_cli_args.d.ts';
+import { ICliArgs, TParseCliArgs } from './parser.d.ts';
 
 export const parseCliArgs: TParseCliArgs = (denoArgs) => {
 	const parsed: ICliArgs = {};
