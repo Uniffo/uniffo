@@ -1,7 +1,7 @@
 import { assertEquals } from 'https://deno.land/std@0.201.0/assert/assert_equals.ts';
 import { parseCliArgs } from './parser.ts';
 
-Deno.test('parseCliArgs', () => {
+Deno.test('parseCliArgs', function testParseCliArgs() {
 	const args = ['should be skiped', '-h', '--help', '--my-argument', 'my value :D', '-r'];
 
 	const parsedArgs = parseCliArgs(args);

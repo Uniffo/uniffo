@@ -8,6 +8,7 @@ import {
 	TLoggerLogTypes,
 	TLoggerStorageWeightUnits,
 } from './logger.d.ts';
+import { getCallingFunctionName } from '../calling_function_name/calling_function_name.ts';
 
 /* The Logger class is a TypeScript implementation of a logging utility that allows for storing and
 displaying different types of log messages. */
@@ -99,10 +100,11 @@ export class Logger implements ILogger {
 		const MessageColor = this.getMessageColor(logType);
 		const dateColor = ansiColors.FgYellow;
 		const resetColor = ansiColors.Reset;
+		const extraDebugMsg = logType == 'debug' ? `${getCallingFunctionName()}(...): ` : '';
 
 		const coloredText = `${
 			this.DISPLAY_DATE ? `${dateColor}[${date}]${resetColor}` : ''
-		}${MessageColor}[${logType}]: ${message}${resetColor}`;
+		}${MessageColor}[${logType}]: ${extraDebugMsg}${message}${resetColor}`;
 
 		const omitDebug = logType == 'debug' && !this.DEBUG;
 

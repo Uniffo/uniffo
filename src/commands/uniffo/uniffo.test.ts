@@ -3,7 +3,7 @@ import { uniffo } from './uniffo.ts';
 import { IUniffoArgs } from './uniffo.d.ts';
 import { LOGGER } from '../../constants/constants.ts';
 
-Deno.test('uniffo', () => {
+Deno.test('uniffo', function testUniffo() {
 	const args: IUniffoArgs = {};
 
 	uniffo(args);

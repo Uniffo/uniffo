@@ -4,7 +4,7 @@ import { pathExist } from '../path/exist.ts';
 import { cwd } from './cwd.ts';
 import { pwd } from './pwd.ts';
 
-Deno.test('pwd', async () => {
+Deno.test('pwd', async function testPwd() {
 	const getRandomDig = () => Math.floor(Math.random() * (9 - 1)) + 1;
 	const getTestDirPath = async () => {
 		let path =

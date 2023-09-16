@@ -3,7 +3,7 @@ import { Logger } from './logger.ts';
 import { assertGreater } from 'https://deno.land/std@0.201.0/assert/assert_greater.ts';
 import { TLoggerLogLine } from './logger.d.ts';
 
-Deno.test('logger', () => {
+Deno.test('logger', function testLogger() {
 	const logsData: TLoggerLogLine[] = [{
 		message: 'log',
 		logType: 'log',
