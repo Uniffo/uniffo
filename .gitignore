@@ -3,3 +3,6 @@
 
 # testing dir
 /test_*
+
+# env file
+/.env
