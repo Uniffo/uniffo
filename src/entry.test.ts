@@ -3,5 +3,7 @@ Deno.test('entry', () => {
 		args: ['task', 'uniffo', '--message', 'testowy message'],
 	});
 
+	command.spawn();
+
 	command.outputSync();
 });

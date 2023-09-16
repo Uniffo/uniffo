@@ -1,6 +1,5 @@
 import { assertEquals } from 'https://deno.land/std@0.201.0/assert/assert_equals.ts';
-import { UNIFFO_PROJECT_TOP_LEVEL_STRUCTURE } from '../../constants/constants.ts';
-import { logger } from '../../entry.ts';
+import { LOGGER, UNIFFO_PROJECT_TOP_LEVEL_STRUCTURE } from '../../constants/constants.ts';
 import { pathExist } from '../path/exist.ts';
 import { cwd } from './cwd.ts';
 import { pwd } from './pwd.ts';
@@ -22,11 +21,11 @@ Deno.test('pwd', async () => {
 	const testingDirPath = await getTestDirPath();
 	const parentDirPath = cwd();
 
-	logger.debug(`Var testingDirPath: '${testingDirPath}'`);
+	LOGGER.debug(`Var testingDirPath: '${testingDirPath}'`);
 
-	logger.debug(`Creating environment for test`);
+	LOGGER.debug(`Creating environment for test`);
 
-	logger.debug(`Creating '${testingDirPath}'`);
+	LOGGER.debug(`Creating '${testingDirPath}'`);
 	Deno.mkdirSync(testingDirPath);
 
 	for (let i = 0; i < UNIFFO_PROJECT_TOP_LEVEL_STRUCTURE.length; i++) {
@@ -34,7 +33,7 @@ Deno.test('pwd', async () => {
 		const isFile = partOfPath.includes('.');
 		const pathToCreate = `${testingDirPath}/${partOfPath}`;
 
-		logger.debug(`Creating '${pathToCreate}'`);
+		LOGGER.debug(`Creating '${pathToCreate}'`);
 
 		if (isFile) {
 			Deno.writeFileSync(pathToCreate, new TextEncoder().encode(''));
@@ -43,23 +42,23 @@ Deno.test('pwd', async () => {
 		}
 	}
 
-	logger.debug(`Change directory to '${testingDirPath}'`);
+	LOGGER.debug(`Change directory to '${testingDirPath}'`);
 
 	Deno.chdir(testingDirPath);
 
-	logger.debug(`Testing pwd in project'`);
+	LOGGER.debug(`Testing pwd in project'`);
 
 	assertEquals(await pwd(), testingDirPath, 'Pwd in project');
 
-	logger.debug(`Change directory to '${parentDirPath}'`);
+	LOGGER.debug(`Change directory to '${parentDirPath}'`);
 
 	Deno.chdir(parentDirPath);
 
-	logger.debug(`Testing pwd out of project'`);
+	LOGGER.debug(`Testing pwd out of project'`);
 
 	assertEquals(await pwd(), false, 'Pwd out of project');
 
-	logger.debug(`Removing '${testingDirPath}'`);
+	LOGGER.debug(`Removing '${testingDirPath}'`);
 
 	Deno.removeSync(testingDirPath, { recursive: true });
 });
