@@ -1,1 +1,5 @@
+# distribution dir
 /dist
+
+# testing dir
+/test_*
