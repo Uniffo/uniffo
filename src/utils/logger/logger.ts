@@ -1,7 +1,13 @@
 import { writeAllSync } from 'https://deno.land/std@0.201.0/streams/write_all.ts';
 import { formatDate } from '../date/format_date.ts';
 import { ansiColors } from './colors.ts';
-import { ILogger, TLoggerLogLine, TLoggerLogTypes, TLoggerStorageWeightUnits } from './logger.d.ts';
+import {
+	ILogger,
+	TLoggerConstructorArgs,
+	TLoggerLogLine,
+	TLoggerLogTypes,
+	TLoggerStorageWeightUnits,
+} from './logger.d.ts';
 
 /* The Logger class is a TypeScript implementation of a logging utility that allows for storing and
 displaying different types of log messages. */
@@ -9,11 +15,16 @@ export class Logger implements ILogger {
 	private OMIT_STORAGE = false;
 	private MAX_WEIGHT: number = 1024 * 1024 * 100;
 	private LOGS: TLoggerLogLine[] = [];
+	private DEBUG: TLoggerConstructorArgs['debug'] = true;
+	private DISPLAY_DATE: TLoggerConstructorArgs['displayDate'] = true;
 
 	/**
 	 * The constructor function initializes a new instance of the Logger class and logs a debug message.
 	 */
-	constructor() {
+	constructor(args?: TLoggerConstructorArgs) {
+		this.DEBUG = !!args?.debug;
+		this.DISPLAY_DATE = !!args?.displayDate;
+
 		this.omitStorage(true);
 		this.debug('New Logger instance was created.');
 		this.omitStorage(false);
@@ -89,10 +100,13 @@ export class Logger implements ILogger {
 		const dateColor = ansiColors.FgYellow;
 		const resetColor = ansiColors.Reset;
 
-		const coloredText =
-			`${dateColor}[${date}]${MessageColor}[${logType}]: ${message}${resetColor}`;
+		const coloredText = `${
+			this.DISPLAY_DATE ? `${dateColor}[${date}]${resetColor}` : ''
+		}${MessageColor}[${logType}]: ${message}${resetColor}`;
 
-		writeAllSync(
+		const omitDebug = logType == 'debug' && !this.DEBUG;
+
+		!omitDebug && writeAllSync(
 			logType == 'error' ? Deno.stderr : Deno.stdout,
 			new TextEncoder().encode(coloredText + '\n'),
 		);

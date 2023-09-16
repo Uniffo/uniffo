@@ -7,6 +7,11 @@ export type TLoggerLogLine = {
 type TLoggerLogTypesDefinition = {
 	[key in TLoggerLogTypes]: (message: string) => void;
 };
+
+export type TLoggerConstructorArgs = {
+	debug?: boolean;
+	displayDate?: boolean;
+};
 export interface ILogger extends TLoggerLogTypesDefinition {
 	omitStorage(bool: boolean): void;
 	getAllLogs(): TLoggerLogLine[];
