@@ -1,3 +1,4 @@
+import { uniffo } from './commands/uniffo/uniffo.ts';
 import { parseCliArgs } from './utils/cli_args/parser.ts';
 import { Logger } from './utils/logger/logger.ts';
 import { pwd } from './utils/workdir/pwd.ts';
@@ -11,7 +12,15 @@ export const logger = new Logger({
 	displayDate: debugMode,
 });
 
-const projectWorkingDir = await pwd();
-const isProjectInitialized = projectWorkingDir;
+logger.debug(`Var args: ${JSON.stringify(args)}`);
+logger.debug(`Var debugMode: ${debugMode}`);
 
-logger.debug(`args: ${JSON.stringify(args)}`);
+const projectWorkingDir = await pwd();
+
+const isProjectInitialized = !!projectWorkingDir;
+
+if (isProjectInitialized) {
+	// TODO(#2): uvm
+}
+
+uniffo(args);
