@@ -14,5 +14,6 @@
   "deno.inlayHints.parameterNames.enabled": "none",
   "deno.suggest.completeFunctionCalls": true,
   "editor.defaultFormatter": "denoland.vscode-deno",
-  "editor.formatOnSave": true
+  "editor.formatOnSave": true,
+  "editor.wordWrap": "on"
 }
