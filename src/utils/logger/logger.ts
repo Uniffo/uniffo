@@ -11,6 +11,15 @@ export class Logger implements ILogger {
 	private LOGS: TLoggerLogLine[] = [];
 
 	/**
+	 * The constructor function initializes a new instance of the Logger class and logs a debug message.
+	 */
+	constructor() {
+		this.omitStorage(true);
+		this.debug('New Logger instance was created.');
+		this.omitStorage(false);
+	}
+
+	/**
 	 * The function `getMessageColor` returns the ANSI color code based on the given log type.
 	 * @param {TLoggerLogTypes} logType - The `logType` parameter is of type `TLoggerLogTypes`. It is used
 	 * to determine the color of the message based on the type of log. The possible values for `logType`
