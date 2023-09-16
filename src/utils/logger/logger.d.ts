@@ -14,6 +14,8 @@ export type TLoggerConstructorArgs = {
 };
 export interface ILogger extends TLoggerLogTypesDefinition {
 	omitStorage(bool: boolean): void;
+	displayDebug(bool: boolean): void;
+	displayDate(bool: boolean): void;
 	getAllLogs(): TLoggerLogLine[];
 	getLastLog(): TLoggerLogLine | undefined;
 	getWeight(unit?: TLoggerStorageWeightUnits): number;

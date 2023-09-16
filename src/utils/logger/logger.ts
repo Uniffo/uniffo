@@ -16,14 +16,14 @@ export class Logger implements ILogger {
 	private OMIT_STORAGE = false;
 	private MAX_WEIGHT: number = 1024 * 1024 * 100;
 	private LOGS: TLoggerLogLine[] = [];
-	private DEBUG: TLoggerConstructorArgs['debug'] = true;
+	private DISPLAY_DEBUG: TLoggerConstructorArgs['debug'] = true;
 	private DISPLAY_DATE: TLoggerConstructorArgs['displayDate'] = true;
 
 	/**
 	 * The constructor function initializes a new instance of the Logger class and logs a debug message.
 	 */
 	constructor(args?: TLoggerConstructorArgs) {
-		this.DEBUG = !!args?.debug;
+		this.DISPLAY_DEBUG = !!args?.debug;
 		this.DISPLAY_DATE = !!args?.displayDate;
 
 		this.omitStorage(true);
@@ -106,7 +106,7 @@ export class Logger implements ILogger {
 			this.DISPLAY_DATE ? `${dateColor}[${date}]${resetColor}` : ''
 		}${MessageColor}[${logType}]: ${extraDebugMsg}${message}${resetColor}`;
 
-		const omitDebug = logType == 'debug' && !this.DEBUG;
+		const omitDebug = logType == 'debug' && !this.DISPLAY_DEBUG;
 
 		!omitDebug && writeAllSync(
 			logType == 'error' ? Deno.stderr : Deno.stdout,
@@ -120,6 +120,25 @@ export class Logger implements ILogger {
 	 */
 	public omitStorage(bool: boolean) {
 		this.OMIT_STORAGE = bool;
+	}
+
+	/**
+	 * The function sets the value of a boolean variable called DISPLAY_DEBUG.
+	 * @param {boolean} bool - A boolean value that determines whether or not to display debug
+	 * information.
+	 */
+	public displayDebug(bool: boolean) {
+		this.DISPLAY_DEBUG = bool;
+	}
+
+	/**
+	 * The function sets a boolean value to determine whether to display the date or not.
+	 * @param {boolean} bool - The "bool" parameter is a boolean value that determines whether or not to
+	 * display the date. If it is set to true, the date will be displayed
+	 * will not be displayed.
+	 */
+	public displayDate(bool: boolean) {
+		this.DISPLAY_DATE = bool;
 	}
 
 	/**
