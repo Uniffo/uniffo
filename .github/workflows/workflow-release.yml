@@ -161,13 +161,6 @@ jobs:
             branch: 'release/${{ steps.generate_semantic_version.outputs.semantic_version }}'
             sha: '${{ github.sha }}'
 
-      - name: 'Create tag'
-        uses: mathieudutour/github-tag-action@v6.1
-        with:
-          github_token: ${{ github.token }}
-          commit_sha: '${{ github.sha }}'
-          custom_tag: '${{ steps.generate_semantic_version.outputs.semantic_version }}'
-
       - name: 'Create release'
         uses: ncipollo/release-action@v1.13.0
         with:
