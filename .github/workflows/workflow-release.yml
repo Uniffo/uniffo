@@ -122,7 +122,8 @@ jobs:
               echo "Current version '${_MAJOR}.${_MINOR}.${_PATH}'"
           done <<< "$_COMMITS_TO_ANALYZE"
 
-          echo "semantic_version=${_MAJOR}.${_MINOR}.${_PATH}" >> $GITHUB_OUTPUT
+          # Set output
+          echo "semantic_version={_MAJOR}.${_MINOR}.${_PATH}" >> "$GITHUB_OUTPUT"
 
       - name: 'debug sv'
         run: |
