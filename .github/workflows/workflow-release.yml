@@ -123,3 +123,7 @@ jobs:
           done <<< "$_COMMITS_TO_ANALYZE"
 
           echo "semantic_version=${_MAJOR}.${_MINOR}.${_PATH}" >> $GITHUB_OUTPUT
+
+      - name: 'debug sv'
+        run: |
+          echo "semantic version: '${{ steps.generate_semantic_version.output.semantic_version }}'"
