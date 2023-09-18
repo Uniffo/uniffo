@@ -1,0 +1,118 @@
+name: 'create-release'
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  create-release:
+    runs-on: 'ubuntu-22.04'
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@v4
+
+      - name: 'Generate semantic version'
+        run: |
+          _RELEASE_BRANCHES="$( git branch --list --sort=-creatordate 'release/*' )"
+
+          echo "Var: _RELEASE_BRANCHES = '${_RELEASE_BRANCHES}'"
+
+          _LATEST_RELEASE="$( echo "${_RELEASE_BRANCHES}" | head -n 1 | tr -d ' ' )"
+
+          echo "Var: _LATEST_RELEASE = '${_LATEST_RELEASE}'"
+
+          _START_COMMIT_SHA=""
+
+          # No releases
+          if [[ "${_LATEST_RELEASE}" == "" ]]; then
+              # Get first commit sha
+              _START_COMMIT_SHA="$( git log --oneline --format="%H" main | tail -n 1 )"
+
+              echo "Var: _START_COMMIT_SHA = '${_START_COMMIT_SHA}'"
+
+          # Release
+          else
+              # Get release commit sha
+              _START_COMMIT_SHA="$( git merge-base "${_LATEST_RELEASE}" main )"
+
+              echo "Var: _START_COMMIT_SHA = '${_START_COMMIT_SHA}'"
+
+          fi
+
+          _STOP_COMMIT_SHA="$( git log --oneline --format="%H" main | head -n 1 )"
+
+          echo "Var: _STOP_COMMIT_SHA = '${_STOP_COMMIT_SHA}'"
+
+          _COMMITS_TO_ANALYZE="$( git log --oneline --reverse --format="%H" "${_START_COMMIT_SHA}".."${_STOP_COMMIT_SHA}" )"
+
+          _MAJOR="0"
+          _MAJOR_UPDATED="0"
+          _MINOR="0"
+          _MINOR_UPDATED="0"
+          _PATH="0"
+          _PATH_UPDATED="0"
+
+          # Get latest version
+          if [[ "${_LATEST_RELEASE}" != "" ]]; then
+              _VERSION="${_LATEST_RELEASE//release\//}"
+
+              echo "Var: _VERSION = '${_VERSION}'"
+
+              IFS='.' read -ra EXPLODED_VERSION <<< "$_VERSION"
+
+              _ALIAS="MAJOR"
+
+              for _NUMBER in "${EXPLODED_VERSION[@]}"; do
+                  echo "Var: _NUMBER = '${_NUMBER}'"
+
+                  if [[ "${_ALIAS}" == "MAJOR" ]]; then
+                      _ALIAS="MINOR"
+                      _MAJOR="${_NUMBER}"
+                  elif [[ "${_ALIAS}" == "MINOR" ]]; then
+                      _ALIAS="PATH"
+                      _MINOR="${_NUMBER}"
+                  elif [[ "${_ALIAS}" == "PATH" ]]; then
+                      _ALIAS=""
+                      _PATH="${_NUMBER}"
+                  fi
+
+              done
+          fi
+
+          echo "Var: _MAJOR = '${_MAJOR}'"
+          echo "Var: _MINOR = '${_MINOR}'"
+          echo "Var: _PATH = '${_PATH}'"
+
+          # Pump version
+          while IFS= read -r _COMMIT; do
+              echo "Var: _COMMIT = '${_COMMIT}'"
+
+              _COMMIT_MSG="$( git log --oneline --format="%s" -n 1 "${_COMMIT}" | tr '[:upper:]' '[:lower:]' )"
+
+              echo "Var: _COMMIT_MSG = '${_COMMIT_MSG}'"
+              
+              if [[ "${_COMMIT_MSG}" == "breaking_change:"* && "${_MAJOR_UPDATED}" == "0" ]]; then
+                  echo "Pump major number"
+
+                  _MAJOR="$(( "${_MAJOR}" + "1" ))"
+                  _MAJOR_UPDATED="1"
+                  _MINOR_UPDATED="0"
+                  _PATH_UPDATED="0"
+                  _MINOR="0"
+                  _PATH="0"
+              elif [[ "${_COMMIT_MSG}" == "feat:"* || "${_COMMIT_MSG}" == "feature:"* ]] && [[ "${_MINOR_UPDATED}" == "0" ]]; then
+                  echo "Pump minor number"
+
+                  _MINOR="$(( "${_MINOR}" + "1" ))"
+                  _MINOR_UPDATED="1"
+                  _PATH_UPDATED="0"
+                  _PATH="0"
+              elif [[ "${_PATH_UPDATED}" == "0" ]]; then
+                  echo "Pump path number"
+
+                  _PATH="$(( "${_PATH}" + "1" ))"
+                  _PATH_UPDATED="1"
+              fi
+
+              echo "Current version '${_MAJOR}.${_MINOR}.${_PATH}'"
+          done <<< "$_COMMITS_TO_ANALYZE"
