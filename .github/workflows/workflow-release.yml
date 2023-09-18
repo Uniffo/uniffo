@@ -14,6 +14,7 @@ jobs:
           fetch-depth: '0'
 
       - name: 'Generate semantic version'
+        id: 'generate_semantic_version'
         run: |
           _RELEASE_BRANCHES="$( git branch --list --sort=-creatordate 'release/*' )"
 
@@ -120,3 +121,5 @@ jobs:
 
               echo "Current version '${_MAJOR}.${_MINOR}.${_PATH}'"
           done <<< "$_COMMITS_TO_ANALYZE"
+
+          echo "semantic_version=${_MAJOR}.${_MINOR}.${_PATH}" >> $GITHUB_OUTPUT
