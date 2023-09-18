@@ -26,6 +26,21 @@ jobs:
       - name: 'Compile'
         run: 'deno task compile'
 
+      - uses: vimtor/action-zip@v1
+        with:
+          files: dist/linux_x64/uniffo
+          dest: linux_x64.zip
+
+      - uses: vimtor/action-zip@v1
+        with:
+          files: dist/macos_arm/uniffo
+          dest: macos_arm.zip
+
+      - uses: vimtor/action-zip@v1
+        with:
+          files: dist/macos_x64/uniffo
+          dest: macos_x64.zip
+
       - name: 'Generate semantic version'
         id: 'generate_semantic_version'
         run: |
@@ -157,7 +172,7 @@ jobs:
         uses: ncipollo/release-action@v1.13.0
         with:
           tag: '${{ steps.generate_semantic_version.outputs.semantic_version }}'
-          artifacts: './dist/*'
+          artifacts: './linux_x64.zip,./macos_arm.zip,./macos_x64'
 
       - name: 'debug sv'
         run: |
