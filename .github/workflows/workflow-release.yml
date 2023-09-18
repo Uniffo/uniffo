@@ -153,6 +153,12 @@ jobs:
           commit_sha: '${{ github.sha }}'
           custom_tag: '${{ steps.generate_semantic_version.outputs.semantic_version }}'
 
+      - name: 'Create release'
+        uses: ncipollo/release-action@v1.13.0
+        with:
+          tag: '${{ steps.generate_semantic_version.outputs.semantic_version }}'
+          artifacts: './dist/*'
+
       - name: 'debug sv'
         run: |
           echo "semantic version: '${{ steps.generate_semantic_version.outputs.semantic_version }}'"
