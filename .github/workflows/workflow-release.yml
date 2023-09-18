@@ -125,6 +125,14 @@ jobs:
           # Set output
           echo "semantic_version=${_MAJOR}.${_MINOR}.${_PATH}" >> "$GITHUB_OUTPUT"
 
+      - name: "Create branch"
+        uses: peterjgrainger/action-create-branch@v2.2.0
+        env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+            branch: 'release/${{ steps.generate_semantic_version.outputs.semantic_version }}'
+            sha: '${{ github.sha }}'
+
       - name: 'debug sv'
         run: |
           echo "semantic version: '${{ steps.generate_semantic_version.outputs.semantic_version }}'"
