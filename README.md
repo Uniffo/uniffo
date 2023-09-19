@@ -12,9 +12,13 @@ _(TO DO: Add installation instructions for the project)_
 
 _(TO DO: Add usage instructions for the project)_
 
-## System Requirements
+## Requirements
 
-_(TO DO: Add minimum system requirements for the project)_
+- OS:
+  - Linux x64
+  - macOS x64
+  - macOS arm
+- Installed [Docker](https://docs.docker.com/get-docker/)
 
 ## License
 
