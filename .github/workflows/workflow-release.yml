@@ -133,7 +133,7 @@ jobs:
           echo "Var: _MINOR = '${_MINOR}'"
           echo "Var: _PATH = '${_PATH}'"
 
-          # Pump version
+          # Loop over commits
           while IFS= read -r _COMMIT; do
             echo "Var: _COMMIT = '${_COMMIT}'"
 
@@ -143,15 +143,58 @@ jobs:
             
             # Collecting messages
             if [[ "${_COMMIT_MSG}" == "breaking_change:"* ]]; then
-              _MSG_BREAKING_CHANGES+=("${_COMMIT_MSG//breaking_change:/}")
+              _MSG="${_COMMIT_MSG//breaking_change:/}"
+
+              _MSG_EXIST="0"
+
+              # Check that msg already exist
+              for item in "${_MSG_BREAKING_CHANGES[@]}"; do
+                if [ "${item}" == "${_MSG}" ]; then
+                  _MSG_EXIST="1"
+                  break
+                fi
+              done
+
+              if [[ "_MSG_EXIST" == "0" ]]; then
+                _MSG_BREAKING_CHANGES+=("${_MSG}")
+              fi
+
             elif [[ "${_COMMIT_MSG}" == "feat:"* || "${_COMMIT_MSG}" == "feature:"* ]]; then
               _MSG="${_COMMIT_MSG//feat:/}"
               _MSG="${_MSG//feature:/}"
-              _MSG_FEATURES+=("${_MSG}")
+
+              _MSG_EXIST="0"
+
+              # Check that msg already exist
+              for item in "${_MSG_FEATURES[@]}"; do
+                if [ "${item}" == "${_MSG}" ]; then
+                  _MSG_EXIST="1"
+                  break
+                fi
+              done
+
+              if [[ "_MSG_EXIST" == "0" ]]; then
+                _MSG_FEATURES+=("${_MSG}")
+              fi
+
             elif [[ "${_COMMIT_MSG}" == "fix:"* || "${_COMMIT_MSG}" == "bugfix:"* ]]; then
               _MSG="${_COMMIT_MSG//fix:/}"
               _MSG="${_MSG//bugfix:/}"
-              _MSG_FIXES+=("${_MSG}")
+
+              _MSG_EXIST="0"
+
+              # Check that msg already exist
+              for item in "${_MSG_FIXES[@]}"; do
+                if [ "${item}" == "${_MSG}" ]; then
+                  _MSG_EXIST="1"
+                  break
+                fi
+              done
+
+              if [[ "_MSG_EXIST" == "0" ]]; then
+                _MSG_FIXES+=("${_MSG}")
+              fi
+
             fi
 
             # Pumping version
@@ -189,7 +232,7 @@ jobs:
 
           # Breaking changes
           if [[ "${#_MSG_BREAKING_CHANGES[@]}" != "0" ]]; then
-            echo -e "### :boom: Breaking changes:${_BR}" >> "${_RELEASE_NOTE_FILE}"
+            echo -e "## :boom: Breaking changes:${_BR}" >> "${_RELEASE_NOTE_FILE}"
           fi
 
           for _NOTES_ELEMENT in "${_MSG_BREAKING_CHANGES[@]}"; do
@@ -198,7 +241,7 @@ jobs:
 
           # Features
           if [[ "${#_MSG_FEATURES[@]}" != "0" ]]; then
-            echo -e "### :sparkles: Features:${_BR}" >> "${_RELEASE_NOTE_FILE}"
+            echo -e "## :sparkles: Features:${_BR}" >> "${_RELEASE_NOTE_FILE}"
           fi
 
           for _NOTES_ELEMENT in "${_MSG_FEATURES[@]}"; do
@@ -207,7 +250,7 @@ jobs:
 
           # Fixes
           if [[ "${#_MSG_FIXES[@]}" != "0" ]]; then
-            echo -e "### :bug: Fixes:${_BR}" >> "${_RELEASE_NOTE_FILE}"
+            echo -e "## :hammer: Fixes:${_BR}" >> "${_RELEASE_NOTE_FILE}"
           fi
 
           for _NOTES_ELEMENT in "${_MSG_FIXES[@]}"; do
