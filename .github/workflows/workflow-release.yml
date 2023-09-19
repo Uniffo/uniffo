@@ -146,11 +146,11 @@ jobs:
               _MSG_BREAKING_CHANGES+=("${_COMMIT_MSG//breaking_change:/}")
             elif [[ "${_COMMIT_MSG}" == "feat:"* || "${_COMMIT_MSG}" == "feature:"* ]]; then
               _MSG="${_COMMIT_MSG//feat:/}"
-              _MSG="${_COMMIT_MSG//feature:/}"
+              _MSG="${_MSG//feature:/}"
               _MSG_FEATURES+=("${_MSG}")
             elif [[ "${_COMMIT_MSG}" == "fix:"* || "${_COMMIT_MSG}" == "bugfix:"* ]]; then
               _MSG="${_COMMIT_MSG//fix:/}"
-              _MSG="${_COMMIT_MSG//bugfix:/}"
+              _MSG="${_MSG//bugfix:/}"
               _MSG_FIXES+=("${_MSG}")
             fi
 
