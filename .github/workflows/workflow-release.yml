@@ -45,7 +45,7 @@ jobs:
       - name: Get latest release version
         id: get_latest_release_version
         run: |
-          _RELEASE_BRANCHES="$( git branch --list --sort=-creatordate 'release/*' )"
+          _RELEASE_BRANCHES="$( git branch -a --list --sort=-creatordate '*/release/*' | sed 's/remotes\/origin\///' )"
 
           echo "Var: _RELEASE_BRANCHES = '${_RELEASE_BRANCHES}'"
 
