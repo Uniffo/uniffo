@@ -182,34 +182,35 @@ jobs:
           done <<< "$_COMMITS_TO_ANALYZE"
 
           # Generate release note
+          _BR="$( echo -e "\n" )"
 
-          _RELEASE_NOTE="# Release note$'\n'"
+          _RELEASE_NOTE="# Release note${_BR}"
 
           # Breaking changes
           if [[ "${#_MSG_BREAKING_CHANGES[@]}" != "0" ]]; then
-            _RELEASE_NOTE+="### :boom: Breaking changes:$'\n'"
+            _RELEASE_NOTE+="### :boom: Breaking changes:${_BR}"
           fi
 
           for _NOTES_ELEMENT in "${_MSG_BREAKING_CHANGES[@]}"; do
-            _RELEASE_NOTE+="  - ${_NOTES_ELEMENT}$'\n'"
+            _RELEASE_NOTE+="  - ${_NOTES_ELEMENT}${_BR}"
           done
 
           # Features
           if [[ "${#_MSG_FEATURES[@]}" != "0" ]]; then
-            _RELEASE_NOTE+="### :sparkles: Features:$'\n'"
+            _RELEASE_NOTE+="### :sparkles: Features:${_BR}"
           fi
 
           for _NOTES_ELEMENT in "${_MSG_FEATURES[@]}"; do
-            _RELEASE_NOTE+="  - ${_NOTES_ELEMENT}$'\n'"
+            _RELEASE_NOTE+="  - ${_NOTES_ELEMENT}${_BR}"
           done
 
           # Fixes
           if [[ "${#_MSG_FIXES[@]}" != "0" ]]; then
-            _RELEASE_NOTE+="### :bug: Fixes:$'\n'"
+            _RELEASE_NOTE+="### :bug: Fixes:${_BR}"
           fi
 
           for _NOTES_ELEMENT in "${_MSG_FIXES[@]}"; do
-            _RELEASE_NOTE+="  - ${_NOTES_ELEMENT}$'\n'"
+            _RELEASE_NOTE+="  - ${_NOTES_ELEMENT}${_BR}"
           done
 
           echo "Var: _RELEASE_NOTE = '${_RELEASE_NOTE}'"
