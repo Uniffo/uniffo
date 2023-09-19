@@ -182,42 +182,45 @@ jobs:
           done <<< "$_COMMITS_TO_ANALYZE"
 
           # Generate release note
+          _RELEASE_NOTE_FILE="RELEASE_NOTE.md"
           _BR="$( echo -e "\n" )"
 
-          _RELEASE_NOTE="# Release note${_BR}"
+          echo -e "# Release note${_BR}" >> "${_RELEASE_NOTE_FILE}"
 
           # Breaking changes
           if [[ "${#_MSG_BREAKING_CHANGES[@]}" != "0" ]]; then
-            _RELEASE_NOTE+="### :boom: Breaking changes:${_BR}"
+            echo -e "### :boom: Breaking changes:${_BR}" >> "${_RELEASE_NOTE_FILE}"
           fi
 
           for _NOTES_ELEMENT in "${_MSG_BREAKING_CHANGES[@]}"; do
-            _RELEASE_NOTE+="  - ${_NOTES_ELEMENT}${_BR}"
+            echo -e "  - ${_NOTES_ELEMENT}${_BR}" >> "${_RELEASE_NOTE_FILE}"
           done
 
           # Features
           if [[ "${#_MSG_FEATURES[@]}" != "0" ]]; then
-            _RELEASE_NOTE+="### :sparkles: Features:${_BR}"
+            echo -e "### :sparkles: Features:${_BR}" >> "${_RELEASE_NOTE_FILE}"
           fi
 
           for _NOTES_ELEMENT in "${_MSG_FEATURES[@]}"; do
-            _RELEASE_NOTE+="  - ${_NOTES_ELEMENT}${_BR}"
+            echo -e "  - ${_NOTES_ELEMENT}${_BR}" >> "${_RELEASE_NOTE_FILE}"
           done
 
           # Fixes
           if [[ "${#_MSG_FIXES[@]}" != "0" ]]; then
-            _RELEASE_NOTE+="### :bug: Fixes:${_BR}"
+            echo -e "### :bug: Fixes:${_BR}" >> "${_RELEASE_NOTE_FILE}"
           fi
 
           for _NOTES_ELEMENT in "${_MSG_FIXES[@]}"; do
-            _RELEASE_NOTE+="  - ${_NOTES_ELEMENT}${_BR}"
+            echo -e "  - ${_NOTES_ELEMENT}${_BR}" >> "${_RELEASE_NOTE_FILE}"
           done
 
-          echo -e "Var: _RELEASE_NOTE = '${_RELEASE_NOTE}'"
+          echo -e "Var: _RELEASE_NOTE_FILE = '${_RELEASE_NOTE_FILE}'"
+
+          cat "${_RELEASE_NOTE_FILE}";
 
           # Set output
           echo "semantic_version=${_MAJOR}.${_MINOR}.${_PATH}" >> "$GITHUB_OUTPUT"
-          echo -e "release_note=${_RELEASE_NOTE}" >> "$GITHUB_OUTPUT"
+          echo -e "release_note_file=${_RELEASE_NOTE_FILE}" >> "$GITHUB_OUTPUT"
 
       - name: Create branch
         uses: peterjgrainger/action-create-branch@v2.2.0
@@ -232,5 +235,5 @@ jobs:
         with:
           commit: "${{ github.sha }}"
           tag: "${{ steps.generate_semantic_version.outputs.semantic_version }}"
-          body: "${{ steps.generate_semantic_version.outputs.release_note }}"
+          bodyFile: "${{ steps.generate_semantic_version.outputs.release_note_file }}"
           artifacts: "linux_x64.zip,macos_arm.zip,macos_x64.zip"
