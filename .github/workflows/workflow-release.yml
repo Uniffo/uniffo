@@ -183,33 +183,33 @@ jobs:
 
           # Generate release note
 
-          _RELEASE_NOTE="# Release note\n"
+          _RELEASE_NOTE="# Release note$'\n'"
 
           # Breaking changes
           if [[ "${#_MSG_BREAKING_CHANGES[@]}" != "0" ]]; then
-            _RELEASE_NOTE+="### :boom: Breaking changes:\n"
+            _RELEASE_NOTE+="### :boom: Breaking changes:$'\n'"
           fi
 
           for _NOTES_ELEMENT in "${_MSG_BREAKING_CHANGES[@]}"; do
-            _RELEASE_NOTE+="  - ${_NOTES_ELEMENT}\n"
+            _RELEASE_NOTE+="  - ${_NOTES_ELEMENT}$'\n'"
           done
 
           # Features
           if [[ "${#_MSG_FEATURES[@]}" != "0" ]]; then
-            _RELEASE_NOTE+="### :sparkles: Features:\n"
+            _RELEASE_NOTE+="### :sparkles: Features:$'\n'"
           fi
 
           for _NOTES_ELEMENT in "${_MSG_FEATURES[@]}"; do
-            _RELEASE_NOTE+="  - ${_NOTES_ELEMENT}\n"
+            _RELEASE_NOTE+="  - ${_NOTES_ELEMENT}$'\n'"
           done
 
           # Fixes
           if [[ "${#_MSG_FIXES[@]}" != "0" ]]; then
-            _RELEASE_NOTE+="### :bug: Fixes:\n"
+            _RELEASE_NOTE+="### :bug: Fixes:$'\n'"
           fi
 
           for _NOTES_ELEMENT in "${_MSG_FIXES[@]}"; do
-            _RELEASE_NOTE+="  - ${_NOTES_ELEMENT}\n"
+            _RELEASE_NOTE+="  - ${_NOTES_ELEMENT}$'\n'"
           done
 
           echo "Var: _RELEASE_NOTE = '${_RELEASE_NOTE}'"
