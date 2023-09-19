@@ -151,7 +151,6 @@ jobs:
               for item in "${_MSG_BREAKING_CHANGES[@]}"; do
                 if [ "${item}" == "${_MSG}" ]; then
                   _MSG_EXIST="1"
-                  break
                 fi
               done
 
@@ -169,7 +168,6 @@ jobs:
               for item in "${_MSG_FEATURES[@]}"; do
                 if [ "${item}" == "${_MSG}" ]; then
                   _MSG_EXIST="1"
-                  break
                 fi
               done
 
@@ -187,7 +185,6 @@ jobs:
               for item in "${_MSG_FIXES[@]}"; do
                 if [ "${item}" == "${_MSG}" ]; then
                   _MSG_EXIST="1"
-                  break
                 fi
               done
 
