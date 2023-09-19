@@ -151,10 +151,11 @@ jobs:
               for item in "${_MSG_BREAKING_CHANGES[@]}"; do
                 if [ "${item}" == "${_MSG}" ]; then
                   _MSG_EXIST="1"
+                  break
                 fi
               done
 
-              if [[ "_MSG_EXIST" == "0" ]]; then
+              if [[ "${_MSG_EXIST}" == "0" ]]; then
                 _MSG_BREAKING_CHANGES+=("${_MSG}")
               fi
 
@@ -168,10 +169,11 @@ jobs:
               for item in "${_MSG_FEATURES[@]}"; do
                 if [ "${item}" == "${_MSG}" ]; then
                   _MSG_EXIST="1"
+                  break
                 fi
               done
 
-              if [[ "_MSG_EXIST" == "0" ]]; then
+              if [[ "${_MSG_EXIST}" == "0" ]]; then
                 _MSG_FEATURES+=("${_MSG}")
               fi
 
@@ -185,10 +187,11 @@ jobs:
               for item in "${_MSG_FIXES[@]}"; do
                 if [ "${item}" == "${_MSG}" ]; then
                   _MSG_EXIST="1"
+                  break
                 fi
               done
 
-              if [[ "_MSG_EXIST" == "0" ]]; then
+              if [[ "${_MSG_EXIST}" == "0" ]]; then
                 _MSG_FIXES+=("${_MSG}")
               fi
 
