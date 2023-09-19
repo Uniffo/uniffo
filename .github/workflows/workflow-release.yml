@@ -213,11 +213,11 @@ jobs:
             _RELEASE_NOTE+="  - ${_NOTES_ELEMENT}${_BR}"
           done
 
-          echo "Var: _RELEASE_NOTE = '${_RELEASE_NOTE}'"
+          echo -e "Var: _RELEASE_NOTE = '${_RELEASE_NOTE}'"
 
           # Set output
           echo "semantic_version=${_MAJOR}.${_MINOR}.${_PATH}" >> "$GITHUB_OUTPUT"
-          echo "release_note=${_RELEASE_NOTE}" >> "$GITHUB_OUTPUT"
+          echo -e "release_note=${_RELEASE_NOTE}" >> "$GITHUB_OUTPUT"
 
       - name: Create branch
         uses: peterjgrainger/action-create-branch@v2.2.0
