@@ -1,10 +1,10 @@
 import { assertEquals } from 'https://deno.land/std@0.201.0/assert/assert_equals.ts';
-import { Logger } from './logger.ts';
+import { classLogger } from './logger.ts';
 import { assertGreater } from 'https://deno.land/std@0.201.0/assert/assert_greater.ts';
-import { TLoggerLogLine } from './logger.d.ts';
 
-Deno.test('logger', function testLogger() {
-	const logsData: TLoggerLogLine[] = [{
+Deno.test('classLogger', function testClassLogger() {
+	const logger = new classLogger();
+	const logsData: ReturnType<typeof logger.getAllLogs> = [{
 		message: 'log',
 		logType: 'log',
 	}, {
@@ -21,10 +21,9 @@ Deno.test('logger', function testLogger() {
 		logType: 'success',
 	}];
 
-	const logger = new Logger();
-
 	logsData.forEach((log) => {
-		logger?.[log.logType](log.message);
+		// deno-lint-ignore no-explicit-any
+		(logger as any)[log.logType](log.message);
 	});
 
 	logger.omitStorage(true);
