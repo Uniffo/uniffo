@@ -3,8 +3,8 @@ import { classStore } from './store.ts';
 import { getError } from '../../utils/error/get_error.ts';
 
 Deno.test('classStore', function testClassStore() {
-	const store1 = new classStore();
-	const store2 = new classStore('customStore');
+	const store1 = new classStore('customStore1');
+	const store2 = new classStore('customStore2');
 
 	const testStore = (store: classStore, name: string) => {
 		console.log(`Test for store: "${name}"`);

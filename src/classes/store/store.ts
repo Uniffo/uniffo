@@ -1,3 +1,4 @@
+import { logger } from '../../services/logger.ts';
 import { getRandomId } from '../../utils/random_id/get_random_id.ts';
 
 export class classStore {
@@ -161,6 +162,12 @@ export class classStore {
 
 		store.session[this.sessionId] = { ...store.session[this.sessionId], [key]: value };
 
+		logger.debug(
+			`Set session value "${key}":"${
+				typeof value === 'string' && !value.length ? value : JSON.stringify(value)
+			}"`,
+		);
+
 		this.updateStore(store);
 	}
 
@@ -169,33 +176,61 @@ export class classStore {
 
 		store.persistent = { ...store.persistent, [key]: value };
 
+		logger.debug(
+			`Set persistent value "${key}":"${
+				typeof value === 'string' && !value.length ? value : JSON.stringify(value)
+			}"`,
+		);
+
 		this.updateStore(store);
 	}
 
 	public getSessionValue<T>(key?: string) {
 		const store = this.getStore();
 
+		let output;
+
 		if (key) {
-			return store.session[this.sessionId]?.[key] as T;
+			output = store.session[this.sessionId]?.[key];
+		} else {
+			output = store.session[this.sessionId];
 		}
 
-		return store.session[this.sessionId] as T;
+		logger.debug(
+			`Get persistent value "${key}":"${
+				typeof output === 'string' && !output.length ? output : JSON.stringify(output)
+			}"`,
+		);
+
+		return output as T;
 	}
 
 	public getPersistentValue<T>(key?: string) {
 		const store = this.getStore();
 
+		let output;
+
 		if (key) {
-			return store.persistent?.[key] as T;
+			output = store.persistent?.[key];
+		} else {
+			output = store.persistent;
 		}
 
-		return store.persistent as T;
+		logger.debug(
+			`Get persistent value "${key}":"${
+				typeof output === 'string' && !output.length ? output : JSON.stringify(output)
+			}"`,
+		);
+
+		return output as T;
 	}
 
 	public removeSessionKey(key: string) {
 		const store = this.getStore();
 
 		delete store.session[this.sessionId]?.[key];
+
+		logger.debug(`Remove session key "${key}"`);
 
 		this.updateStore(store);
 	}
@@ -204,6 +239,8 @@ export class classStore {
 		const store = this.getStore();
 
 		delete store.persistent?.[key];
+
+		logger.debug(`Remove persistent key "${key}"`);
 
 		this.updateStore(store);
 	}
