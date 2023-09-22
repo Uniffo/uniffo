@@ -2,12 +2,12 @@
   "tasks": {
     "lint": "deno lint",
     "fmt": "deno fmt",
-    "test": "deno test --allow-read --allow-run --allow-write ./src/**/*.test.ts -- --debug",
+    "test": "deno test --allow-read --allow-run --allow-write --allow-env --allow-net ./src/**/*.test.ts -- --debug",
     "dev": "./denon dev",
     "compile": "deno task compile-linux-x64 && deno task compile-macos-x64 && deno task compile-macos-arm",
-    "compile-linux-x64": "deno compile --allow-read --allow-run --allow-write ./src/entry.ts --output dist/linux_x64/uniffo --target x86_64-unknown-linux-gnu",
-    "compile-macos-x64": "deno compile --allow-read --allow-run --allow-write ./src/entry.ts --output dist/macos_x64/uniffo --target x86_64-apple-darwin",
-    "compile-macos-arm": "deno compile --allow-read --allow-run --allow-write ./src/entry.ts --output dist/macos_arm/uniffo --target aarch64-apple-darwin"
+    "compile-linux-x64": "deno compile --allow-read --allow-run --allow-write --allow-env --allow-net ./src/entry.ts --output dist/linux_x64/uniffo --target x86_64-unknown-linux-gnu",
+    "compile-macos-x64": "deno compile --allow-read --allow-run --allow-write --allow-env --allow-net ./src/entry.ts --output dist/macos_x64/uniffo --target x86_64-apple-darwin",
+    "compile-macos-arm": "deno compile --allow-read --allow-run --allow-write --allow-env --allow-net ./src/entry.ts --output dist/macos_arm/uniffo --target aarch64-apple-darwin"
   },
   "lint": {
     "include": ["src/"],
