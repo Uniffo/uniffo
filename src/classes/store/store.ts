@@ -290,7 +290,7 @@ export class classStore {
 		}
 
 		logger.debug(
-			`Get persistent value "${key}":"${
+			`Get session value "${key}":"${
 				typeof output === 'string' && !output.length ? output : JSON.stringify(output)
 			}"`,
 		);
