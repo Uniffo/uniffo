@@ -1,0 +1,27 @@
+import { pathExist } from '../path/exist.ts';
+import { getRandomId } from '../random_id/get_random_id.ts';
+
+export const generateUniqueBasename = async (args: {
+	basePath: string;
+	extension?: string;
+}) => {
+	const { basePath, extension } = args;
+	let candidate = '';
+	const startDate = Date.now();
+	const timeoutDate = startDate + (1000 * 60 * 5);
+
+	while (!candidate) {
+		const basename = `${getRandomId(16)}${extension ? `.${extension}` : ''}`;
+		const path = `${basePath}/${basename}`;
+
+		if (!await pathExist(path)) {
+			candidate = basename;
+		}
+
+		if (Date.now() > timeoutDate) {
+			throw `Generate unique basename hit a timeout (5 mins)!`;
+		}
+	}
+
+	return candidate;
+};
