@@ -4,28 +4,23 @@ import { getRandomId } from '../../utils/random_id/get_random_id.ts';
 /* The `classStore` class is a TypeScript class that provides methods for managing a store with
 persistent and session data. */
 export class classStore {
-	private storeName;
+	private storeName = '';
 	private sessionId: ReturnType<typeof this.generateSessionId> = '';
 
 	/**
-	 * The constructor function initializes the store name, ensures the store exists, initializes the
-	 * session, and ensures the date of creation is set.
-	 * @param [name=uniffo] - The name parameter is a string that represents the name of the store. If no
-	 * name is provided, the default value is set to 'uniffo'.
+	 * The function initializes a session by generating a session ID, ensuring the existence of a store,
+	 * and updating the store with the session ID.
+	 * @param [name=uniffo] - The name parameter is a string that represents the name of the store. By
+	 * default, it is set to "uniffo".
+	 * @returns If the `sessionId` is already set, then nothing is returned. Otherwise, if the store
+	 * exists and is valid, the session with the generated `sessionId` is added to the store and the store
+	 * is updated.
 	 */
-	constructor(name = 'uniffo') {
+	public init(name = 'uniffo') {
 		this.storeName = name;
 
 		this.ensureStore();
-		this.initSession();
-		this.ensureDateOfCreation();
-	}
 
-	/**
-	 * The function initializes a session by generating a session ID and storing it in a session store.
-	 * @returns The `initSession()` function returns nothing (i.e., `undefined`).
-	 */
-	private initSession() {
 		if (this.sessionId) {
 			return;
 		}
@@ -38,6 +33,8 @@ export class classStore {
 			store.session[this.sessionId] = { _id: this.sessionId };
 			this.updateStore(store);
 		}
+
+		this.ensureDateOfCreation();
 	}
 
 	/**

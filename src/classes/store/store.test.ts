@@ -1,10 +1,14 @@
 import { assertEquals } from 'https://deno.land/std@0.201.0/assert/assert_equals.ts';
 import { classStore } from './store.ts';
 import { getError } from '../../utils/error/get_error.ts';
+import { store } from '../../services/store.ts';
 
 Deno.test('classStore', function testClassStore() {
-	const store1 = new classStore('customStore1');
-	const store2 = new classStore('customStore2');
+	const store1 = new classStore();
+	const store2 = new classStore();
+
+	store1.init('customStore1');
+	store2.init('customStore2');
 
 	const testStore = (store: classStore, name: string) => {
 		console.log(`Test for store: "${name}"`);
