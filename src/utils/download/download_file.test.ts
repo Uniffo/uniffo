@@ -34,12 +34,12 @@ Deno.test('downloadFile', async function testDownloadFile() {
 
 	assertEquals(await pathExist(filename), false, 'file not saved');
 
-	const fileContent = await downloadFile({
+	const details = await downloadFile({
 		url: testUrl,
 		destDir: testDest,
 		saveToFile: false,
-		returnFileContent: false,
+		returnFileContent: true,
 	});
 
-	assertEquals(fileContent != undefined, true, 'file content');
+	assertEquals(details.fileContent != undefined, true, 'file content');
 });

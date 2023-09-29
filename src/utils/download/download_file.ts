@@ -35,7 +35,7 @@ export const downloadFile = async (
 		total: 100,
 		interval: 15,
 		width: 10,
-		display: 'Downloading :percent :bar time: :time eta: :eta',
+		display: 'Downloading: :percent :bar t: :time eta: :eta',
 	});
 
 	progressBar.render(0);
@@ -56,12 +56,22 @@ export const downloadFile = async (
 
 	progressBar.end();
 
+	const details: {
+		basename: string;
+		filename?: string;
+		fileContent?: Uint8Array;
+	} = {
+		basename: filename,
+	};
+
 	if (saveToFile) {
 		if (!await pathExist(destDir)) {
 			await Deno.mkdir(destDir, { recursive: true });
 		}
 
 		const filepath = `${destDir}/${filename}`;
+
+		details.filename = filepath;
 
 		if (await pathExist(filepath)) {
 			await Deno.remove(filepath);
@@ -71,6 +81,8 @@ export const downloadFile = async (
 	}
 
 	if (returnFileContent) {
-		return fileContent;
+		details.fileContent = fileContent;
 	}
+
+	return details;
 };
