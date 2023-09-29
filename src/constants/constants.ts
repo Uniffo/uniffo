@@ -4,6 +4,6 @@ export const CLI_ARGS = parseCliArgs(Deno.args);
 export const UNIFFO_PROJECT_TOP_LEVEL_STRUCTURE = ['uniffo', 'data', 'source', '.uvm'];
 export const UNIFFO_DIR = {
 	main: `${Deno.env.get('HOME')}/.uniffo`,
-	tmp: `${Deno.env.get('HOME')}/tmp`,
+	tmp: `${Deno.env.get('HOME')}/.uniffo/tmp`,
 	versions: `${Deno.env.get('HOME')}/.uniffo/versions`,
 };
