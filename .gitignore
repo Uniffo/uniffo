@@ -6,3 +6,7 @@
 
 # temporary dir
 /tmp
+
+# pre-compiled
+/src/pre-compiled
+/VERSION
