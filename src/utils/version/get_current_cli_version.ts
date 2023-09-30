@@ -7,7 +7,7 @@ export const getCurrentCliVersion = async () => {
 	logger.debug(`Var cliVersionModuleFilename: "${cliVersionModuleFilename}"`);
 
 	if (await pathExist(cliVersionModuleFilename)) {
-		const module = await import('../../pre-compiled/__cli_version.ts');
+		const module = await import('../../pre_compiled/__cli_version.ts');
 		const version = module.default as string;
 		logger.debug(`Var version: "${version}"`);
 

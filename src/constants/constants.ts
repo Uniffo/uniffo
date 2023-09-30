@@ -2,7 +2,7 @@ import { parseCliArgs } from '../utils/cli_args/parser.ts';
 import { cwd } from '../utils/workdir/cwd.ts';
 
 export const CLI_ARGS = parseCliArgs(Deno.args);
-export const PRECOMPILED_DIR = `${cwd()}/src/pre-compiled`;
+export const PRECOMPILED_DIR = `${cwd()}/src/pre_compiled`;
 /* The `UNIFFO_CVFB` => Uniffo CLI Version File Basename */
 export const UNIFFO_CVFB = 'VERSION';
 /* The `UNIFFO_PVFB` => Uniffo Project Version File Basename */

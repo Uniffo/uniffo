@@ -12,7 +12,7 @@
     "match": ["./src/**"],
     "exts": ["ts"],
     "skip": [
-      "./src/pre-compiled/**", "./tmp/**", "./test_*/**"
+      "./src/pre_compiled/**", "./tmp/**", "./test_*/**"
     ]
   }
 }
