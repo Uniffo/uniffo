@@ -1,3 +1,14 @@
+/**
+ * The function `getOsAlias` returns an alias for the operating system and architecture combination, or
+ * "Os not recognized" if the combination is not recognized.
+ * @param [_os] - The `_os` parameter is an optional parameter that represents the operating system. It
+ * is of type `typeof Deno.build.os`, which means it can accept values that are compatible with the
+ * `os` property of the `Deno.build` object.
+ * @param [_arch] - The `_arch` parameter is the architecture of the operating system. It can have
+ * values like `x86_64` for 64-bit systems or `aarch64` for ARM-based systems.
+ * @returns The function `getOsAlias` returns a string representing the operating system and
+ * architecture alias. The possible return values are:
+ */
 export const getOsAlias = (
 	_os?: typeof Deno.build.os,
 	_arch?: typeof Deno.build.arch,
