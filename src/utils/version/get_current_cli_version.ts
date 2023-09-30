@@ -2,7 +2,7 @@ import { PRECOMPILED_DIR } from '../../constants/constants.ts';
 import { logger } from '../../services/logger.ts';
 import { pathExist } from '../path/exist.ts';
 
-export const getCliVersion = async () => {
+export const getCurrentCliVersion = async () => {
 	const cliVersionModuleFilename = `${PRECOMPILED_DIR}/__cli_version.ts`;
 	logger.debug(`Var cliVersionModuleFilename: "${cliVersionModuleFilename}"`);
 
