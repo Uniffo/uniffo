@@ -6,9 +6,13 @@ import { classGitHubApiClient } from '../github/gh_api_client.ts';
 import { downloadFile } from '../../utils/download/download_file.ts';
 import extract from 'npm:extract-zip';
 import { session } from '../../services/session.ts';
+import { getCurrentCliVersion } from '../../utils/version/get_current_cli_version.ts';
+import { getCliVersionRequiredByProject } from '../../utils/version/get_cli_version_required_by_project.ts';
 
 export class classUvm {
 	private gitHubApi;
+	private dispatch;
+	private dispatchTarget;
 
 	constructor() {
 		this.gitHubApi = new classGitHubApiClient({
@@ -16,6 +20,9 @@ export class classUvm {
 			repo: 'uniffo',
 			apiUrl: 'https://api.github.com',
 		});
+
+		this.dispatch = false;
+		this.dispatchTarget = '';
 	}
 
 	public async init() {
@@ -25,9 +32,60 @@ export class classUvm {
 			await Deno.mkdir(UNIFFO_DIR.main);
 		}
 
-		if (!await pathExist(`${UNIFFO_DIR.main}/uniffo`)) {
-			await this.useLatest();
+		const currentCliVersion = await getCurrentCliVersion();
+		logger.debug(`Var currentCliVersion: "${currentCliVersion}"`);
+
+		const cliVersionRequiredByProject = await getCliVersionRequiredByProject();
+		logger.debug(`Var cliVersionRequiredByProject: "${cliVersionRequiredByProject}"`);
+
+		if (!cliVersionRequiredByProject || currentCliVersion === cliVersionRequiredByProject) {
+			logger.debug(`No need to change uniffo version`);
+			return;
 		}
+
+		this.dispatch = true;
+		this.dispatchTarget = this.getUniffoDetails(cliVersionRequiredByProject).filename;
+
+		await this.ensureVersion(cliVersionRequiredByProject);
+	}
+
+	private getUniffoDetails(tagName: string) {
+		const dirname = `${UNIFFO_DIR.versions}/${tagName}`;
+		logger.debug(`Var dirname: "${dirname}"`);
+
+		const filename = `${dirname}/uniffo`;
+		logger.debug(`Var filename: "${filename}"`);
+
+		return {
+			dirname,
+			filename,
+		};
+	}
+
+	public shouldDispatchCmd() {
+		const shouldDispatch = this.dispatch;
+		logger.debug(`Var shouldDispatch: "${shouldDispatch}"`);
+
+		return shouldDispatch;
+	}
+
+	public getDispatchTarget() {
+		const dispatchTarget = this.dispatchTarget;
+		logger.debug(`Var shouldDispatch: "${dispatchTarget}"`);
+
+		return dispatchTarget;
+	}
+
+	public async ensureVersion(tagName: string) {
+		const filename = this.getUniffoDetails(tagName).filename;
+		logger.debug(`Var filename: "${filename}"`);
+
+		if (await pathExist(filename)) {
+			logger.debug(`Uniffo version "${tagName}" already exist "${filename}"`);
+			return;
+		}
+
+		this.downloadVersion(tagName);
 	}
 
 	public async useLatest() {
@@ -45,8 +103,6 @@ export class classUvm {
 		logger.info(`Use uniffo "${latest.tagName}" version`);
 
 		await this.downloadVersion(latest.tagName);
-
-		// TODO: activate version
 	}
 
 	public async getVersionsList() {
@@ -91,7 +147,7 @@ export class classUvm {
 		)?.browser_download_url;
 
 		if (!releaseUrlForCurrentOS) {
-			throw `No download url for uniffo "${tagName}" version!`;
+			throw `Not found download url for uniffo "${tagName}" version!`;
 		}
 
 		logger.debug(`Var releaseUrlForCurrentOS: "${JSON.stringify(releaseUrlForCurrentOS)}"`);
@@ -121,7 +177,7 @@ export class classUvm {
 			throw `Downloaded zip is missing!`;
 		}
 
-		const destDir = `${UNIFFO_DIR.versions}/${tagName}`;
+		const destDir = this.getUniffoDetails(tagName).dirname;
 		logger.debug(`Var destDir: "${destDir}"`);
 
 		if (!await pathExist(destDir)) {
