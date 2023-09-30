@@ -2,7 +2,8 @@
   "tasks": {
     "lint": "deno lint",
     "fmt": "deno fmt",
-    "test": "deno task pre-compile && deno test --allow-read --allow-run --allow-write --allow-env --allow-net ./src/**/*.test.ts -- --debug",
+    "test": "deno task pre-compile && deno test --allow-read --allow-run --allow-write --allow-env --allow-net --coverage=./test_coverage ./src/**/*.test.ts -- --debug",
+    "test-coverage": "deno coverage -q ./test_coverage",
     "dev": "./denon dev",
     "pre-compile": "deno run --allow-read --allow-write --allow-env ./src/pre-compile.ts -- --debug",
     "compile": "deno task pre-compile && deno task compile-linux-x64 && deno task compile-macos-x64 && deno task compile-macos-arm",
