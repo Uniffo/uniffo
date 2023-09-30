@@ -1,3 +1,10 @@
+/**
+ * The getRandomId function generates a random string of characters with a specified length.
+ * @param {number} idLength - The `idLength` parameter is the desired length of the random ID that will
+ * be generated.
+ * @returns The function `getRandomId` returns a randomly generated string of characters with a length
+ * specified by the `idLength` parameter.
+ */
 export const getRandomId = (idLength: number) => {
 	const availableChars = '1234567890qwertyuioplkjhgfdsazxcvbnm';
 	const getRandomNumber = (max: number, min: number) =>
