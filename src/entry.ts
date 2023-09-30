@@ -3,7 +3,7 @@ import { CLI_ARGS } from './constants/constants.ts';
 import { logger } from './services/logger.ts';
 import { session } from './services/session.ts';
 import { uvm } from './services/uvm.ts';
-import { pwd } from './utils/workdir/pwd.ts';
+import { pathExist } from './utils/path/exist.ts';
 
 await (async function cliEntry() {
 	logger.debug(`Var cliArgs: ${JSON.stringify(CLI_ARGS)}`);
@@ -13,11 +13,19 @@ await (async function cliEntry() {
 
 		await uvm.init();
 
-		const projectWorkingDir = await pwd();
-		const isProjectInitialized = !!projectWorkingDir;
+		if (uvm.shouldDispatchCmd()) {
+			logger.debug(`Will dispatch uniffo command.`);
 
-		if (isProjectInitialized) {
-			// TODO(#2): uvm
+			const dispatchTarget = uvm.getDispatchTarget();
+			logger.debug(`Var dispatchTarget: ${dispatchTarget}`);
+
+			if (!await pathExist(dispatchTarget)) {
+				throw `Uniffo dispatch target doesn't exist "${dispatchTarget}"!`;
+			}
+
+			const command = new Deno.Command(dispatchTarget, { args: Deno.args });
+
+			return command.spawn();
 		}
 
 		uniffo(CLI_ARGS);
