@@ -9,11 +9,18 @@ import { session } from '../../services/session.ts';
 import { getCurrentCliVersion } from '../../utils/version/get_current_cli_version.ts';
 import { getCliVersionRequiredByProject } from '../../utils/version/get_cli_version_required_by_project.ts';
 
+/* The `classUvm` class is a TypeScript class that represents the Unifo Version Manager, which is
+responsible for managing the versions of the "uniffo" software by downloading and extracting
+specific versions from GitHub releases. */
 export class classUvm {
 	private gitHubApi;
 	private dispatch;
 	private dispatchTarget;
 
+	/**
+	 * The constructor initializes a GitHub API client with specific owner, repo, and API URL, and sets
+	 * the dispatch and dispatchTarget properties to false and an empty string respectively.
+	 */
 	constructor() {
 		this.gitHubApi = new classGitHubApiClient({
 			owner: 'Uniffo',
@@ -25,6 +32,12 @@ export class classUvm {
 		this.dispatchTarget = '';
 	}
 
+	/**
+	 * The `init` function initializes the Unifo Version Manager by checking the current CLI version and
+	 * the required CLI version for the project, and then ensuring that the required version is installed
+	 * if it is different from the current version.
+	 * @returns The code is returning nothing.
+	 */
 	public async init() {
 		logger.debug('Initialize Unifo Version Manager');
 
@@ -49,6 +62,12 @@ export class classUvm {
 		await this.ensureVersion(cliVersionRequiredByProject);
 	}
 
+	/**
+	 * The function `getUniffoDetails` returns an object containing the directory name and filename based
+	 * on a given tag name.
+	 * @param {string} tagName - The `tagName` parameter is a string that represents the name of a tag.
+	 * @returns An object with the properties `dirname` and `filename`.
+	 */
 	private getUniffoDetails(tagName: string) {
 		const dirname = `${UNIFFO_DIR.versions}/${tagName}`;
 		logger.debug(`Var dirname: "${dirname}"`);
@@ -62,6 +81,11 @@ export class classUvm {
 		};
 	}
 
+	/**
+	 * The function shouldDispatchCmd returns the value of the dispatch variable and logs it to the debug
+	 * logger.
+	 * @returns The value of the variable `shouldDispatch`.
+	 */
 	public shouldDispatchCmd() {
 		const shouldDispatch = this.dispatch;
 		logger.debug(`Var shouldDispatch: "${shouldDispatch}"`);
@@ -69,6 +93,10 @@ export class classUvm {
 		return shouldDispatch;
 	}
 
+	/**
+	 * The function returns the dispatch target and logs the value of the variable "dispatchTarget".
+	 * @returns The method is returning the value of the variable `dispatchTarget`.
+	 */
 	public getDispatchTarget() {
 		const dispatchTarget = this.dispatchTarget;
 		logger.debug(`Var shouldDispatch: "${dispatchTarget}"`);
@@ -76,6 +104,13 @@ export class classUvm {
 		return dispatchTarget;
 	}
 
+	/**
+	 * The function `ensureVersion` checks if a specific version of a file exists and if not, it downloads
+	 * it.
+	 * @param {string} tagName - The `tagName` parameter is a string that represents the version tag name
+	 * of a particular software or package.
+	 * @returns nothing (undefined).
+	 */
 	public async ensureVersion(tagName: string) {
 		const filename = this.getUniffoDetails(tagName).filename;
 		logger.debug(`Var filename: "${filename}"`);
@@ -88,6 +123,9 @@ export class classUvm {
 		this.downloadVersion(tagName);
 	}
 
+	/**
+	 * The function "useLatest" logs the latest version of "uniffo" and downloads it if available.
+	 */
 	public async useLatest() {
 		logger.debug('Use latest uniffo version');
 
@@ -105,6 +143,12 @@ export class classUvm {
 		await this.downloadVersion(latest.tagName);
 	}
 
+	/**
+	 * The function `getVersionsList` fetches a list of releases from a GitHub API, transforms the data,
+	 * and sorts the releases by their published date in descending order.
+	 * @returns a list of versions with their corresponding tag names and published dates. The list is
+	 * sorted in descending order based on the published dates.
+	 */
 	public async getVersionsList() {
 		logger.debug('Fetch uniffo versions list');
 
@@ -129,6 +173,12 @@ export class classUvm {
 		});
 	}
 
+	/**
+	 * The `downloadVersion` function downloads a specific version of a software called "uniffo" from a
+	 * GitHub release, extracts it, and saves it to a destination directory.
+	 * @param {string} tagName - The `tagName` parameter is a string that represents the version of the
+	 * "uniffo" software that you want to download.
+	 */
 	public async downloadVersion(tagName: string) {
 		logger.debug(`Download uniffo "${tagName}" version`);
 
