@@ -1,3 +1,8 @@
+/**
+ * The function `getCallingFunctionName` retrieves the name of the calling function in TypeScript.
+ * @returns The function `getCallingFunctionName` returns the name of the calling function. If the
+ * calling function name cannot be determined, it returns the string "Unknown".
+ */
 export const getCallingFunctionName = () => {
 	const stack = new Error().stack;
 	const Unknown = 'Unknown';
