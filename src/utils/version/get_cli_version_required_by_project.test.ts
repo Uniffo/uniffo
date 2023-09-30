@@ -6,6 +6,7 @@ import { UNIFFO_PROJECT_TOP_LEVEL_STRUCTURE, UNIFFO_PVFB } from '../../constants
 import { logger } from '../../services/logger.ts';
 
 Deno.test('getCliVersionRequiredByProject', async function testGetCliVersionRequiredByProject() {
+	const baseCwd = cwd();
 	const testDirBasename = await generateUniqueBasename({
 		basePath: cwd(),
 		prefix: 'test_',
@@ -39,6 +40,8 @@ Deno.test('getCliVersionRequiredByProject', async function testGetCliVersionRequ
 	}
 
 	assertEquals(await getCliVersionRequiredByProject(), testVersion, 'project version');
+
+	Deno.chdir(baseCwd);
 
 	await Deno.remove(testDir, { recursive: true });
 });
