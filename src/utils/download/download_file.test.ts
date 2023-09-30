@@ -1,12 +1,17 @@
 import { assertEquals } from 'https://deno.land/std@0.201.0/assert/assert_equals.ts';
 import { pathExist } from '../path/exist.ts';
 import { downloadFile } from './download_file.ts';
+import { generateUniqueBasename } from '../file/generate_unique_basename.ts';
+import { cwd } from '../workdir/cwd.ts';
 
 Deno.test('downloadFile', async function testDownloadFile() {
 	const testUrl =
 		'https://user-images.githubusercontent.com/26837876/266847173-447a3630-af21-468f-bc98-b6201bf43f29.png';
 	const basename = '266847173-447a3630-af21-468f-bc98-b6201bf43f29.png';
-	const testDest = `${Deno.cwd()}/tmp`;
+	const testDest = await generateUniqueBasename({
+		basePath: cwd(),
+		prefix: 'test_',
+	});
 
 	if (!await pathExist(testDest)) {
 		await Deno.mkdir(testDest, { recursive: true });
@@ -42,4 +47,6 @@ Deno.test('downloadFile', async function testDownloadFile() {
 	});
 
 	assertEquals(details.fileContent != undefined, true, 'file content');
+
+	await Deno.remove(testDest, { recursive: true });
 });
