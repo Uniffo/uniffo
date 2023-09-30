@@ -3,19 +3,32 @@ import { logger } from '../../services/logger.ts';
 import { store } from '../../services/store.ts';
 import { generateUniqueBasename } from '../../utils/file/generate_unique_basename.ts';
 
+/* The `classSession` class provides methods for initializing and destroying a session, creating and
+removing temporary directories, and closing opened resources. */
 export class classSession {
+	/**
+	 * The `init` function initializes a store and creates a temporary directory.
+	 */
 	async init() {
 		await store.init('uniffo');
 		await this.mkTmpDir();
 	}
 
+	/**
+	 * The `destroy` function performs cleanup tasks such as removing temporary directories, destroying a
+	 * session, and closing opened resources.
+	 */
 	async destroy() {
 		await this.rmTmpDir();
 		await store.destroySession();
 		this.closeOpenedResources();
 	}
 
-	private mkTmpDir = async () => {
+	/**
+	 * The function `mkTmpDir` creates a temporary directory for the session if it doesn't already exist.
+	 * @returns nothing.
+	 */
+	private async mkTmpDir() {
 		const tmpDir = await this.getTmpDir();
 		logger.debug(`Var tmpDir: "${tmpDir}"`);
 
@@ -36,9 +49,15 @@ export class classSession {
 		await Deno.mkdir(sessionTmpDir, { recursive: true });
 
 		await store.setSessionValue('tmpDir', sessionTmpDir);
-	};
+	}
 
-	private rmTmpDir = async () => {
+	/**
+	 * The function `rmTmpDir` removes a temporary directory and logs the process.
+	 * @returns nothing (undefined) if the `tmpDir` variable is falsy (null, undefined, false, 0, empty
+	 * string, NaN). Otherwise, it is removing the session temporary directory using `Deno.remove()` and
+	 * returning a promise.
+	 */
+	private async rmTmpDir() {
 		const tmpDir = await this.getTmpDir();
 		logger.debug(`Var tmpDir: "${tmpDir}"`);
 
@@ -49,13 +68,22 @@ export class classSession {
 
 		logger.debug(`Removing session tmp dir "${tmpDir}"`);
 		await Deno.remove(tmpDir, { recursive: true });
-	};
+	}
 
-	public getTmpDir = async () => {
+	/**
+	 * The function `getTmpDir` retrieves the value of the 'tmpDir' session variable from the store.
+	 * @returns a promise that resolves to a string or undefined value.
+	 */
+	public async getTmpDir() {
 		return await store.getSessionValue<string | undefined>('tmpDir');
-	};
+	}
 
-	private closeOpenedResources = () => {
+	/**
+	 * The function `closeOpenedResources` closes all opened resources except for standard input, output,
+	 * and error.
+	 * @returns The function does not explicitly return anything.
+	 */
+	private closeOpenedResources() {
 		const resources = Deno.resources();
 		logger.debug(`Var resources: "${JSON.stringify(resources)}"`);
 
@@ -94,5 +122,5 @@ export class classSession {
 			logger.debug(`Closing resource named "${resourceName}" with rid "${rid}"`);
 			Deno.close(rid);
 		}
-	};
+	}
 }
