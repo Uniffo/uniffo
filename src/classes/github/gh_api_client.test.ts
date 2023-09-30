@@ -3,7 +3,7 @@ import { classGitHubApiClient } from './gh_api_client.ts';
 import { session } from '../../services/session.ts';
 
 Deno.test('classGitHubApiClient', async function testClassGitHubApiClient() {
-	session.init();
+	await session.init();
 
 	const ghApi = new classGitHubApiClient({
 		owner: 'Uniffo',
@@ -23,5 +23,5 @@ Deno.test('classGitHubApiClient', async function testClassGitHubApiClient() {
 		'ghApi.fetchReleaseByTagName(releaseTagName) return object',
 	);
 
-	session.destroy();
+	await session.destroy();
 });
