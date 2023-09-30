@@ -12,4 +12,5 @@ export const UNIFFO_DIR = {
 	main: `${Deno.env.get('HOME')}/.uniffo`,
 	tmp: `${Deno.env.get('HOME')}/.uniffo/tmp`,
 	versions: `${Deno.env.get('HOME')}/.uniffo/versions`,
+	localStorage: `${Deno.env.get('HOME')}/.uniffo/localStorage`,
 };

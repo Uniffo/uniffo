@@ -1,48 +1,56 @@
+import { UNIFFO_DIR } from '../../constants/constants.ts';
 import { logger } from '../../services/logger.ts';
 import { getRandomId } from '../../utils/random_id/get_random_id.ts';
+import { classDocumentStorage } from '../document_storage/document_storage.ts';
 
-/* The `classStore` class is a TypeScript class that provides methods for managing a store with
-persistent and session data. */
+/* The `classStore` class is a TypeScript class that provides methods for managing a store with session
+and persistent data in local storage. */
 export class classStore {
 	private storeName = '';
-	private sessionId: ReturnType<typeof this.generateSessionId> = '';
+	private sessionId = '';
+	private localStorage;
+	private localStorageDirname = `${UNIFFO_DIR.localStorage}`;
+
+	constructor() {
+		this.localStorage = new classDocumentStorage(this.localStorageDirname);
+	}
 
 	/**
-	 * The function initializes a session by generating a session ID, ensuring the existence of a store,
-	 * and updating the store with the session ID.
+	 * The `init` function initializes the session by setting up the local storage, generating a session
+	 * ID, and updating the store with the session ID.
 	 * @param [name=uniffo] - The name parameter is a string that represents the name of the store. By
-	 * default, it is set to "uniffo".
-	 * @returns If the `sessionId` is already set, then nothing is returned. Otherwise, if the store
-	 * exists and is valid, the session with the generated `sessionId` is added to the store and the store
-	 * is updated.
+	 * default, it is set to 'uniffo'.
+	 * @returns The code is returning the session ID.
 	 */
-	public init(name = 'uniffo') {
+	public async init(name = 'uniffo') {
+		await this.localStorage.init();
+
 		this.storeName = name;
 
-		this.ensureStore();
+		await this.ensureStore();
 
 		if (this.sessionId) {
 			return;
 		}
 
-		this.sessionId = this.generateSessionId();
+		this.sessionId = await this.generateSessionId();
 
-		const store = this.getStore();
+		const store = await this.getStore();
 
-		if (store && this.isValidStore()) {
+		if (store && await this.isValidStore()) {
 			store.session[this.sessionId] = { _id: this.sessionId };
-			this.updateStore(store);
+			await this.updateStore(store);
 		}
 
-		this.ensureDateOfCreation();
+		await this.ensureDateOfCreation();
 	}
 
 	/**
-	 * The function ensures that a date of creation is set in the store for both the persistent and
-	 * session data.
+	 * The function `ensureDateOfCreation` updates the store with the current date if the `_createdAt` key
+	 * does not exist in the persistent or session storage.
 	 */
-	private ensureDateOfCreation() {
-		const store = this.getStore();
+	private async ensureDateOfCreation() {
+		const store = await this.getStore();
 		const key = '_createdAt';
 		const date = Date.now();
 
@@ -54,21 +62,21 @@ export class classStore {
 			store.session[this.sessionId] = { ...store.session[this.sessionId], [key]: date };
 		}
 
-		this.updateStore(store);
+		await this.updateStore(store);
 	}
 
 	/**
 	 * The function generates a unique session ID of a specified length.
-	 * @param [idLength=32] - The `idLength` parameter is the length of the session id that will be
+	 * @param [idLength=32] - The idLength parameter is the length of the session id that will be
 	 * generated. It is an optional parameter with a default value of 32.
 	 * @returns the generated session id.
 	 */
-	private generateSessionId(idLength = 32) {
+	private async generateSessionId(idLength = 32) {
 		if (!idLength) {
 			throw 'Session id length can not be 0!';
 		}
 
-		const store = this.getStore();
+		const store = await this.getStore();
 		const sessions = Object.keys(store?.session || {});
 		let id = '';
 
@@ -99,86 +107,49 @@ export class classStore {
 	}
 
 	/**
-	 * The function sets the initial store by updating it with the initial store data.
+	 * The function "setInitialStore" asynchronously updates the store with the initial values.
 	 */
-	private setInitialStore() {
-		this.updateStore(this.getInitialStore());
+	private async setInitialStore() {
+		await this.updateStore(this.getInitialStore());
 	}
 
 	/**
-	 * The function encodes a value into a JSON string.
-	 * @param {T} value - The `value` parameter is the value that you want to encode into a JSON string.
-	 * It can be of any type.
-	 * @returns The JSON string representation of the value.
+	 * The function `getStore` retrieves the store from local storage and throws an error if the store is
+	 * not found or is invalid.
+	 * @returns the value of the `store` variable.
 	 */
-	private encode<T>(value: T) {
-		return JSON.stringify(value);
-	}
-
-	/**
-	 * The `decode` function takes a string value and returns the parsed JSON object or undefined if the
-	 * value is empty.
-	 * @param {string} value - The `value` parameter is a string that represents the data you want to
-	 * decode.
-	 * @returns a value of type `T` or `undefined`.
-	 */
-	private decode<T>(value: string): T | undefined {
-		if (!value) {
-			return undefined;
-		}
-
-		const parsedStore = JSON.parse(value);
-
-		return parsedStore;
-	}
-
-	/**
-	 * The function retrieves and decodes a store from local storage, throwing errors if the store is
-	 * missing, invalid, or undefined.
-	 * @returns the decoded store, which is of type `ReturnType<typeof this.getInitialStore>`.
-	 */
-	private getStore(): ReturnType<typeof this.getInitialStore> {
-		const store = localStorage.getItem(this.storeName);
+	private async getStore(): Promise<ReturnType<typeof this.getInitialStore>> {
+		const store = await this.localStorage.getItem(this.storeName);
 
 		if (!store) {
 			throw 'There is no store!';
 		}
 
-		if (!this.isValidStore()) {
+		if (!await this.isValidStore()) {
 			throw 'Store is invalid!';
 		}
 
-		const decoded = this.decode<ReturnType<typeof this.getInitialStore>>(store);
-
-		if (!decoded) {
-			throw 'Store is undefined!';
-		}
-
-		return decoded;
+		return store;
 	}
 
 	/**
-	 * The function updates the store by encoding it and storing it in the local storage.
-	 * @param {T} store - The `store` parameter is a generic type `T` which represents the data that needs
-	 * to be stored. It can be any type of data such as objects, arrays, or primitive values.
+	 * The function updates a store in local storage asynchronously.
+	 * @param {T} store - The `store` parameter is a generic type `T` representing the data that needs to
+	 * be stored in the local storage. It can be any type of data, such as an object, array, or primitive
+	 * value.
 	 */
-	private updateStore<T>(store: T) {
-		const encodedStore = this.encode(store);
-
-		localStorage.setItem(this.storeName, encodedStore);
+	private async updateStore<T>(store: T) {
+		await this.localStorage.setItem(this.storeName, store);
 	}
 
 	/**
-	 * The function checks if the store retrieved from local storage is valid by verifying that it has
-	 * both session and persistent properties.
-	 * @returns The function `isValidStore()` returns a boolean value. It returns `true` if the `store`
-	 * object is valid, meaning it exists and has both `session` and `persistent` properties. Otherwise,
-	 * it returns `false`.
+	 * The function checks if a store exists in local storage and has both session and persistent
+	 * properties.
+	 * @returns a boolean value. It returns true if the store exists and has both a session and persistent
+	 * property, otherwise it returns false.
 	 */
-	private isValidStore() {
-		const store = this.decode<ReturnType<typeof this.getInitialStore>>(
-			localStorage.getItem(this.storeName) || '',
-		);
+	private async isValidStore() {
+		const store = await this.localStorage.getItem(this.storeName);
 
 		if (!store || !store?.session || !store?.persistent) {
 			return false;
@@ -188,55 +159,63 @@ export class classStore {
 	}
 
 	/**
-	 * The function ensures that the store is valid and sets the initial store if it is not.
+	 * The function `ensureStore` checks if the store is valid and sets the initial store if it is not.
 	 */
-	private ensureStore() {
-		if (!this.isValidStore()) {
-			this.setInitialStore();
+	private async ensureStore() {
+		if (!await this.isValidStore()) {
+			await this.setInitialStore();
 		}
 	}
 
 	/**
-	 * The deleteSession function deletes a session from the store if it is valid and exists.
+	 * The function destroys a session by deleting it from the store and calling a method to destroy it in
+	 * local storage.
 	 */
-	public deleteSession() {
-		const store = this.getStore();
+	public async destroySession() {
+		const store = await this.getStore();
 
-		if (this.isValidStore() && store) {
+		if (await this.isValidStore() && store) {
 			delete store.session[this.sessionId];
-			this.updateStore(store);
+			await this.updateStore(store);
 		}
+
+		await this.localStorage.destroySession();
 	}
 
 	/**
-	 * The function clears the persistent data in the store and updates the store object.
+	 * The function clears the persistent data in the store and updates the store, while also ensuring the
+	 * date of creation.
 	 */
-	public clearPersistent() {
-		const store = this.getStore();
+	public async clearPersistent() {
+		const store = await this.getStore();
 
-		if (this.isValidStore() && store) {
+		if (await this.isValidStore() && store) {
 			store.persistent = {};
-			this.updateStore(store);
+			await this.updateStore(store);
 		}
 
-		this.ensureDateOfCreation();
+		await this.ensureDateOfCreation();
 	}
 
 	/**
-	 * The deleteAll function removes all items from the localStorage with the specified storeName.
+	 * The function deletes all items from the local storage.
 	 */
-	public deleteAll() {
-		localStorage.removeItem(this.storeName);
+	public async deleteAll() {
+		await this.localStorage.removeItem(this.storeName);
 	}
 
 	/**
-	 * The function sets a value in the session storage and updates the store.
-	 * @param {string} key - A string representing the key of the session value to be set.
+	 * The function `setSessionValue` sets a value in the session storage and updates the store.
+	 * @param {string} key - The key parameter is a string that represents the name of the session value
+	 * you want to set. It is used as the property name in the session object.
 	 * @param {undefined | string | number | object | boolean} value - The `value` parameter can be of
 	 * type `undefined`, `string`, `number`, `object`, or `boolean`.
 	 */
-	public setSessionValue(key: string, value: undefined | string | number | object | boolean) {
-		const store = this.getStore();
+	public async setSessionValue(
+		key: string,
+		value: undefined | string | number | object | boolean,
+	) {
+		const store = await this.getStore();
 
 		store.session[this.sessionId] = { ...store.session[this.sessionId], [key]: value };
 
@@ -246,17 +225,21 @@ export class classStore {
 			}"`,
 		);
 
-		this.updateStore(store);
+		await this.updateStore(store);
 	}
 
 	/**
-	 * The function sets a persistent value in a store and updates the store.
-	 * @param {string} key - A string representing the key for the persistent value.
+	 * The function `setPersistentValue` sets a persistent value in a store and updates the store.
+	 * @param {string} key - A string representing the key for the persistent value. This key is used to
+	 * identify the value in the store.
 	 * @param {undefined | string | number | object | boolean} value - The `value` parameter can be of
 	 * type `undefined`, `string`, `number`, `object`, or `boolean`.
 	 */
-	public setPersistentValue(key: string, value: undefined | string | number | object | boolean) {
-		const store = this.getStore();
+	public async setPersistentValue(
+		key: string,
+		value: undefined | string | number | object | boolean,
+	) {
+		const store = await this.getStore();
 
 		store.persistent = { ...store.persistent, [key]: value };
 
@@ -266,20 +249,22 @@ export class classStore {
 			}"`,
 		);
 
-		this.updateStore(store);
+		await this.updateStore(store);
 	}
 
 	/**
-	 * The function `getSessionValue` retrieves a value from the session storage based on a given key, or
-	 * returns the entire session object if no key is provided.
+	 * The function `getSessionValue` retrieves a value from the session store based on a given key, or
+	 * returns the entire session if no key is provided.
 	 * @param {string} [key] - The `key` parameter is an optional string that represents the specific key
-	 * of the value you want to retrieve from the session. If provided, it will return the value
-	 * associated with that key. If not provided, it will return the entire session object.
-	 * @returns The method is returning the value stored in the session with the specified key, or the
-	 * entire session object if no key is provided. The returned value is casted to the generic type `T`.
+	 * of the session value you want to retrieve. If provided, the function will return the value
+	 * associated with that key in the session. If not provided, the function will return the entire
+	 * session object.
+	 * @returns the value of the session key specified by the `key` parameter, or the entire session
+	 * object if `key` is not provided. The return type is specified as `T`, which means it can be any
+	 * type.
 	 */
-	public getSessionValue<T>(key?: string) {
-		const store = this.getStore();
+	public async getSessionValue<T>(key?: string) {
+		const store = await this.getStore();
 
 		let output;
 
@@ -299,17 +284,15 @@ export class classStore {
 	}
 
 	/**
-	 * The function `getPersistentValue` retrieves a persistent value from a store, either by a specific
-	 * key or all values.
+	 * The function `getPersistentValue` retrieves a persistent value from a store and logs the value.
 	 * @param {string} [key] - The `key` parameter is an optional string that represents the key of the
-	 * persistent value to retrieve from the store. If a `key` is provided, the method will return the
-	 * value associated with that key in the `store.persistent` object. If no `key` is provided, the
-	 * method will
-	 * @returns the value of the persistent store, either the entire store or the value associated with
-	 * the specified key. The return type is specified as `T`, which means it can be any type.
+	 * persistent value you want to retrieve from the store. If a `key` is provided, the function will
+	 * return the value associated with that key in the `store.persistent` object. If no `key` is
+	 * provided, the
+	 * @returns the value of the `output` variable, which is of type `T`.
 	 */
-	public getPersistentValue<T>(key?: string) {
-		const store = this.getStore();
+	public async getPersistentValue<T>(key?: string) {
+		const store = await this.getStore();
 
 		let output;
 
@@ -331,30 +314,30 @@ export class classStore {
 	/**
 	 * The function removes a session key from the store and updates the store.
 	 * @param {string} key - The `key` parameter is a string that represents the key of the session
-	 * key-value pair that needs to be removed from the session object.
+	 * key-value pair that needs to be removed from the session.
 	 */
-	public removeSessionKey(key: string) {
-		const store = this.getStore();
+	public async removeSessionKey(key: string) {
+		const store = await this.getStore();
 
 		delete store.session[this.sessionId]?.[key];
 
 		logger.debug(`Remove session key "${key}"`);
 
-		this.updateStore(store);
+		await this.updateStore(store);
 	}
 
 	/**
-	 * The function removes a persistent key from the store and updates the store.
-	 * @param {string} key - The key parameter is a string that represents the key of the persistent data
-	 * that needs to be removed from the store.
+	 * The function removes a persistent key from a store and updates the store.
+	 * @param {string} key - The `key` parameter is a string that represents the key of the persistent
+	 * data that needs to be removed from the store.
 	 */
-	public removePersistentKey(key: string) {
-		const store = this.getStore();
+	public async removePersistentKey(key: string) {
+		const store = await this.getStore();
 
 		delete store.persistent?.[key];
 
 		logger.debug(`Remove persistent key "${key}"`);
 
-		this.updateStore(store);
+		await this.updateStore(store);
 	}
 }

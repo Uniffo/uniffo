@@ -5,18 +5,18 @@ import { generateUniqueBasename } from '../../utils/file/generate_unique_basenam
 
 export class classSession {
 	async init() {
-		store.init('uniffo');
+		await store.init('uniffo');
 		await this.mkTmpDir();
 	}
 
 	async destroy() {
 		await this.rmTmpDir();
-		store.deleteSession();
+		await store.destroySession();
 		this.closeOpenedResources();
 	}
 
 	private mkTmpDir = async () => {
-		const tmpDir = this.getTmpDir();
+		const tmpDir = await this.getTmpDir();
 		logger.debug(`Var tmpDir: "${tmpDir}"`);
 
 		if (tmpDir) {
@@ -35,11 +35,11 @@ export class classSession {
 		logger.debug(`Creating session tmp dir "${sessionTmpDir}"`);
 		await Deno.mkdir(sessionTmpDir, { recursive: true });
 
-		store.setSessionValue('tmpDir', sessionTmpDir);
+		await store.setSessionValue('tmpDir', sessionTmpDir);
 	};
 
 	private rmTmpDir = async () => {
-		const tmpDir = this.getTmpDir();
+		const tmpDir = await this.getTmpDir();
 		logger.debug(`Var tmpDir: "${tmpDir}"`);
 
 		if (!tmpDir) {
@@ -51,8 +51,8 @@ export class classSession {
 		await Deno.remove(tmpDir, { recursive: true });
 	};
 
-	public getTmpDir = () => {
-		return store.getSessionValue<string | undefined>('tmpDir');
+	public getTmpDir = async () => {
+		return await store.getSessionValue<string | undefined>('tmpDir');
 	};
 
 	private closeOpenedResources = () => {

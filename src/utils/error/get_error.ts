@@ -1,8 +1,8 @@
-export const getError = <T>(callback: () => void): T => {
+export const getError = async <T>(callback: () => Promise<void> | void): Promise<T> => {
 	let _throw = undefined;
 
 	try {
-		callback();
+		await callback();
 	} catch (error) {
 		_throw = error;
 	}

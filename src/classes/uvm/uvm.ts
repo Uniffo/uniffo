@@ -154,7 +154,7 @@ export class classUvm {
 
 		logger.info(`Download uniffo version "${tagName}" from "${releaseUrlForCurrentOS}"`);
 
-		const tmpDir = session.getTmpDir();
+		const tmpDir = await session.getTmpDir();
 		logger.debug(`Var tmpDir: "${tmpDir}"`);
 
 		if (!tmpDir) {

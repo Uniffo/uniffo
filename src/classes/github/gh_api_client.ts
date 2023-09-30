@@ -34,39 +34,39 @@ export class classGitHubApiClient {
 	}
 
 	/**
-	 * The addCache function adds a cache entry with a specified ID, data, and optional expiration time.
+	 * The addCache function adds a value to the cache with an optional expiration time.
 	 * @param {string} id - The `id` parameter is a string that represents the unique identifier for the
-	 * cache entry. It is used to store and retrieve the cached data.
-	 * @param {string} data - The `data` parameter is a string that represents the value that you want to
-	 * store in the cache.
+	 * cache entry. It is used to store and retrieve the cache data.
+	 * @param {string} data - The `data` parameter is a string that represents the value to be stored in
+	 * the cache.
 	 * @param {number} [expiration] - The `expiration` parameter is an optional parameter that specifies
-	 * the expiration time for the cache entry. If provided, it should be a number representing the
-	 * expiration time in milliseconds. If not provided, a default expiration time of 5 minutes (1000 * 60
-	 * * 5 milliseconds) is used.
+	 * the expiration time for the cache entry. It is a number representing the number of milliseconds
+	 * since the Unix epoch. If not provided, the default expiration time is set to 5 minutes (1000
+	 * milliseconds * 60 seconds * 5 minutes).
 	 */
-	private addCache(id: string, data: string, expiration?: number) {
+	private async addCache(id: string, data: string, expiration?: number) {
 		const _expiration = Date.now() + (1000 * 60 * 5);
 
 		const value = this.getCacheObject(data, expiration || _expiration);
 
 		logger.debug(`Add cache "${id}" as "${JSON.stringify(value)}"`);
 
-		store.setPersistentValue(id, value);
+		await store.setPersistentValue(id, value);
 	}
 
 	/**
-	 * The function retrieves a cached value from the store and checks if it has expired.
+	 * The function `getCache` retrieves a cached value from a store and checks if it has expired.
 	 * @param {string} id - The `id` parameter is a string that represents the unique identifier for the
 	 * cache. It is used to retrieve the cache object from the store.
-	 * @returns The function `getCache` returns the `data` property of the `cache` object.
+	 * @returns the `data` property of the `cache` object.
 	 */
-	private getCache(id: string) {
-		const cache = store.getPersistentValue<ReturnType<typeof this.getCacheObject>>(id);
+	private async getCache(id: string) {
+		const cache = await store.getPersistentValue<ReturnType<typeof this.getCacheObject>>(id);
 
 		logger.debug(`Get cache "${id}" as "${JSON.stringify(cache)}"`);
 
 		if (Date.now() > (cache?.expiration || 0)) {
-			store.removePersistentKey(id);
+			await store.removePersistentKey(id);
 			return undefined;
 		}
 
@@ -75,13 +75,12 @@ export class classGitHubApiClient {
 
 	/**
 	 * The function fetches releases from a GitHub repository, checks if the response is cached, and
-	 * returns the cached response if available, otherwise it makes a request to the GitHub API and
-	 * returns the response.
+	 * returns the releases either from the cache or by making a request to the GitHub API.
 	 * @returns a Promise that resolves to an array of IReleases objects.
 	 */
 	public async fetchReleases() {
 		const cacheId = `${this.github.owner}-${this.github.repo}-fetchReleases`;
-		const cache = this.getCache(cacheId);
+		const cache = await this.getCache(cacheId);
 		logger.debug(`Var cacheId: ${cacheId}`);
 		logger.debug(`Var cache: ${cache}`);
 
@@ -108,7 +107,7 @@ export class classGitHubApiClient {
 
 		const jsonResponse: Promise<IReleases[]> = req.json();
 
-		jsonResponse.then((v) => this.addCache(cacheId, JSON.stringify(v)));
+		await this.addCache(cacheId, JSON.stringify(await jsonResponse));
 
 		return jsonResponse;
 	}
@@ -117,12 +116,12 @@ export class classGitHubApiClient {
 	 * The function fetches a release from a GitHub repository based on a given tag name, and caches the
 	 * response for future use.
 	 * @param {string} tagName - The `tagName` parameter is a string that represents the name of the tag
-	 * for which you want to fetch the release information.
+	 * for which you want to fetch the release.
 	 * @returns a Promise that resolves to an object of type IReleaseByTagName.
 	 */
 	public async fetchReleaseByTagName(tagName: string) {
 		const cacheId = `${this.github.owner}-${this.github.repo}-fetchReleaseByTagName-${tagName}`;
-		const cache = this.getCache(cacheId);
+		const cache = await this.getCache(cacheId);
 		logger.debug(`Var cacheId: ${cacheId}`);
 		logger.debug(`Var cache: ${cache}`);
 
@@ -149,7 +148,7 @@ export class classGitHubApiClient {
 
 		const jsonResponse: Promise<IReleaseByTagName> = req.json();
 
-		jsonResponse.then((v) => this.addCache(cacheId, JSON.stringify(v)));
+		await this.addCache(cacheId, JSON.stringify(await jsonResponse));
 
 		return jsonResponse;
 	}
