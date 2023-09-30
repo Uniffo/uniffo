@@ -1,5 +1,11 @@
 import { pathExist } from '../path/exist.ts';
 
+/**
+ * The `downloadFile` function is a TypeScript function that downloads a file from a given URL, saves
+ * it to a specified directory, and optionally returns the file content.
+ * @param arg - The `arg` parameter is an object that contains the following properties:
+ * @returns The function `downloadFile` returns an object with the following properties:
+ */
 export const downloadFile = async (
 	arg: { url: string; saveToFile: boolean; destDir: string; returnFileContent: boolean },
 ) => {
