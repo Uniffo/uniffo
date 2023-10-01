@@ -25,10 +25,10 @@ await (async function cliEntry() {
 
 			const command = new Deno.Command(dispatchTarget, { args: Deno.args });
 
-			return command.spawn();
+			command.spawn();
+		} else {
+			// TODO(#2): execute command
 		}
-
-		uniffo(CLI_ARGS);
 	} catch (error) {
 		logger.error(`${error}`);
 	}
