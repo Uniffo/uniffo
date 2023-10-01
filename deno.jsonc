@@ -4,7 +4,7 @@
     "fmt": "deno fmt",
     "test": "deno task pre-compile && deno test --allow-read --allow-run --allow-write --allow-env --allow-net --coverage=./test_coverage ./src/**/*.test.ts -- --debug",
     "test-coverage": "deno coverage -q ./test_coverage",
-    "dev": "./denon dev",
+    "dev": "deno run --allow-read --allow-run dev.ts --allow-read --allow-run --allow-write --allow-env --allow-net",
     "pre-compile": "deno run --allow-read --allow-write --allow-env ./src/pre-compile.ts -- --debug",
     "compile": "deno task pre-compile && deno task compile-linux-x64 && deno task compile-macos-x64 && deno task compile-macos-arm",
     "compile-linux-x64": "deno compile --allow-read --allow-run --allow-write --allow-env --allow-net --output dist/linux_x64/uniffo --target x86_64-unknown-linux-gnu ./src/entry.ts",
