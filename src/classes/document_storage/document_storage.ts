@@ -9,6 +9,7 @@ export class classDocumentStorage {
 	private basename = 'uniffo_ds.txt';
 	private basenameLocked = 'uniffo_ds.lock.txt';
 	private sessionId = '';
+	private destroyed = true;
 
 	/**
 	 * The constructor function initializes the value of the "dirname" property.
@@ -19,10 +20,12 @@ export class classDocumentStorage {
 	}
 
 	/**
-	 * The `init` function checks if a document exists, creates it if it doesn't, and then registers a
-	 * client.
+	 * The `init` function initializes the object by checking if a document exists, creating one if it
+	 * doesn't, and then registering the client.
 	 */
 	public async init() {
+		this.destroyed = false;
+
 		if (!await this.documentExist()) {
 			await this.createDocument();
 		}
@@ -31,10 +34,24 @@ export class classDocumentStorage {
 	}
 
 	/**
-	 * The function "destroySession" asynchronously unregisters the client.
+	 * The function "destroySession" destroys the current session by unregistering the client, resetting
+	 * the session ID, and setting the "destroyed" flag to true.
 	 */
 	public async destroySession() {
 		await this.unregisterClient();
+
+		this.sessionId = '';
+		this.destroyed = true;
+	}
+
+	/**
+	 * The function prevents accessing a destroyed document storage session and throws an error if the
+	 * session is not initialized.
+	 */
+	private preventDestroyedSession() {
+		if (this.destroyed) {
+			throw 'Document storage session is destroyed! First initialize session!';
+		}
 	}
 
 	/**
@@ -128,11 +145,14 @@ export class classDocumentStorage {
 	}
 
 	/**
-	 * The function `unregisterClient` removes a directory corresponding to a client session if it exists.
-	 * @returns If the `path` does not exist, the function will return without performing any further
-	 * actions.
+	 * The `unregisterClient` function removes a client directory associated with the current session if
+	 * it exists.
+	 * @returns If the path does not exist, nothing is returned. If the path exists and is successfully
+	 * removed, nothing is returned.
 	 */
 	private async unregisterClient() {
+		this.preventDestroyedSession();
+
 		const path = `${this.getDocumentDetails().dirname}/clients/${this.sessionId}`;
 
 		if (!await pathExist(path)) {
@@ -168,11 +188,13 @@ export class classDocumentStorage {
 	}
 
 	/**
-	 * The function `lockDocument` checks if a document is already locked and throws an error if it is,
-	 * otherwise it writes the session ID to a locked file.
+	 * The `lockDocument` function prevents a destroyed session, checks if the document is already locked,
+	 * and writes the session ID to a locked file.
 	 * @returns a promise that resolves to the result of writing the session ID to a locked document file.
 	 */
 	private async lockDocument() {
+		this.preventDestroyedSession();
+
 		if (await this.isDocumentLocked()) {
 			throw `Document already locked by "${await this.getCurrentDocumentClientId()}"!`;
 		}
@@ -181,13 +203,15 @@ export class classDocumentStorage {
 	}
 
 	/**
-	 * The function `releaseDocumentLock` releases the lock on a document if the current client ID matches
-	 * the session ID.
+	 * The function `releaseDocumentLock` releases the lock on a document file if the current client ID
+	 * matches the session ID.
 	 * @returns a boolean value. If the current client ID is not equal to the session ID, it will return
 	 * false. Otherwise, it will attempt to remove the locked filename and return the result of that
 	 * operation.
 	 */
 	private async releaseDocumentLock() {
+		this.preventDestroyedSession();
+
 		const currentClientId = await this.getCurrentDocumentClientId();
 
 		if (currentClientId !== this.sessionId) {
@@ -248,43 +272,58 @@ export class classDocumentStorage {
 	}
 
 	/**
-	 * The function sets a value for a given key in a document, encoding and decoding the data as
-	 * necessary.
-	 * @param {string} key - A string representing the key for the item to be stored in the document.
-	 * @param {any} value - The value parameter can be any data type, such as a string, number, boolean,
-	 * array, or object.
+	 * The `setItem` function sets a value for a given key in a document, encoding and decoding the data
+	 * as necessary.
+	 * @param {string} key - A string representing the key of the item to be stored in the document.
+	 * @param {any} value - The `value` parameter is the value that you want to store in the document with
+	 * the specified key. It can be of any type.
 	 */
 	// deno-lint-ignore no-explicit-any
 	public async setItem(key: string, value: any) {
 		await this.openDocument();
 
-		let data = this.decodeData(await this.getDocument());
+		// deno-lint-ignore no-explicit-any
+		let data = {} as { [key: string]: any };
 
-		if (typeof data != 'object') {
-			data = {};
+		try {
+			const decodeData = this.decodeData(await this.getDocument());
+
+			if (typeof decodeData == 'object') {
+				data = decodeData;
+			}
+
+			data[key] = value;
+
+			await this.updateDocument(this.encodeData(data));
+		} catch (err) {
+			await this.closeDocument();
+			throw err;
 		}
-
-		data[key] = value;
-
-		await this.updateDocument(this.encodeData(data));
 
 		await this.closeDocument();
 	}
 
 	/**
-	 * The function retrieves an item from a document, decodes the data, and returns the value associated
-	 * with the given key.
-	 * @param {string} key - The key parameter is a string that represents the key of the item you want to
-	 * retrieve from the data object.
-	 * @returns The value associated with the given key in the data object.
+	 * The function `getItem` retrieves a value from a document by its key.
+	 * @param {string} key - The `key` parameter is a string that represents the key of the item you want
+	 * to retrieve from the data object.
+	 * @returns The value associated with the given key is being returned.
 	 */
 	public async getItem(key: string) {
 		await this.openDocument();
 
-		let data = this.decodeData(await this.getDocument());
+		// deno-lint-ignore no-explicit-any
+		let data = {} as { [key: string]: any };
 
-		if (typeof data != 'object') {
-			data = {};
+		try {
+			const decodeData = this.decodeData(await this.getDocument());
+
+			if (typeof decodeData == 'object') {
+				data = decodeData;
+			}
+		} catch (err) {
+			await this.closeDocument();
+			throw err;
 		}
 
 		const value = data[key];
@@ -302,15 +341,23 @@ export class classDocumentStorage {
 	public async removeItem(key: string) {
 		await this.openDocument();
 
-		let data = this.decodeData(await this.getDocument());
+		// deno-lint-ignore no-explicit-any
+		let data = {} as { [key: string]: any };
 
-		if (typeof data != 'object') {
-			data = {};
+		try {
+			const decodeData = this.decodeData(await this.getDocument());
+
+			if (typeof decodeData == 'object') {
+				data = decodeData;
+			}
+
+			delete data[key];
+
+			await this.updateDocument(this.encodeData(data));
+		} catch (err) {
+			await this.closeDocument();
+			throw err;
 		}
-
-		delete data[key];
-
-		await this.updateDocument(this.encodeData(data));
 
 		await this.closeDocument();
 	}
