@@ -1,6 +1,7 @@
 import { assertEquals } from 'https://deno.land/std@0.201.0/assert/assert_equals.ts';
 import { classStore } from './store.ts';
 import { getError } from '../../utils/error/get_error.ts';
+import { assert } from 'https://deno.land/std@0.162.0/_util/assert.ts';
 
 Deno.test('classStore', async function testClassStore() {
 	const store1 = new classStore();
@@ -60,61 +61,77 @@ Deno.test('classStore', async function testClassStore() {
 
 		await store.destroySession();
 
-		assertEquals(await store.getSessionValue() == undefined, true, 'delete session');
-
-		await store.clearPersistent();
-
-		assertEquals(
-			await store.getPersistentValue('_createdAt') != persistentCreatedAt,
-			true,
-			'clear persistent',
+		assert(
+			(await getError<string>(async () => await store.getSessionValue())).length > 0,
+			'try to get session value from destroyed session',
 		);
 
-		await store.deleteAll();
+		assert(
+			(await getError<string>(async () => await store.clearPersistent())).length > 0,
+			'try to clear persistent data from destroyed session',
+		);
 
-		const noStoreMsg = 'There is no store!';
+		assert(
+			(await getError<string>(async () => await store.getPersistentValue('_createdAt')))
+				.length > 0,
+			'try to get persistent data from destroyed session',
+		);
+
+		assert(
+			(await getError<string>(async () => await store.deleteAll()))
+				.length > 0,
+			'try to delete all data from destroyed session',
+		);
+
 		const testKey = 'test-key';
 		const testValue = 'test-value';
 
-		assertEquals(
-			await getError(async () => await store.destroySession()),
-			noStoreMsg,
-			'deleted store with destroySession()',
+		assert(
+			(await getError<string>(async () => await store.destroySession()))
+				.length > 0,
+			'try to destroy session from destroyed session',
 		);
-		assertEquals(
-			await getError(async () => await store.clearPersistent()),
-			noStoreMsg,
-			'deleted store with clearPersistent()',
+
+		assert(
+			(await getError<string>(async () => await store.clearPersistent()))
+				.length > 0,
+			'try to clear persistent data from destroyed session',
 		);
-		assertEquals(
-			await getError(async () => await store.getPersistentValue()),
-			noStoreMsg,
-			'deleted store with getPersistentValue()',
+
+		assert(
+			(await getError<string>(async () => await store.getPersistentValue()))
+				.length > 0,
+			'try to get persistent data from destroyed session',
 		);
-		assertEquals(
-			await getError(async () => await store.getSessionValue()),
-			noStoreMsg,
-			'deleted store with getSessionValue()',
+
+		assert(
+			(await getError<string>(async () => await store.getSessionValue()))
+				.length > 0,
+			'try to get session data from destroyed session',
 		);
-		assertEquals(
-			await getError(async () => await store.removePersistentKey(testKey)),
-			noStoreMsg,
-			'deleted store with removePersistentKey(testKey)',
+
+		assert(
+			(await getError<string>(async () => await store.removePersistentKey(testKey)))
+				.length > 0,
+			'try to remove persistent key from destroyed session',
 		);
-		assertEquals(
-			await getError(async () => await store.removeSessionKey(testKey)),
-			noStoreMsg,
-			'deleted store with removeSessionKey(testKey)',
+
+		assert(
+			(await getError<string>(async () => await store.removeSessionKey(testKey)))
+				.length > 0,
+			'try to remove session key from destroyed session',
 		);
-		assertEquals(
-			await getError(async () => await store.setPersistentValue(testKey, testValue)),
-			noStoreMsg,
-			'deleted store with setPersistentValue(testKey, testValue)',
+
+		assert(
+			(await getError<string>(async () => await store.setPersistentValue(testKey, testValue)))
+				.length > 0,
+			'try to set persistent value to destroyed session',
 		);
-		assertEquals(
-			await getError(async () => await store.setSessionValue(testKey, testValue)),
-			noStoreMsg,
-			'deleted store with setSessionValue(testKey, testValue)',
+
+		assert(
+			(await getError<string>(async () => await store.setSessionValue(testKey, testValue)))
+				.length > 0,
+			'try to set session value to destroyed session',
 		);
 	};
 
