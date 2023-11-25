@@ -4,6 +4,9 @@
 # testing dir
 /test_*
 
+# test coverage dir
+/.test_coverage
+
 # temporary dir
 /tmp
 
