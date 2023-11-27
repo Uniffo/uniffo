@@ -7,6 +7,9 @@
 # test coverage dir
 /.test_coverage
 
+# test coverage report dir
+/.test_coverage_report
+
 # temporary dir
 /tmp
 
