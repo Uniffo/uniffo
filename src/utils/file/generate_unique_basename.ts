@@ -12,11 +12,12 @@ export const generateUniqueBasename = async (args: {
 	basePath: string;
 	prefix?: string;
 	extension?: string;
+	timeout?: number;
 }) => {
 	const { basePath, extension, prefix } = args;
 	let candidate = '';
 	const startDate = Date.now();
-	const timeoutDate = startDate + (1000 * 60 * 5);
+	const timeoutDate = args.timeout != undefined ? args.timeout : startDate + (1000 * 60 * 5);
 
 	while (!candidate) {
 		const basename = `${prefix ? prefix : ''}${getRandomId(16)}${
