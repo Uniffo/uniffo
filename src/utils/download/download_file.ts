@@ -13,7 +13,8 @@ export const downloadFile = async (
 	const req = await fetch(url);
 
 	if (!req.ok) {
-		throw `Something went wrong while request to "${url}"`;
+		await req.body?.cancel();
+		throw `Something went wrong while request to "${url}". Error code: ${req.status}`;
 	}
 
 	const contentDisposition = req.headers.get('content-disposition');

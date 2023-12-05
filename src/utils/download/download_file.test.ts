@@ -3,6 +3,8 @@ import { pathExist } from '../path/exist.ts';
 import { downloadFile } from './download_file.ts';
 import { generateUniqueBasename } from '../file/generate_unique_basename.ts';
 import { cwd } from '../workdir/cwd.ts';
+import { getError } from '../error/get_error.ts';
+import { logger } from '../../services/logger.ts';
 
 Deno.test('downloadFile', async function testDownloadFile() {
 	const testUrl =
@@ -13,16 +15,27 @@ Deno.test('downloadFile', async function testDownloadFile() {
 		prefix: 'test_',
 	});
 
-	if (!await pathExist(testDest)) {
-		await Deno.mkdir(testDest, { recursive: true });
-	}
+	assertEquals(
+		typeof await downloadFile({
+			url: testUrl,
+			destDir: testDest,
+			saveToFile: true,
+			returnFileContent: false,
+		}) == 'object',
+		true,
+		'Download file',
+	);
 
-	await downloadFile({
-		url: testUrl,
-		destDir: testDest,
-		saveToFile: true,
-		returnFileContent: false,
-	});
+	assertEquals(
+		typeof await downloadFile({
+			url: testUrl,
+			destDir: testDest,
+			saveToFile: true,
+			returnFileContent: false,
+		}) == 'object',
+		true,
+		'Download file (replace)',
+	);
 
 	const filename = `${testDest}/${basename}`;
 
@@ -47,6 +60,17 @@ Deno.test('downloadFile', async function testDownloadFile() {
 	});
 
 	assertEquals(details.fileContent != undefined, true, 'file content');
+
+	const error = await getError<string>(async () => {
+		await downloadFile({
+			url: `${testUrl}-no-way`,
+			destDir: testDest,
+			saveToFile: true,
+			returnFileContent: false,
+		});
+	});
+
+	assertEquals(error.length > 0, true, 'invalid request');
 
 	await Deno.remove(testDest, { recursive: true });
 });
