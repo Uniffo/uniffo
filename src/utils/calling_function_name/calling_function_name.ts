@@ -21,14 +21,11 @@ export const getCallingFunctionName = (offset = 4, unknown = false) => {
 	}
 
 	const stackLines = stack.split('\n');
-	console.log('LOG: stackLines', stackLines);
 	const callerLine = stackLines[offset].trim();
-	console.log('LOG: callerLine', callerLine);
 	const callerFunctionName = callerLine.substring(
 		callerLine.indexOf(' ') + 1,
 		callerLine.lastIndexOf(' ('),
 	);
-	console.log('LOG: callerFunctionName', callerFunctionName);
 
 	if (!callerFunctionName.length || callerFunctionName === 'at ') {
 		return Unknown;
