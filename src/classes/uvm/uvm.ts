@@ -5,7 +5,6 @@ import { pathExist } from '../../utils/path/exist.ts';
 import { classGitHubApiClient } from '../github/gh_api_client.ts';
 import { downloadFile } from '../../utils/download/download_file.ts';
 import extract from 'npm:extract-zip';
-import { session } from '../../services/session.ts';
 import { getCurrentCliVersion } from '../../utils/version/get_current_cli_version.ts';
 import { getCliVersionRequiredByProject } from '../../utils/version/get_cli_version_required_by_project.ts';
 import { classSession } from '../session/session.ts';
