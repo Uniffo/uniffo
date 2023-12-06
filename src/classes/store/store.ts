@@ -9,10 +9,8 @@ export class classStore {
 	private storeName = '';
 	private sessionId = '';
 	private localStorage;
-	private localStorageDirname = `${UNIFFO_DIR.localStorage}`;
-
-	constructor() {
-		this.localStorage = new classDocumentStorage(this.localStorageDirname);
+	constructor(dirname = `${UNIFFO_DIR.localStorage}`) {
+		this.localStorage = new classDocumentStorage(dirname);
 	}
 
 	/**

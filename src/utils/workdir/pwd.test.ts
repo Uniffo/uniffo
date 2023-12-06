@@ -1,9 +1,9 @@
 import { assertEquals } from 'https://deno.land/std@0.201.0/assert/assert_equals.ts';
-import { UNIFFO_PROJECT_TOP_LEVEL_STRUCTURE } from '../../constants/constants.ts';
 import { pathExist } from '../path/exist.ts';
 import { cwd } from './cwd.ts';
 import { pwd } from './pwd.ts';
 import { logger } from '../../services/logger.ts';
+import createProjectStructure from '../project_structure/create_project_structure.ts';
 
 Deno.test('pwd', async function testPwd() {
 	const getRandomDig = () => Math.floor(Math.random() * (9 - 1)) + 1;
@@ -27,21 +27,8 @@ Deno.test('pwd', async function testPwd() {
 	logger.debug(`Creating environment for test`);
 
 	logger.debug(`Creating '${testingDirPath}'`);
-	Deno.mkdirSync(testingDirPath);
 
-	for (let i = 0; i < UNIFFO_PROJECT_TOP_LEVEL_STRUCTURE.length; i++) {
-		const partOfPath = UNIFFO_PROJECT_TOP_LEVEL_STRUCTURE[i];
-		const isFile = partOfPath.includes('.');
-		const pathToCreate = `${testingDirPath}/${partOfPath}`;
-
-		logger.debug(`Creating '${pathToCreate}'`);
-
-		if (isFile) {
-			Deno.writeFileSync(pathToCreate, new TextEncoder().encode(''));
-		} else {
-			Deno.mkdirSync(pathToCreate);
-		}
-	}
+	await createProjectStructure(testingDirPath);
 
 	logger.debug(`Change directory to '${testingDirPath}'`);
 

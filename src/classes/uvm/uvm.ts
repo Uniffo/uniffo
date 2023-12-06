@@ -8,6 +8,7 @@ import extract from 'npm:extract-zip';
 import { session } from '../../services/session.ts';
 import { getCurrentCliVersion } from '../../utils/version/get_current_cli_version.ts';
 import { getCliVersionRequiredByProject } from '../../utils/version/get_cli_version_required_by_project.ts';
+import { classSession } from '../session/session.ts';
 
 /* The `classUvm` class is a TypeScript class that represents the Unifo Version Manager, which is
 responsible for managing the versions of the "uniffo" software by downloading and extracting
@@ -16,20 +17,25 @@ export class classUvm {
 	private gitHubApi;
 	private dispatch;
 	private dispatchTarget;
+	private uniffoDir;
+	private session;
 
 	/**
 	 * The constructor initializes a GitHub API client with specific owner, repo, and API URL, and sets
 	 * the dispatch and dispatchTarget properties to false and an empty string respectively.
 	 */
-	constructor() {
-		this.gitHubApi = new classGitHubApiClient({
-			owner: 'Uniffo',
-			repo: 'uniffo',
-			apiUrl: 'https://api.github.com',
-		});
-
+	constructor(
+		args: {
+			uniffoDir?: typeof UNIFFO_DIR;
+			gitHubApiClient: classGitHubApiClient;
+			session: classSession;
+		},
+	) {
+		this.gitHubApi = args.gitHubApiClient;
+		this.session = args.session;
 		this.dispatch = false;
 		this.dispatchTarget = '';
+		this.uniffoDir = args?.uniffoDir || UNIFFO_DIR;
 	}
 
 	/**
@@ -41,8 +47,8 @@ export class classUvm {
 	public async init() {
 		logger.debug('Initialize Unifo Version Manager');
 
-		if (!await pathExist(UNIFFO_DIR.main)) {
-			await Deno.mkdir(UNIFFO_DIR.main);
+		if (!await pathExist(this.uniffoDir.main)) {
+			await Deno.mkdir(this.uniffoDir.main, { recursive: true });
 		}
 
 		const currentCliVersion = await getCurrentCliVersion();
@@ -69,7 +75,7 @@ export class classUvm {
 	 * @returns An object with the properties `dirname` and `filename`.
 	 */
 	private getUniffoDetails(tagName: string) {
-		const dirname = `${UNIFFO_DIR.versions}/${tagName}`;
+		const dirname = `${this.uniffoDir.versions}/${tagName}`;
 		logger.debug(`Var dirname: "${dirname}"`);
 
 		const filename = `${dirname}/uniffo`;
@@ -99,7 +105,7 @@ export class classUvm {
 	 */
 	public getDispatchTarget() {
 		const dispatchTarget = this.dispatchTarget;
-		logger.debug(`Var shouldDispatch: "${dispatchTarget}"`);
+		logger.debug(`Var dispatchTarget: "${dispatchTarget}"`);
 
 		return dispatchTarget;
 	}
@@ -120,7 +126,7 @@ export class classUvm {
 			return;
 		}
 
-		this.downloadVersion(tagName);
+		await this.downloadVersion(tagName);
 	}
 
 	/**
@@ -204,7 +210,7 @@ export class classUvm {
 
 		logger.info(`Download uniffo version "${tagName}" from "${releaseUrlForCurrentOS}"`);
 
-		const tmpDir = await session.getTmpDir();
+		const tmpDir = await this.session.getTmpDir();
 		logger.debug(`Var tmpDir: "${tmpDir}"`);
 
 		if (!tmpDir) {

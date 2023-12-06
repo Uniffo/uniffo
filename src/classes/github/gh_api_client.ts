@@ -1,5 +1,5 @@
 import { logger } from '../../services/logger.ts';
-import { store } from '../../services/store.ts';
+import { classStore } from '../store/store.ts';
 import { IReleaseByTagName } from './release_by_tag_name.d.ts';
 import { IReleases } from './releases_list.d.ts';
 
@@ -7,14 +7,18 @@ import { IReleases } from './releases_list.d.ts';
 GitHub repository, caching the responses, and retrieving cached data. */
 export class classGitHubApiClient {
 	private github;
+	private store;
 
 	/**
 	 * The constructor function initializes the GitHub API client with the provided owner, repo, and
 	 * apiUrl.
 	 * @param args - An object containing the following properties:
 	 */
-	constructor(args: { owner: string; repo: string; apiUrl: string }) {
-		this.github = args;
+	constructor(
+		args: { github: { owner: string; repo: string; apiUrl: string }; store: classStore },
+	) {
+		this.github = args.github;
+		this.store = args.store;
 	}
 
 	/**
@@ -51,22 +55,24 @@ export class classGitHubApiClient {
 
 		logger.debug(`Add cache "${id}" as "${JSON.stringify(value)}"`);
 
-		await store.setPersistentValue(id, value);
+		await this.store.setPersistentValue(id, value);
 	}
 
 	/**
 	 * The function `getCache` retrieves a cached value from a store and checks if it has expired.
 	 * @param {string} id - The `id` parameter is a string that represents the unique identifier for the
-	 * cache. It is used to retrieve the cache object from the store.
+	 * cache. It is used to retrieve the cache object from the this.store.
 	 * @returns the `data` property of the `cache` object.
 	 */
 	private async getCache(id: string) {
-		const cache = await store.getPersistentValue<ReturnType<typeof this.getCacheObject>>(id);
+		const cache = await this.store.getPersistentValue<ReturnType<typeof this.getCacheObject>>(
+			id,
+		);
 
 		logger.debug(`Get cache "${id}" as "${JSON.stringify(cache)}"`);
 
 		if (Date.now() > (cache?.expiration || 0)) {
-			await store.removePersistentKey(id);
+			await this.store.removePersistentKey(id);
 			return undefined;
 		}
 

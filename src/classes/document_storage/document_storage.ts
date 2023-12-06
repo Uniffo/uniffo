@@ -198,6 +198,7 @@ export class classDocumentStorage {
 		if (await this.isDocumentLocked()) {
 			throw `Document already locked by "${await this.getCurrentDocumentClientId()}"!`;
 		}
+		logger.debug(`-------------- ADD lock`);
 
 		return Deno.writeTextFile(this.getDocumentDetails().filenameLocked, this.sessionId);
 	}
@@ -217,6 +218,8 @@ export class classDocumentStorage {
 		if (currentClientId !== this.sessionId) {
 			return false;
 		}
+
+		logger.debug(`-------------- Remove lock`);
 
 		return Deno.remove(this.getDocumentDetails().filenameLocked);
 	}

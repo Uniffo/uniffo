@@ -1,16 +1,22 @@
 import { UNIFFO_DIR } from '../../constants/constants.ts';
 import { logger } from '../../services/logger.ts';
-import { store } from '../../services/store.ts';
 import { generateUniqueBasename } from '../../utils/file/generate_unique_basename.ts';
+import { classStore } from '../store/store.ts';
 
 /* The `classSession` class provides methods for initializing and destroying a session, creating and
 removing temporary directories, and closing opened resources. */
 export class classSession {
+	private store;
+
+	constructor(args: { store: classStore }) {
+		this.store = args.store;
+	}
+
 	/**
 	 * The `init` function initializes a store and creates a temporary directory.
 	 */
 	async init() {
-		await store.init('uniffo');
+		await this.store.init('uniffo');
 		await this.mkTmpDir();
 	}
 
@@ -20,7 +26,7 @@ export class classSession {
 	 */
 	async destroy() {
 		await this.rmTmpDir();
-		await store.destroySession();
+		await this.store.destroySession();
 		this.closeOpenedResources();
 	}
 
@@ -48,7 +54,7 @@ export class classSession {
 		logger.debug(`Creating session tmp dir "${sessionTmpDir}"`);
 		await Deno.mkdir(sessionTmpDir, { recursive: true });
 
-		await store.setSessionValue('tmpDir', sessionTmpDir);
+		await this.store.setSessionValue('tmpDir', sessionTmpDir);
 	}
 
 	/**
@@ -71,11 +77,11 @@ export class classSession {
 	}
 
 	/**
-	 * The function `getTmpDir` retrieves the value of the 'tmpDir' session variable from the store.
+	 * The function `getTmpDir` retrieves the value of the 'tmpDir' session variable from the this.store.
 	 * @returns a promise that resolves to a string or undefined value.
 	 */
 	public async getTmpDir() {
-		return await store.getSessionValue<string | undefined>('tmpDir');
+		return await this.store.getSessionValue<string | undefined>('tmpDir');
 	}
 
 	/**

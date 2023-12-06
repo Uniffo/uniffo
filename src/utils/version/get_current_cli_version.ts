@@ -3,10 +3,9 @@ import { logger } from '../../services/logger.ts';
 import { pathExist } from '../path/exist.ts';
 
 /**
- * The function `getCurrentCliVersion` checks if a specific module exists and if so, imports it and
- * returns the default value as a string, otherwise it returns false.
- * @returns The function `getCurrentCliVersion` returns either the version string if it is found, or
- * `false` if the version is not found.
+ * The function `getCurrentCliVersion` is an asynchronous function that retrieves the current CLI
+ * version by importing a module and returning the version string.
+ * @returns the current CLI version as a string.
  */
 export const getCurrentCliVersion = async () => {
 	const cliVersionModuleFilename = `${PRECOMPILED_DIR}/__cli_version.ts`;
@@ -20,8 +19,7 @@ export const getCurrentCliVersion = async () => {
 		return version;
 	}
 
-	logger.debug(`Version not found!`);
-	return false;
+	throw 'Not found current cli version!';
 };
 
 export default 'test';
