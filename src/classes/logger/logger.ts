@@ -29,10 +29,18 @@ export class classLogger {
 		displayDebug?: boolean;
 		displayDate?: boolean;
 	}) {
-		(config?.omitStorage !== undefined) && (this.config.omitStorage = config.omitStorage);
-		(config?.maxWeight !== undefined) && (this.config.maxWeight = config.maxWeight);
-		(config?.displayDebug !== undefined) && (this.config.displayDebug = config.displayDebug);
-		(config?.displayDate !== undefined) && (this.config.displayDate = config.displayDate);
+		this.config.omitStorage = typeof config?.omitStorage == 'boolean'
+			? config?.omitStorage
+			: false;
+		this.config.maxWeight = config?.maxWeight && config?.maxWeight >= 1024 * 1024 * 1
+			? config?.maxWeight
+			: 1024 * 1024 * 1;
+		this.config.displayDebug = typeof config?.displayDebug == 'boolean'
+			? config?.displayDebug
+			: true;
+		this.config.displayDate = typeof config?.displayDate == 'boolean'
+			? config?.displayDate
+			: true;
 
 		this.omitStorage(true);
 		this.debug('New Logger instance was created.');
