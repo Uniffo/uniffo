@@ -9,7 +9,7 @@ import { loopOnProjectStructure } from './loop_on_project_structure.ts';
  * @param {string} workdir - The `workdir` parameter is a string that represents the directory where
  * the project structure will be created.
  */
-const createProjectStructure = async (workdir: string) => {
+const createProjectStructure = async (workdir: string, structure = UNIFFO_PROJECT_STRUCTURE) => {
 	if (!workdir) {
 		throw `Invalid workdir "${workdir}"`;
 	}
@@ -19,7 +19,7 @@ const createProjectStructure = async (workdir: string) => {
 		await Deno.mkdir(workdir, { recursive: true });
 	}
 
-	loopOnProjectStructure(UNIFFO_PROJECT_STRUCTURE, function structureCreator({ path, value }) {
+	loopOnProjectStructure(structure, function structureCreator({ path, value }) {
 		const isFile = typeof value === 'string';
 
 		if (isFile) {
