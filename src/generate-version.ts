@@ -8,14 +8,11 @@ import { cwd } from './utils/workdir/cwd.ts';
 	logger.displayDebug(true);
 
 	let error = '';
-	const scriptsDir = `${workdir}/.github/workflows/shell-scripts`;
 
-	Deno.chdir(scriptsDir);
-	logger.debug(`Change dir to "${scriptsDir}"`);
-
-	const getLatestReleaseTag = './get_latest_release_tag.sh';
-	const getNewReleaseCommitsRange = './get_new_release_commits_range.sh';
-	const getNextSemanticVersion = './get_next_semantic_version.sh';
+	const getLatestReleaseTag = './.github/workflows/shell-scripts/get_latest_release_tag.sh';
+	const getNewReleaseCommitsRange =
+		'./.github/workflows/shell-scripts/get_new_release_commits_range.sh';
+	const getNextSemanticVersion = './.github/workflows/shell-scripts/get_next_semantic_version.sh';
 
 	const textDecoder = new TextDecoder();
 
@@ -71,8 +68,6 @@ import { cwd } from './utils/workdir/cwd.ts';
 	logger.debug(`nextSemanticVersion: "${nextSemanticVersion.trim()}"`);
 
 	// Write to file
-	Deno.chdir(workdir);
-
 	const versionFile = `${workdir}/VERSION`;
 
 	logger.debug(`write to file "${nextSemanticVersion.trim()}"`);
