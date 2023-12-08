@@ -24,54 +24,37 @@ const removeTestCoverageLcovFile = async () => {
 		await Deno.remove(testCoverageLcovFilename, { recursive: true });
 	}
 };
-const denoCommand = (options: Deno.CommandOptions) => {
-	const task = new Deno.Command(Deno.execPath(), options);
+const denoCommand = async (options: Deno.CommandOptions) => {
+	const command = new Deno.Command(Deno.execPath(), options);
 
-	const taskOutput = task.outputSync();
-	const taskOutputStdout = new TextDecoder().decode(taskOutput.stdout);
-	const taskOutputStderr = new TextDecoder().decode(taskOutput.stderr);
+	const process = command.spawn();
 
-	if (taskOutputStdout.length) {
-		console.log(taskOutputStdout);
-	}
-	if (taskOutputStderr.length) {
-		console.log(taskOutputStderr);
-	}
+	await process.status;
 };
 
 await removeTestCoverageFiles();
 await removeTestCoverageLcovFile();
 await removeTestCoverageReportFiles();
 
-denoCommand({
+await denoCommand({
 	args: ['task', 'pre-compile'],
-	stderr: 'piped',
-	stdout: 'piped',
 });
 
-denoCommand({
+await denoCommand({
 	args: ['task', 'test'],
-	stderr: 'piped',
-	stdout: 'piped',
 });
 
-denoCommand({
+await denoCommand({
 	args: ['task', 'test-coverage'],
-	stderr: 'piped',
-	stdout: 'piped',
 });
 
-denoCommand({
+await denoCommand({
 	args: ['task', 'test-coverage-html'],
-	stderr: 'piped',
-	stdout: 'piped',
 });
 
 await removeTestCoverageFiles();
 await removeTestCoverageLcovFile();
 
-denoCommand({
+await denoCommand({
 	args: ['task', 'open-test-coverage-report'],
-	stderr: 'piped',
-	stdout: 'piped',
 });
