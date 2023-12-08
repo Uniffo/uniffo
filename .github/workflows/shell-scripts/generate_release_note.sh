@@ -39,7 +39,7 @@ while IFS= read -r _COMMIT; do
         if [[ "${_MSG_EXIST}" == "0" ]]; then
             _MSG_BREAKING_CHANGES+=("${_MSG}")
         fi
-    elif [[ "$($_WORKDIR/is_commit_header.sh "feat" "${_COMMIT_MSG}")" == "1" ]]; then
+    elif [[ "$($_WORKDIR/is_commit_header.sh "feat" "${_COMMIT_MSG}")" == "1" || "$($_WORKDIR/is_commit_header.sh "feature" "${_COMMIT_MSG}")" == "1" ]]; then
         _MSG="${_COMMIT_MSG}"
         _MSG_EXIST="0"
 

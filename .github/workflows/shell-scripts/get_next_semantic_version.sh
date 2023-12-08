@@ -47,7 +47,7 @@ while IFS= read -r _COMMIT; do
         _PATH_UPDATED="1"
         _MINOR="0"
         _PATH="0"
-    elif [[ "$(./is_commit_header.sh "feat" "${_COMMIT_MSG}")" == "1" && "${_MINOR_UPDATED}" == "0" ]]; then
+    elif [[ ( "$(./is_commit_header.sh "feat" "${_COMMIT_MSG}")" == "1" || "$(./is_commit_header.sh "feature" "${_COMMIT_MSG}")" == "1" ) && "${_MINOR_UPDATED}" == "0" ]]; then
         _MINOR="$(( $_MINOR + 1 ))"
         _MINOR_UPDATED="1"
         _PATH_UPDATED="1"
