@@ -1,10 +1,19 @@
 import { assertEquals } from 'https://deno.land/std@0.201.0/assert/assert_equals.ts';
 import { classGitHubApiClient } from './gh_api_client.ts';
-import { session } from '../../services/session.ts';
 import { classStore } from '../store/store.ts';
+import { cwd } from '../../utils/workdir/cwd.ts';
 
 Deno.test('classGitHubApiClient', async function testClassGitHubApiClient() {
-	await session.init();
+	const testDir = `${cwd()}/test_classUvm`;
+	const testData = {
+		dir: {
+			test: `${testDir}`,
+		},
+	};
+
+	const store = new classStore(testData.dir.test);
+
+	await store.init();
 
 	const ghApi = new classGitHubApiClient({
 		github: {
@@ -12,7 +21,7 @@ Deno.test('classGitHubApiClient', async function testClassGitHubApiClient() {
 			repo: 'uniffo',
 			apiUrl: 'https://api.github.com',
 		},
-		store: new classStore(),
+		store: store,
 	});
 
 	const releases = await ghApi.fetchReleases();
@@ -26,6 +35,4 @@ Deno.test('classGitHubApiClient', async function testClassGitHubApiClient() {
 		'object',
 		'ghApi.fetchReleaseByTagName(releaseTagName) return object',
 	);
-
-	await session.destroy();
 });

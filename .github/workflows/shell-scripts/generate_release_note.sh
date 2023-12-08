@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 # Script generate release note and save it to file
 # Required args:
 # 1: file to save note
@@ -183,103 +185,103 @@ done <<< "$_COMMITS_TO_ANALYZE"
 _BR="
 "
 
-echo -e "# Release note${_BR}" >> "${1}"
+echo "# Release note${_BR}" >> "${1}"
 
 # BREAKING CHANGE
 if [[ "${#_MSG_BREAKING_CHANGES[@]}" != "0" ]]; then
-    echo -e "## :boom: Breaking changes:${_BR}" >> "${1}"
+    echo "## :boom: Breaking changes:${_BR}" >> "${1}"
 fi
 
 for _NOTES_ELEMENT in "${_MSG_BREAKING_CHANGES[@]}"; do
-    echo -e "  - ${_NOTES_ELEMENT}${_BR}" >> "${1}"
+    echo "  - ${_NOTES_ELEMENT}${_BR}" >> "${1}"
 done
 
 # FEATURE
 if [[ "${#_MSG_FEATURES[@]}" != "0" ]]; then
-    echo -e "## :sparkles: Features:${_BR}" >> "${1}"
+    echo "## :sparkles: Features:${_BR}" >> "${1}"
 fi
 
 for _NOTES_ELEMENT in "${_MSG_FEATURES[@]}"; do
-    echo -e "  - ${_NOTES_ELEMENT}${_BR}" >> "${1}"
+    echo "  - ${_NOTES_ELEMENT}${_BR}" >> "${1}"
 done
 
 # FIXES
 if [[ "${#_MSG_FIXES[@]}" != "0" ]]; then
-    echo -e "## :bug: Fixes:${_BR}" >> "${1}"
+    echo "## :bug: Fixes:${_BR}" >> "${1}"
 fi
 
 for _NOTES_ELEMENT in "${_MSG_FIXES[@]}"; do
-    echo -e "  - ${_NOTES_ELEMENT}${_BR}" >> "${1}"
+    echo "  - ${_NOTES_ELEMENT}${_BR}" >> "${1}"
 done
 
 # BUILD
 if [[ "${#_MSG_BUILD[@]}" != "0" ]]; then
-    echo -e "## :building_construction: Builds:${_BR}" >> "${1}"
+    echo "## :building_construction: Builds:${_BR}" >> "${1}"
 fi
 
 for _NOTES_ELEMENT in "${_MSG_BUILD[@]}"; do
-    echo -e "  - ${_NOTES_ELEMENT}${_BR}" >> "${1}"
+    echo "  - ${_NOTES_ELEMENT}${_BR}" >> "${1}"
 done
 
 # CHORE
 if [[ "${#_MSG_CHORE[@]}" != "0" ]]; then
-    echo -e "## :bookmark: Chores:${_BR}" >> "${1}"
+    echo "## :bookmark: Chores:${_BR}" >> "${1}"
 fi
 
 for _NOTES_ELEMENT in "${_MSG_CHORE[@]}"; do
-    echo -e "  - ${_NOTES_ELEMENT}${_BR}" >> "${1}"
+    echo "  - ${_NOTES_ELEMENT}${_BR}" >> "${1}"
 done
 
 # CI
 if [[ "${#_MSG_CI[@]}" != "0" ]]; then
-    echo -e "## :bookmark: CI:${_BR}" >> "${1}"
+    echo "## :bookmark: CI:${_BR}" >> "${1}"
 fi
 
 for _NOTES_ELEMENT in "${_MSG_CI[@]}"; do
-    echo -e "  - ${_NOTES_ELEMENT}${_BR}" >> "${1}"
+    echo "  - ${_NOTES_ELEMENT}${_BR}" >> "${1}"
 done
 
 # DOCS
 if [[ "${#_MSG_DOCS[@]}" != "0" ]]; then
-    echo -e "## :pencil: Documentation:${_BR}" >> "${1}"
+    echo "## :pencil: Documentation:${_BR}" >> "${1}"
 fi
 
 for _NOTES_ELEMENT in "${_MSG_DOCS[@]}"; do
-    echo -e "  - ${_NOTES_ELEMENT}${_BR}" >> "${1}"
+    echo "  - ${_NOTES_ELEMENT}${_BR}" >> "${1}"
 done
 
 # PERF
 if [[ "${#_MSG_PERF[@]}" != "0" ]]; then
-    echo -e "## :zap: Performance:${_BR}" >> "${1}"
+    echo "## :zap: Performance:${_BR}" >> "${1}"
 fi
 
 for _NOTES_ELEMENT in "${_MSG_PERF[@]}"; do
-    echo -e "  - ${_NOTES_ELEMENT}${_BR}" >> "${1}"
+    echo "  - ${_NOTES_ELEMENT}${_BR}" >> "${1}"
 done
 
 # REFACTOR
 if [[ "${#_MSG_REFACTOR[@]}" != "0" ]]; then
-    echo -e "## :recycle: Refactor:${_BR}" >> "${1}"
+    echo "## :recycle: Refactor:${_BR}" >> "${1}"
 fi
 
 for _NOTES_ELEMENT in "${_MSG_REFACTOR[@]}"; do
-    echo -e "  - ${_NOTES_ELEMENT}${_BR}" >> "${1}"
+    echo "  - ${_NOTES_ELEMENT}${_BR}" >> "${1}"
 done
 
 # STYLE
 if [[ "${#_MSG_STYLE[@]}" != "0" ]]; then
-    echo -e "## :art: Style:${_BR}" >> "${1}"
+    echo "## :art: Style:${_BR}" >> "${1}"
 fi
 
 for _NOTES_ELEMENT in "${_MSG_STYLE[@]}"; do
-    echo -e "  - ${_NOTES_ELEMENT}${_BR}" >> "${1}"
+    echo "  - ${_NOTES_ELEMENT}${_BR}" >> "${1}"
 done
 
 # TEST
 if [[ "${#_MSG_TEST[@]}" != "0" ]]; then
-    echo -e "## :test_tube: Tests:${_BR}" >> "${1}"
+    echo "## :test_tube: Tests:${_BR}" >> "${1}"
 fi
 
 for _NOTES_ELEMENT in "${_MSG_TEST[@]}"; do
-    echo -e "  - ${_NOTES_ELEMENT}${_BR}" >> "${1}"
+    echo "  - ${_NOTES_ELEMENT}${_BR}" >> "${1}"
 done

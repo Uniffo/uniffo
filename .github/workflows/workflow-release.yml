@@ -49,7 +49,7 @@ jobs:
 
           ./.github/workflows/shell-scripts/generate_release_note.sh "${_FILE}" "${{ steps.get_new_release_commits_range.outputs.start }}" "${{ steps.get_new_release_commits_range.outputs.stop }}"
 
-          echo -e "file=${_FILE}" >> "$GITHUB_OUTPUT"
+          echo "file=${_FILE}" >> "$GITHUB_OUTPUT"
 
       - name: debug
         if: always()

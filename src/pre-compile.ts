@@ -1,9 +1,9 @@
-import { PRECOMPILED_DIR, UNIFFO_CVFB } from './constants/constants.ts';
 import { logger } from './services/logger.ts';
 import { pathExist } from './utils/path/exist.ts';
 import { cwd } from './utils/workdir/cwd.ts';
 
-const versionFilename = `${cwd()}/${UNIFFO_CVFB}`;
+const versionFilename = `${cwd()}/VERSION`;
+const precompiledDir = `${cwd()}/src/pre_compiled`;
 
 if (!await pathExist(versionFilename)) {
 	await Deno.writeTextFile(versionFilename, `0.0.0`);
@@ -16,12 +16,12 @@ if (await pathExist(versionFilename)) {
 	const moduleContent = `export default "${version}";`;
 	logger.debug(`Var moduleContent: "${moduleContent}"`);
 
-	const moduleFilename = `${PRECOMPILED_DIR}/__cli_version.ts`;
+	const moduleFilename = `${precompiledDir}/__cli_version.ts`;
 	logger.debug(`Var moduleFilename: "${moduleFilename}"`);
 
-	if (!await pathExist(PRECOMPILED_DIR)) {
-		logger.debug(`Create assets dir "${PRECOMPILED_DIR}"`);
-		await Deno.mkdir(PRECOMPILED_DIR, { recursive: true });
+	if (!await pathExist(precompiledDir)) {
+		logger.debug(`Create assets dir "${precompiledDir}"`);
+		await Deno.mkdir(precompiledDir, { recursive: true });
 	}
 
 	logger.debug(`Write module "${moduleFilename}"`);

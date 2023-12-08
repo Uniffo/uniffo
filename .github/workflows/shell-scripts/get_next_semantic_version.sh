@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 # Script return next semantic version
 # Required args:
 # 1: latest semantic version
@@ -31,7 +33,9 @@ if [[ "${_VERSION}" != "" ]]; then
     done
 fi
 
-_COMMITS_TO_ANALYZE="$( git log --oneline --reverse --format="%H" "${2}".."${3}" )"
+
+_CMD_GET_COMMITS_TO_ANALYZE="git log --oneline --reverse --format=\"%H\" ${2}..${3}"
+_COMMITS_TO_ANALYZE="$( eval "${_CMD_GET_COMMITS_TO_ANALYZE}" )"
 
 while IFS= read -r _COMMIT; do
     _COMMIT_MSG="$( git log --oneline --format="%s" -n 1 "${_COMMIT}" | tr '[:upper:]' '[:lower:]' )"

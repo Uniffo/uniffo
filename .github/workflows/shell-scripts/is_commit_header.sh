@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 # Script check that commit message has provided header and return "0" or "1"
 # Required args:
 # 1: header

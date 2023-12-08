@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 # Script return first and last commit from the range to next release
 # Required args:
 # 1: latest release tag
@@ -16,4 +18,4 @@ fi
 
 _TOO_SHA="${_LATEST_COMMIT_SHA}"
 
-echo -e "${_FROM_SHA},${_TOO_SHA}"
+echo "${_FROM_SHA},${_TOO_SHA}"

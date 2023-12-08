@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 # Script return latest release tag of empty string
 # Required args:
 # 1: tag name pattern
