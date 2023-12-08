@@ -1,7 +1,7 @@
-import { LOGGER } from '../../constants/constants.ts';
+import { logger } from '../../services/logger.ts';
 import { IUniffoArgs } from './uniffo.d.ts';
 
 export const uniffo = (args: IUniffoArgs) => {
-	LOGGER.debug(`Var args: ${JSON.stringify(args)}`);
-	LOGGER.log('Hello, I am uniffo :)');
+	logger.debug(`Var args: ${JSON.stringify(args)}`);
+	logger.log('Hello, I am uniffo :)');
 };

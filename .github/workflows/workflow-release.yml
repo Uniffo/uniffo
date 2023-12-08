@@ -3,7 +3,6 @@ name: "create-release"
 on:
   push:
     branches: [main]
-  workflow_dispatch:
 
 jobs:
   create-release:
@@ -14,6 +13,62 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: "0"
+          fetch-tags: true
+
+      - name: Get latest release tag
+        id: get_latest_release_tag
+        run: |
+          _LATEST_RELEASE_TAG="$( ./.github/workflows/shell-scripts/get_latest_release_tag.sh "*.*.*" )"
+          _CURRENT_VERSION="${_LATEST_RELEASE_TAG}"
+
+          echo "tag=${_LATEST_RELEASE_TAG}" >> "$GITHUB_OUTPUT"
+          echo "version=${_CURRENT_VERSION}" >> "$GITHUB_OUTPUT"
+
+      - name: Get new release commits range
+        id: get_new_release_commits_range
+        run: |
+          _RANGE="$( ./.github/workflows/shell-scripts/get_new_release_commits_range.sh "${{ steps.get_latest_release_tag.outputs.tag }}" "main" )"
+
+          IFS="," read -ra _START_STOP_RANGE <<< "${_RANGE}"
+
+          _START_COMMIT="${_START_STOP_RANGE[0]}"
+          _STOP_COMMIT="${_START_STOP_RANGE[1]}"
+
+          echo "range=${_RANGE}" >> "$GITHUB_OUTPUT"
+          echo "start=${_START_COMMIT}" >> "$GITHUB_OUTPUT"
+          echo "stop=${_STOP_COMMIT}" >> "$GITHUB_OUTPUT"
+
+      - name: Get next semantic version
+        id: get_next_semantic_version
+        run: |
+          echo "version=$( ./.github/workflows/shell-scripts/get_next_semantic_version.sh "${{ steps.get_latest_release_tag.outputs.version }}" "${{ steps.get_new_release_commits_range.outputs.start }}" "${{ steps.get_new_release_commits_range.outputs.stop }}" )" >> "$GITHUB_OUTPUT"
+
+      - name: Generate release note
+        id: generate_release_note
+        run: |
+          _FILE="$( realpath "./RELEASE_NOTE.md" )"
+
+          ./.github/workflows/shell-scripts/generate_release_note.sh "${_FILE}" "${{ steps.get_new_release_commits_range.outputs.start }}" "${{ steps.get_new_release_commits_range.outputs.stop }}"
+
+          echo "file=${_FILE}" >> "$GITHUB_OUTPUT"
+
+      - name: debug
+        if: always()
+        run: |
+          echo "Latest release tag '${{ steps.get_latest_release_tag.outputs.tag }}'"
+          echo "Latest release version '${{ steps.get_latest_release_tag.outputs.version }}'"
+          echo "New release range '${{ steps.get_new_release_commits_range.outputs.range }}'"
+          echo "New release range start '${{ steps.get_new_release_commits_range.outputs.start }}'"
+          echo "New release range stop '${{ steps.get_new_release_commits_range.outputs.stop }}'"
+          echo "New release version '${{ steps.get_next_semantic_version.outputs.version }}'"
+          echo "New release note file '${{ steps.generate_release_note.outputs.file }}'"
+
+          while IFS= read -r _LINE; do
+            echo "${_LINE}"
+          done < "${{ steps.generate_release_note.outputs.file }}"
+
+      - name: Create VERSION file
+        run: echo "${{ steps.get_next_semantic_version.outputs.version }}" > "VERSION"
 
       - name: Get deno version
         id: get_deno_version
@@ -42,242 +97,18 @@ jobs:
           files: dist/macos_x64/uniffo
           dest: macos_x64.zip
 
-      - name: Get latest release version
-        id: get_latest_release_version
-        run: |
-          _RELEASE_BRANCHES="$( git branch -a --list --sort=-creatordate '*/release/*' )"
-
-          echo "Var: _RELEASE_BRANCHES = '${_RELEASE_BRANCHES}'"
-
-          _LATEST_RELEASE_BRANCH="$( echo "${_RELEASE_BRANCHES}" | head -n 1 | tr -d ' ' )"
-
-          echo "Var: _LATEST_RELEASE_BRANCH = '${_LATEST_RELEASE_BRANCH}'"
-
-          _LATEST_RELEASE_VERSION="${_LATEST_RELEASE_BRANCH//remotes\/origin\/release\//}"
-
-          echo "branch=${_LATEST_RELEASE_BRANCH}" >> "$GITHUB_OUTPUT"
-          echo "version=${_LATEST_RELEASE_VERSION}" >> "$GITHUB_OUTPUT"
-
-      - name: Get commits range
-        id: get_commits_range
-        run: |
-          _START_COMMIT_SHA=""
-
-          # No releases
-          if [[ "${{steps.get_latest_release_version.outputs.branch}}" == "" ]]; then
-              # Get first commit sha
-              _START_COMMIT_SHA="$( git log --oneline --format="%H" main | tail -n 1 )"
-
-              echo "Var: _START_COMMIT_SHA = '${_START_COMMIT_SHA}'"
-
-          # Release
-          else
-              # Get release commit sha
-              _START_COMMIT_SHA="$( git merge-base "${{steps.get_latest_release_version.outputs.branch}}" main )"
-
-              echo "Var: _START_COMMIT_SHA = '${_START_COMMIT_SHA}'"
-
-          fi
-
-          _STOP_COMMIT_SHA="$( git log --oneline --format="%H" main | head -n 1 )"
-
-          echo "Var: _STOP_COMMIT_SHA = '${_STOP_COMMIT_SHA}'"
-
-          echo "start=${_START_COMMIT_SHA}" >> "$GITHUB_OUTPUT"
-          echo "stop=${_STOP_COMMIT_SHA}" >> "$GITHUB_OUTPUT"
-
-      - name: Generate semantic version
-        id: "generate_semantic_version"
-        run: |
-          _COMMITS_TO_ANALYZE="$( git log --oneline --reverse --format="%H" "${{steps.get_commits_range.outputs.start}}".."${{steps.get_commits_range.outputs.stop}}" )"
-
-          echo "Var: _COMMITS_TO_ANALYZE = '${_COMMITS_TO_ANALYZE}'"
-
-          _MAJOR="0"
-          _MAJOR_UPDATED="0"
-          _MINOR="0"
-          _MINOR_UPDATED="0"
-          _PATH="0"
-          _PATH_UPDATED="0"
-          _MSG_BREAKING_CHANGES=()
-          _MSG_FEATURES=()
-          _MSG_FIXES=()
-          _MSG_OTHERS=()
-
-          # Get latest version
-          _VERSION="${{steps.get_latest_release_version.outputs.version}}"
-          echo "Var: _VERSION = '${_VERSION}'"
-
-          if [[ "${_VERSION}" != "" ]]; then
-            IFS='.' read -ra EXPLODED_VERSION <<< "$_VERSION"
-
-            _ALIAS="MAJOR"
-
-            for _NUMBER in "${EXPLODED_VERSION[@]}"; do
-              echo "Var: _NUMBER = '${_NUMBER}'"
-
-              if [[ "${_ALIAS}" == "MAJOR" ]]; then
-                  _ALIAS="MINOR"
-                  _MAJOR="${_NUMBER}"
-              elif [[ "${_ALIAS}" == "MINOR" ]]; then
-                  _ALIAS="PATH"
-                  _MINOR="${_NUMBER}"
-              elif [[ "${_ALIAS}" == "PATH" ]]; then
-                  _ALIAS=""
-                  _PATH="${_NUMBER}"
-              fi
-
-            done
-          fi
-
-          echo "Var: _MAJOR = '${_MAJOR}'"
-          echo "Var: _MINOR = '${_MINOR}'"
-          echo "Var: _PATH = '${_PATH}'"
-
-          # Loop over commits
-          while IFS= read -r _COMMIT; do
-            echo "Var: _COMMIT = '${_COMMIT}'"
-
-            _COMMIT_MSG="$( git log --oneline --format="%s" -n 1 "${_COMMIT}" | tr '[:upper:]' '[:lower:]' )"
-
-            echo "Var: _COMMIT_MSG = '${_COMMIT_MSG}'"
-            
-            # Collecting messages
-            if [[ "${_COMMIT_MSG}" == "breaking_change:"* ]]; then
-              _MSG="${_COMMIT_MSG//breaking_change:/}"
-
-              _MSG_EXIST="0"
-
-              # Check that msg already exist
-              for item in "${_MSG_BREAKING_CHANGES[@]}"; do
-                if [ "${item}" == "${_MSG}" ]; then
-                  _MSG_EXIST="1"
-                  break
-                fi
-              done
-
-              if [[ "${_MSG_EXIST}" == "0" ]]; then
-                _MSG_BREAKING_CHANGES+=("${_MSG}")
-              fi
-
-            elif [[ "${_COMMIT_MSG}" == "feat:"* || "${_COMMIT_MSG}" == "feature:"* ]]; then
-              _MSG="${_COMMIT_MSG//feat:/}"
-              _MSG="${_MSG//feature:/}"
-
-              _MSG_EXIST="0"
-
-              # Check that msg already exist
-              for item in "${_MSG_FEATURES[@]}"; do
-                if [ "${item}" == "${_MSG}" ]; then
-                  _MSG_EXIST="1"
-                  break
-                fi
-              done
-
-              if [[ "${_MSG_EXIST}" == "0" ]]; then
-                _MSG_FEATURES+=("${_MSG}")
-              fi
-
-            elif [[ "${_COMMIT_MSG}" == "fix:"* || "${_COMMIT_MSG}" == "bugfix:"* ]]; then
-              _MSG="${_COMMIT_MSG//fix:/}"
-              _MSG="${_MSG//bugfix:/}"
-
-              _MSG_EXIST="0"
-
-              # Check that msg already exist
-              for item in "${_MSG_FIXES[@]}"; do
-                if [ "${item}" == "${_MSG}" ]; then
-                  _MSG_EXIST="1"
-                  break
-                fi
-              done
-
-              if [[ "${_MSG_EXIST}" == "0" ]]; then
-                _MSG_FIXES+=("${_MSG}")
-              fi
-
-            fi
-
-            # Pumping version
-            if [[ "${_COMMIT_MSG}" == "breaking_change:"* && "${_MAJOR_UPDATED}" == "0" ]]; then
-              echo "Pump major number"
-
-              _MAJOR="$(( "${_MAJOR}" + "1" ))"
-              _MAJOR_UPDATED="1"
-              _MINOR_UPDATED="1"
-              _PATH_UPDATED="1"
-              _MINOR="0"
-              _PATH="0"
-            elif [[ "${_COMMIT_MSG}" == "feat:"* || "${_COMMIT_MSG}" == "feature:"* ]] && [[ "${_MINOR_UPDATED}" == "0" ]]; then
-              echo "Pump minor number"
-
-              _MINOR="$(( "${_MINOR}" + "1" ))"
-              _MINOR_UPDATED="1"
-              _PATH_UPDATED="1"
-              _PATH="0"
-            elif [[ "${_PATH_UPDATED}" == "0" ]]; then
-              echo "Pump path number"
-
-              _PATH="$(( "${_PATH}" + "1" ))"
-              _PATH_UPDATED="1"
-            fi
-
-            echo "Current version '${_MAJOR}.${_MINOR}.${_PATH}'"
-          done <<< "$_COMMITS_TO_ANALYZE"
-
-          # Generate release note
-          _RELEASE_NOTE_FILE="RELEASE_NOTE.md"
-          _BR="$( echo -e "\n" )"
-
-          echo -e "# Release note${_BR}" >> "${_RELEASE_NOTE_FILE}"
-
-          # Breaking changes
-          if [[ "${#_MSG_BREAKING_CHANGES[@]}" != "0" ]]; then
-            echo -e "## :boom: Breaking changes:${_BR}" >> "${_RELEASE_NOTE_FILE}"
-          fi
-
-          for _NOTES_ELEMENT in "${_MSG_BREAKING_CHANGES[@]}"; do
-            echo -e "  - ${_NOTES_ELEMENT}${_BR}" >> "${_RELEASE_NOTE_FILE}"
-          done
-
-          # Features
-          if [[ "${#_MSG_FEATURES[@]}" != "0" ]]; then
-            echo -e "## :sparkles: Features:${_BR}" >> "${_RELEASE_NOTE_FILE}"
-          fi
-
-          for _NOTES_ELEMENT in "${_MSG_FEATURES[@]}"; do
-            echo -e "  - ${_NOTES_ELEMENT}${_BR}" >> "${_RELEASE_NOTE_FILE}"
-          done
-
-          # Fixes
-          if [[ "${#_MSG_FIXES[@]}" != "0" ]]; then
-            echo -e "## :hammer: Fixes:${_BR}" >> "${_RELEASE_NOTE_FILE}"
-          fi
-
-          for _NOTES_ELEMENT in "${_MSG_FIXES[@]}"; do
-            echo -e "  - ${_NOTES_ELEMENT}${_BR}" >> "${_RELEASE_NOTE_FILE}"
-          done
-
-          echo -e "Var: _RELEASE_NOTE_FILE = '${_RELEASE_NOTE_FILE}'"
-
-          cat "${_RELEASE_NOTE_FILE}";
-
-          # Set output
-          echo "semantic_version=${_MAJOR}.${_MINOR}.${_PATH}" >> "$GITHUB_OUTPUT"
-          echo -e "release_note_file=${_RELEASE_NOTE_FILE}" >> "$GITHUB_OUTPUT"
-
       - name: Create branch
         uses: peterjgrainger/action-create-branch@v2.2.0
         env:
           GITHUB_TOKEN: ${{ github.token }}
         with:
-          branch: "release/${{ steps.generate_semantic_version.outputs.semantic_version }}"
-          sha: "${{ github.sha }}"
+          branch: "release/${{ steps.get_next_semantic_version.outputs.version }}"
+          sha: "${{ steps.get_new_release_commits_range.outputs.stop }}"
 
       - name: Create release
         uses: ncipollo/release-action@v1.13.0
         with:
-          commit: "${{ github.sha }}"
-          tag: "${{ steps.generate_semantic_version.outputs.semantic_version }}"
-          bodyFile: "${{ steps.generate_semantic_version.outputs.release_note_file }}"
+          commit: "${{ steps.get_new_release_commits_range.outputs.stop }}"
+          tag: "${{ steps.get_next_semantic_version.outputs.version }}"
+          bodyFile: "${{ steps.generate_release_note.outputs.file }}"
           artifacts: "linux_x64.zip,macos_arm.zip,macos_x64.zip"

@@ -1,17 +1,7 @@
-import { uniffo } from './commands/uniffo/uniffo.ts';
-import { CLI_ARGS, LOGGER } from './constants/constants.ts';
-import { pwd } from './utils/workdir/pwd.ts';
+import { classEngine } from './classes/engine/engine.ts';
+import { session } from './services/session.ts';
+import { uvm as uniffoVersionManager } from './services/uvm.ts';
 
-await (async function cliEntry() {
-	LOGGER.debug(`Var cliArgs: ${JSON.stringify(CLI_ARGS)}`);
+const engine = new classEngine({ uniffoVersionManager, session });
 
-	const projectWorkingDir = await pwd();
-
-	const isProjectInitialized = !!projectWorkingDir;
-
-	if (isProjectInitialized) {
-		// TODO(#2): uvm
-	}
-
-	uniffo(CLI_ARGS);
-})();
+await engine.exec(Deno.args);
