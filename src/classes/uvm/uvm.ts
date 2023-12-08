@@ -8,6 +8,7 @@ import extract from 'npm:extract-zip';
 import { getCurrentCliVersion } from '../../utils/version/get_current_cli_version.ts';
 import { getCliVersionRequiredByProject } from '../../utils/version/get_cli_version_required_by_project.ts';
 import { classSession } from '../session/session.ts';
+import { version } from '../../utils/types/version.d.ts';
 
 /* The `classUvm` class is a TypeScript class that represents the Unifo Version Manager, which is
 responsible for managing the versions of the "uniffo" software by downloading and extracting
@@ -43,7 +44,7 @@ export class classUvm {
 	 * if it is different from the current version.
 	 * @returns The code is returning nothing.
 	 */
-	public async init() {
+	public async init(prefferedUniffoVersion?: version) {
 		logger.debug('Initialize Unifo Version Manager');
 
 		if (!await pathExist(this.uniffoDir.main)) {
@@ -53,7 +54,8 @@ export class classUvm {
 		const currentCliVersion = await getCurrentCliVersion();
 		logger.debug(`Var currentCliVersion: "${currentCliVersion}"`);
 
-		const cliVersionRequiredByProject = await getCliVersionRequiredByProject();
+		const cliVersionRequiredByProject = prefferedUniffoVersion ||
+			await getCliVersionRequiredByProject();
 		logger.debug(`Var cliVersionRequiredByProject: "${cliVersionRequiredByProject}"`);
 
 		if (!cliVersionRequiredByProject || currentCliVersion === cliVersionRequiredByProject) {
