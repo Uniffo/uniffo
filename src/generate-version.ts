@@ -4,9 +4,6 @@ import { cwd } from './utils/workdir/cwd.ts';
 (function generateVersion() {
 	// Init
 	const workdir = cwd();
-
-	logger.displayDebug(true);
-
 	let error = '';
 
 	const getLatestReleaseTag = './.github/workflows/shell-scripts/get_latest_release_tag.sh';
