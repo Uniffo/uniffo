@@ -21,4 +21,6 @@ Deno.test('ensureExecutePermissions', async function testEnsureExecutePermission
 	const mode = Deno.statSync(testFilename).mode;
 
 	assert(mode !== null && (mode & executePermission), 'check mode');
+
+	Deno.removeSync(testDir, { recursive: true });
 });
