@@ -72,6 +72,8 @@ await (async function installer() {
 
 	logger.success(`Uniffo ${latest} successfully installed`);
 
+	logger.info('Checking required dependencies');
+
 	if (!shell) {
 		logger.error(
 			`Can not verify required dependencies because "SHELL" environment variable "${shell}"!`,
@@ -84,6 +86,6 @@ await (async function installer() {
 	);
 
 	if (!checkDockerCmd) {
-		logger.error('docker is required!');
+		logger.error('"docker" is required!');
 	}
 })();
