@@ -1,4 +1,5 @@
 import { logger } from '../../services/logger.ts';
+import { ensureExecutePermissions } from '../../utils/path/ensureExecutePermissions.ts';
 import { pathExist } from '../../utils/path/exist.ts';
 import { version } from '../../utils/types/version.d.ts';
 import { classSession } from '../session/session.ts';
@@ -35,7 +36,7 @@ export class classEngine {
 
 				const dispatchTarget = await this.getDispatchTarget();
 
-				await this.ensureUniffoPermissions(dispatchTarget);
+				ensureExecutePermissions(dispatchTarget);
 				await this.dispatchCommand(dispatchTarget, args);
 			} else {
 				// TODO(#2): execute command
@@ -45,25 +46,6 @@ export class classEngine {
 		} catch (error) {
 			await this.session.destroy();
 			throw error;
-		}
-	}
-
-	/**
-	 * The function `ensureUniffoPermissions` checks if a file at a given path has execute permissions and
-	 * upgrades the permissions if necessary.
-	 * @param {string} path - The `path` parameter is a string that represents the file path of the
-	 * dispatch target.
-	 */
-	private async ensureUniffoPermissions(path: string) {
-		const dispatchTargetMode = (await Deno.stat(path)).mode;
-		const executePermission = 0o111;
-
-		if (dispatchTargetMode !== null && !(dispatchTargetMode & executePermission)) {
-			logger.debug(
-				`Dispatch target is not executable! Upgrading permissions.`,
-			);
-
-			Deno.chmod(path, dispatchTargetMode | executePermission);
 		}
 	}
 
