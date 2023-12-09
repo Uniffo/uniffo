@@ -10,10 +10,15 @@
     "dev": "deno task pre-compile; deno run --allow-read --allow-run dev.ts --allow-read --allow-run --allow-write --allow-env --allow-net",
     "generate-version": "deno run --allow-run --allow-read --allow-write ./src/generate-version.ts -- --debug",
     "pre-compile": "deno task generate-version && deno run --allow-read --allow-write --allow-env ./src/pre-compile.ts -- --debug",
-    "compile": "deno task pre-compile && deno task compile-linux-x64 && deno task compile-macos-x64 && deno task compile-macos-arm",
-    "compile-linux-x64": "deno compile --allow-read --allow-run --allow-write --allow-env --allow-net --output dist/linux_x64/uniffo --target x86_64-unknown-linux-gnu ./src/entry.ts",
-    "compile-macos-x64": "deno compile --allow-read --allow-run --allow-write --allow-env --allow-net --output dist/macos_x64/uniffo --target x86_64-apple-darwin ./src/entry.ts",
-    "compile-macos-arm": "deno compile --allow-read --allow-run --allow-write --allow-env --allow-net --output dist/macos_arm/uniffo --target aarch64-apple-darwin ./src/entry.ts"
+    "compile": "deno task pre-compile && deno task compile-uniffo && deno task compile-install",
+    "compile-uniffo": "deno task compile-uniffo-linux-x64 && deno task compile-uniffo-macos-x64 && deno task compile-uniffo-macos-arm",
+    "compile-uniffo-linux-x64": "deno compile --allow-read --allow-run --allow-write --allow-env --allow-net --output dist/linux_x64/uniffo --target x86_64-unknown-linux-gnu ./src/entry.ts",
+    "compile-uniffo-macos-x64": "deno compile --allow-read --allow-run --allow-write --allow-env --allow-net --output dist/macos_x64/uniffo --target x86_64-apple-darwin ./src/entry.ts",
+    "compile-uniffo-macos-arm": "deno compile --allow-read --allow-run --allow-write --allow-env --allow-net --output dist/macos_arm/uniffo --target aarch64-apple-darwin ./src/entry.ts",
+    "compile-install": "deno task compile-install-linux-x64 && deno task compile-install-macos-x64 && deno task compile-install-macos-arm",
+    "compile-install-linux-x64": "deno compile --allow-read --allow-run --allow-write --allow-env --allow-net --output dist/linux_x64/install --target x86_64-unknown-linux-gnu ./src/install.ts",
+    "compile-install-macos-x64": "deno compile --allow-read --allow-run --allow-write --allow-env --allow-net --output dist/macos_x64/install --target x86_64-apple-darwin ./src/install.ts",
+    "compile-install-macos-arm": "deno compile --allow-read --allow-run --allow-write --allow-env --allow-net --output dist/macos_arm/install --target aarch64-apple-darwin ./src/install.ts"
   },
   "lint": {
     "include": ["src/"],
