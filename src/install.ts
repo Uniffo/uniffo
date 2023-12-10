@@ -26,7 +26,7 @@ await (async function installer() {
 
 		default:
 			logger.error(
-				`Not supported shell "${shell}"! Please add manually uniffo path "${uvm.getUniffoDir().main}" to your shell profile (${shell})`,
+				`Not supported shell "${shell}"! Please add manually uniffo path "${uvm.getDirInfo().main}" to your shell profile (${shell})`,
 			);
 			break;
 	}
@@ -59,7 +59,7 @@ await (async function installer() {
 		const addUninffoToPATH: string[] = [];
 
 		addUninffoToPATH.push(`${beginUniffoContent}`);
-		addUninffoToPATH.push(`PATH="\${PATH}:${uvm.getUniffoDir().main}"`);
+		addUninffoToPATH.push(`PATH="\${PATH}:${uvm.getDirInfo().main}"`);
 		addUninffoToPATH.push(`${endUniffoContent}`);
 
 		newContent.push(...addUninffoToPATH);

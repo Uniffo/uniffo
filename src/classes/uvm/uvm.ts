@@ -157,7 +157,7 @@ export class classUvm {
 	 * The function returns the value of the uniffoDir property.
 	 * @returns The method is returning the value of the variable "uniffoDir".
 	 */
-	public getUniffoDir() {
+	public getDirInfo() {
 		return this.uniffoDir;
 	}
 
