@@ -1,5 +1,5 @@
-import { logger } from './services/logger.ts';
-import { cwd } from './utils/workdir/cwd.ts';
+import { logger } from '../services/logger.ts';
+import { cwd } from '../utils/workdir/cwd.ts';
 
 (function generateVersion() {
 	// Init

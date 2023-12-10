@@ -1,6 +1,6 @@
-import { logger } from './services/logger.ts';
-import { pathExist } from './utils/path/exist.ts';
-import { cwd } from './utils/workdir/cwd.ts';
+import { logger } from '../services/logger.ts';
+import { pathExist } from '../utils/path/exist.ts';
+import { cwd } from '../utils/workdir/cwd.ts';
 
 await (async function testCoverageReport() {
 	const testCoverageDir = `${cwd()}/.test_coverage`;

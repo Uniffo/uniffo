@@ -1,6 +1,6 @@
-import { logger } from './services/logger.ts';
-import { session } from './services/session.ts';
-import { uvm } from './services/uvm.ts';
+import { logger } from '../services/logger.ts';
+import { session } from '../services/session.ts';
+import { uvm } from '../services/uvm.ts';
 
 await (async function installer() {
 	logger.info('Initialize installer');
@@ -70,7 +70,9 @@ await (async function installer() {
 		Deno.writeTextFileSync(profileFilename, `${newContent.join('\n')}\n`);
 	}
 
-	logger.success(`Uniffo ${latest} successfully installed`);
+	logger.success(
+		`Uniffo ${latest} successfully installed. Please restart terminal and try to execute "uniffo"`,
+	);
 
 	logger.info('Checking required dependencies');
 
