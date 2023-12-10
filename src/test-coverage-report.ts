@@ -40,7 +40,7 @@ await (async function testCoverageReport() {
 	await removeTestCoverageReportFiles();
 
 	await denoCommand({
-		args: ['task', 'pre-compile'],
+		args: ['task', 'pre:compile'],
 	});
 
 	await denoCommand({
@@ -48,11 +48,11 @@ await (async function testCoverageReport() {
 	});
 
 	await denoCommand({
-		args: ['task', 'test-coverage'],
+		args: ['task', 'test:coverage:lcov'],
 	});
 
 	await denoCommand({
-		args: ['task', 'test-coverage-html'],
+		args: ['task', 'generate:test:coverage:report:html'],
 	});
 
 	await removeTestCoverageFiles();
