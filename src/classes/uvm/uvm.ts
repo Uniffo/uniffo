@@ -9,6 +9,7 @@ import { getCurrentCliVersion } from '../../utils/version/get_current_cli_versio
 import { getCliVersionRequiredByProject } from '../../utils/version/get_cli_version_required_by_project.ts';
 import { classSession } from '../session/session.ts';
 import { version } from '../../utils/types/version.d.ts';
+import { ensureExecutePermissions } from '../../utils/path/ensureExecutePermissions.ts';
 
 /* The `classUvm` class is a TypeScript class that represents the Unifo Version Manager, which is
 responsible for managing the versions of the "uniffo" software by downloading and extracting
@@ -131,7 +132,9 @@ export class classUvm {
 	}
 
 	/**
-	 * The function "useLatest" logs the latest version of "uniffo" and downloads it if available.
+	 * The function "useLatest" retrieves the latest version of "uniffo" and sets it as the default
+	 * version.
+	 * @returns the latest version of "uniffo" as a string.
 	 */
 	public async useLatest() {
 		logger.debug('Use latest uniffo version');
@@ -145,9 +148,90 @@ export class classUvm {
 
 		const latest = versions[0];
 
-		logger.info(`Use uniffo "${latest.tagName}" version`);
+		await this.setDefaultVersion(latest.tagName);
 
-		await this.downloadVersion(latest.tagName);
+		return latest.tagName;
+	}
+
+	/**
+	 * The function returns the value of the uniffoDir property.
+	 * @returns The method is returning the value of the variable "uniffoDir".
+	 */
+	public getDirInfo() {
+		return this.uniffoDir;
+	}
+
+	/**
+	 * The function `setDefaultVersion` sets a default version of a software by downloading and copying
+	 * the necessary files.
+	 * @param {string} tagName - The `tagName` parameter is a string that represents the version tag name.
+	 * It is used to set the default version of a software package.
+	 */
+	public async setDefaultVersion(tagName: string) {
+		const availableVersions = (await this.getVersionsList()).map((item) => {
+			return item.tagName;
+		});
+
+		if (!availableVersions.includes(tagName)) {
+			throw `Version "${tagName}" is not available!`;
+		}
+
+		const installedVersions = await this.getInstalledVersions();
+
+		if (!installedVersions.includes(tagName)) {
+			await this.downloadVersion(tagName);
+		}
+
+		const uniffoVersionFilename = `${this.uniffoDir.versions}/${tagName}/uniffo`;
+		const uniffoFilename = `${this.uniffoDir.main}/uniffo`;
+		const uniffoTmpFilename = `${this.uniffoDir.main}/tmp_uniffo`;
+		const uniffoToRmFilename = `${this.uniffoDir.main}/rm_uniffo`;
+
+		if (await pathExist(uniffoTmpFilename)) {
+			logger.debug(`Remove: "${uniffoTmpFilename}"`);
+			Deno.removeSync(uniffoTmpFilename);
+		}
+
+		if (await pathExist(uniffoToRmFilename)) {
+			logger.debug(`Remove: "${uniffoToRmFilename}"`);
+			Deno.removeSync(uniffoToRmFilename);
+		}
+
+		logger.debug(`Copy "${uniffoVersionFilename}" to "${uniffoTmpFilename}"`);
+
+		Deno.copyFileSync(uniffoVersionFilename, uniffoTmpFilename);
+
+		if (await pathExist(uniffoFilename)) {
+			logger.debug(`Rename "${uniffoFilename}" to "${uniffoToRmFilename}"`);
+			Deno.renameSync(uniffoFilename, uniffoToRmFilename);
+		}
+
+		logger.debug(`Rename "${uniffoTmpFilename}" to "${uniffoFilename}"`);
+		Deno.renameSync(uniffoTmpFilename, uniffoFilename);
+
+		if (await pathExist(uniffoToRmFilename)) {
+			logger.debug(`Remove "${uniffoToRmFilename}"`);
+			Deno.removeSync(uniffoToRmFilename);
+		}
+	}
+
+	public async getInstalledVersions() {
+		const installedVersions: string[] = [];
+		const availableVersions = (await this.getVersionsList()).map((item) => {
+			return item.tagName;
+		});
+
+		if (await pathExist(this.uniffoDir.versions)) {
+			for (const dirEntry of Deno.readDirSync(this.uniffoDir.versions)) {
+				const dirname = availableVersions.includes(dirEntry.name) ? dirEntry.name : false;
+
+				if (dirname) {
+					installedVersions.push(dirname);
+				}
+			}
+		}
+
+		return installedVersions;
 	}
 
 	/**
@@ -243,6 +327,12 @@ export class classUvm {
 
 		logger.info(`Extracting into ${destDir}`);
 		await extract(downloadDetails.filename, { dir: destDir });
+
+		for (const dirEntry of Deno.readDirSync(destDir)) {
+			if (!dirEntry.isFile) continue;
+
+			ensureExecutePermissions(`${destDir}/${dirEntry.name}`);
+		}
 
 		logger.info(`"Uniffo ${tagName} downloaded"`);
 	}

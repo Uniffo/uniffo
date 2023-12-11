@@ -1,12 +1,9 @@
-import { logger } from './services/logger.ts';
-import { cwd } from './utils/workdir/cwd.ts';
+import { logger } from '../services/logger.ts';
+import { cwd } from '../utils/workdir/cwd.ts';
 
 (function generateVersion() {
 	// Init
 	const workdir = cwd();
-
-	logger.displayDebug(true);
-
 	let error = '';
 
 	const getLatestReleaseTag = './.github/workflows/shell-scripts/get_latest_release_tag.sh';
@@ -21,7 +18,7 @@ import { cwd } from './utils/workdir/cwd.ts';
 		.outputSync();
 	const latestReleaseTag = textDecoder.decode(
 		latestReleaseTagCmd.stdout,
-	);
+	).trim();
 
 	error = textDecoder.decode(
 		latestReleaseTagCmd.stderr,
@@ -29,7 +26,7 @@ import { cwd } from './utils/workdir/cwd.ts';
 
 	if (error) throw error;
 
-	logger.debug(`latestReleaseTag: "${latestReleaseTag.trim()}"`);
+	logger.debug(`latestReleaseTag: "${latestReleaseTag}"`);
 
 	// Get commits range
 	const commitsRangeCmd = new Deno.Command(getNewReleaseCommitsRange, {
@@ -37,7 +34,7 @@ import { cwd } from './utils/workdir/cwd.ts';
 	}).outputSync();
 	const commitsRange = textDecoder.decode(
 		commitsRangeCmd.stdout,
-	);
+	).trim();
 
 	error = textDecoder.decode(
 		commitsRangeCmd.stderr,
@@ -48,29 +45,33 @@ import { cwd } from './utils/workdir/cwd.ts';
 	const commitStart = commitsRange.split(',')[0];
 	const commitStop = commitsRange.split(',')[1];
 
-	logger.debug(`commitsRange: "${commitsRange.trim()}"`);
+	logger.debug(`commitsRange: "${commitsRange}"`);
 
 	// Get next semantic version
-	const nextSemanticVersionCmd = new Deno.Command(getNextSemanticVersion, {
-		args: [latestReleaseTag, commitStart, commitStop],
-	})
-		.outputSync();
-	const nextSemanticVersion = textDecoder.decode(
-		nextSemanticVersionCmd.stdout,
-	);
+	let nextSemanticVersion = latestReleaseTag;
 
-	error = textDecoder.decode(
-		nextSemanticVersionCmd.stderr,
-	);
+	if (commitStart !== commitStop) {
+		const nextSemanticVersionCmd = new Deno.Command(getNextSemanticVersion, {
+			args: [latestReleaseTag, commitStart, commitStop],
+		})
+			.outputSync();
+		nextSemanticVersion = textDecoder.decode(
+			nextSemanticVersionCmd.stdout,
+		).trim();
 
-	if (error) throw error;
+		error = textDecoder.decode(
+			nextSemanticVersionCmd.stderr,
+		);
 
-	logger.debug(`nextSemanticVersion: "${nextSemanticVersion.trim()}"`);
+		if (error) throw error;
+	}
+
+	logger.debug(`nextSemanticVersion: "${nextSemanticVersion}"`);
 
 	// Write to file
 	const versionFile = `${workdir}/VERSION`;
 
-	logger.debug(`write to file "${nextSemanticVersion.trim()}"`);
+	logger.debug(`write to file "${nextSemanticVersion}"`);
 
-	Deno.writeTextFileSync(versionFile, nextSemanticVersion.trim());
+	Deno.writeTextFileSync(versionFile, nextSemanticVersion);
 })();

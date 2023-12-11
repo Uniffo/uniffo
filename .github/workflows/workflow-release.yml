@@ -97,6 +97,21 @@ jobs:
           files: dist/macos_x64/uniffo
           dest: macos_x64.zip
 
+      - uses: vimtor/action-zip@v1
+        with:
+          files: dist/linux_x64/install
+          dest: linux_x64-install.zip
+
+      - uses: vimtor/action-zip@v1
+        with:
+          files: dist/macos_arm/install
+          dest: macos_arm-install.zip
+
+      - uses: vimtor/action-zip@v1
+        with:
+          files: dist/macos_x64/install
+          dest: macos_x64-install.zip
+
       - name: Create branch
         uses: peterjgrainger/action-create-branch@v2.2.0
         env:
@@ -111,4 +126,4 @@ jobs:
           commit: "${{ steps.get_new_release_commits_range.outputs.stop }}"
           tag: "${{ steps.get_next_semantic_version.outputs.version }}"
           bodyFile: "${{ steps.generate_release_note.outputs.file }}"
-          artifacts: "linux_x64.zip,macos_arm.zip,macos_x64.zip"
+          artifacts: "linux_x64.zip,macos_arm.zip,macos_x64.zip,linux_x64-install.zip,macos_arm-install.zip,macos_x64-install.zip"

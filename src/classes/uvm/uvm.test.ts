@@ -93,6 +93,8 @@ Deno.test('classUvm', async function testClassUvm() {
 
 	assert(Array.isArray(await uvm.getVersionsList()), 'versions list');
 
+	assert(uvm.getDirInfo(), '');
+
 	Deno.chdir(_cwd);
 
 	await session.destroy();
