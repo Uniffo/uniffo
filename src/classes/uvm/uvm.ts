@@ -18,7 +18,7 @@ export class classUvm {
 	private gitHubApi;
 	private dispatch;
 	private dispatchTarget;
-	public uniffoDir;
+	private uniffoDir;
 	private session;
 
 	/**
