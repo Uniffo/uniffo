@@ -6,7 +6,13 @@ Uniffo is a tool for unifying WordPress runtime environments, aimed at reducing 
 
 ## Installation
 
-_(TO DO: Add installation instructions for the project)_
+- Open [latest release](https://github.com/Uniffo/uniffo/releases/latest)
+- Download installation file for your OS
+- Extract downloaded file
+- Open terminal
+- Make sure that <b>install</b> file have permissions to execute ```chmod +x ./install```
+- Execute <b>install</b> file ```./install```
+- Follow the instructions from terminal logs
 
 ## Usage
 
