@@ -141,4 +141,6 @@ Deno.test('classStore', async function testClassStore() {
 
 	await testStore(store1, 'store1');
 	await testStore(store2, 'store2');
+
+	Deno.removeSync(testDir, { recursive: true });
 });
