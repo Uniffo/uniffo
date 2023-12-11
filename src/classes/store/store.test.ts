@@ -2,16 +2,20 @@ import { assertEquals } from 'https://deno.land/std@0.201.0/assert/assert_equals
 import { classStore } from './store.ts';
 import { getError } from '../../utils/error/get_error.ts';
 import { assert } from 'https://deno.land/std@0.162.0/_util/assert.ts';
+import { logger } from '../../services/logger.ts';
+import { cwd } from '../../utils/workdir/cwd.ts';
 
 Deno.test('classStore', async function testClassStore() {
-	const store1 = new classStore();
-	const store2 = new classStore();
+	const testDir = `${cwd()}/test_classStore`;
+
+	const store1 = new classStore(testDir);
+	const store2 = new classStore(testDir);
 
 	await store1.init('customStore1');
 	await store2.init('customStore2');
 
 	const testStore = async (store: classStore, name: string) => {
-		console.log(`Test for store: "${name}"`);
+		logger.debug(`Test for store: "${name}"`);
 
 		const persistentCreatedAt = await store.getPersistentValue<number>('_createdAt');
 		const sessionCreatedAt = await store.getSessionValue<number>('_createdAt');
