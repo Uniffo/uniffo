@@ -1,8 +1,6 @@
-import { parseCliArgs } from '../utils/cli_args/parser.ts';
 import { getCurrentCliVersion } from '../utils/version/get_current_cli_version.ts';
 import { cwd } from '../utils/workdir/cwd.ts';
 
-export const CLI_ARGS = parseCliArgs(Deno.args);
 export const PRECOMPILED_DIR = `${cwd()}/src/pre_compiled`;
 /* The `UNIFFO_CVFB` => Uniffo CLI Version File Basename */
 export const UNIFFO_CVFB = 'VERSION';

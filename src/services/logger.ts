@@ -7,6 +7,6 @@ const _CLI_ARGS = parseCliArgs(Deno.args);
 constant. The `classLogger` constructor takes an object as an argument with two properties:
 `displayDebug` and `displayDate`. */
 export const logger = new classLogger({
-	displayDebug: 'debug' in _CLI_ARGS,
-	displayDate: 'debug' in _CLI_ARGS,
+	displayDebug: _CLI_ARGS.hasBoolean(['debug']),
+	displayDate: _CLI_ARGS.hasBoolean(['debug']),
 });
