@@ -5,7 +5,7 @@
  * command-line arguments passed to a Deno script.
  * @returns The function `parseCliArgs` returns an object with the following properties:
  */
-export const parseCliArgs = (denoArgs: typeof Deno.args) => {
+export const parseCliArgs = (denoArgs = Deno.args) => {
 	const parsed = {
 		boolean: [] as string[],
 		keyValue: [] as [string, string][],
