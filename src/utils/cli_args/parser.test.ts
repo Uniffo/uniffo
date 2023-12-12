@@ -1,41 +1,75 @@
-import { assertEquals } from 'https://deno.land/std@0.201.0/assert/assert_equals.ts';
+import { assert } from 'https://deno.land/std@0.162.0/_util/assert.ts';
 import { parseCliArgs } from './parser.ts';
+import { noError } from '../error/no_error.ts';
+import { assertEquals } from 'https://deno.land/std@0.201.0/assert/assert_equals.ts';
 
-Deno.test('parseCliArgs', function testParseCliArgs() {
-	const args = ['should be skiped', '-h', '--help', '--my-argument', 'my value :D', '-r'];
+Deno.test('parseCliArgs', async function testParseCliArgs() {
+	const booleans = [
+		'-h',
+		'--h',
+		'--help',
+		'--my-boolean',
+	];
+
+	const keyValues = [
+		'-h=',
+		'-h=loerm ipsum sot dolor am',
+		'-h=loerm i#$psum sot do$#@%_8=lor am',
+		'--h=loerm ipsum sot dolor am',
+		'--h=loerm i#$psum sot do$#@%_8=lor am',
+		'--my-argument=my custom value',
+	];
+
+	const cargs = [
+		'arg 1',
+		'arg 2',
+	];
+
+	const args = [
+		...booleans,
+		cargs[0],
+		...keyValues,
+		cargs[1],
+	];
+
+	assert(
+		await noError(() => {
+			parseCliArgs(args);
+		}),
+		'parse args',
+	);
 
 	const parsedArgs = parseCliArgs(args);
 
-	assertEquals(
-		Object.keys(parsedArgs).length,
-		args.length - 2,
-		`compare lengths '${Object.keys(parsedArgs).length}' =? '${args.length - 2}'`,
+	booleans.forEach((v) => {
+		const boolean = v.replace(/^(--|-)/, '');
+
+		assert(parsedArgs.hasBoolean([boolean]), 'single hasBoolean');
+	});
+
+	assert(
+		parsedArgs.hasBoolean(booleans.map((item) => item.replace(/^(--|-)/, ''))),
+		'multiple hasBoolean',
 	);
-	assertEquals(
-		parsedArgs?.['h'],
-		'',
-		`compare values of key '${'h'}' -> '${parsedArgs?.['h']}' =? '${''}'`,
+	assert(
+		parsedArgs.hasBoolean(booleans.map((item) => item.replace(/^(--|-)/, '')), 'OR'),
+		'multiple hasBoolean OR',
 	);
-	assertEquals(
-		parsedArgs?.['help'],
-		'',
-		`compare values of key '${'help'}' -> '${parsedArgs?.['help']}' =? '${''}'`,
+	assert(
+		parsedArgs.hasBoolean(booleans.map((item) => item.replace(/^(--|-)/, '')), 'AND'),
+		'multiple hasBoolean AND',
 	);
-	assertEquals(
-		parsedArgs?.['my-argument'],
-		args[4],
-		`compare values of key '${'my-argument'}' -> '${parsedArgs?.['my-argument']}' =? '${
-			args[4]
-		}'`,
-	);
-	assertEquals(
-		parsedArgs?.['r'],
-		'',
-		`compare values of key '${'r'}' -> '${parsedArgs?.['r']}' =? '${''}'`,
-	);
-	assertEquals(
-		parsedArgs?.['random'],
-		undefined,
-		`compare values of key 'random' -> '${parsedArgs?.['random']}' =? '${undefined}'`,
-	);
+
+	keyValues.forEach((v) => {
+		const kv = [
+			v.slice(0, v.indexOf('=')).replace(/^(--|-)/, ''),
+			v.slice(v.indexOf('=') + 1),
+		] as [string, string];
+
+		assert(parsedArgs.getKV([kv[0]])[0][0] === kv[0], 'single getKV');
+	});
+
+	assert(Array.isArray(parsedArgs.getKV()), 'getKV');
+
+	assertEquals(parsedArgs.args, cargs, 'check args');
 });
