@@ -2,8 +2,11 @@ import { assert } from 'https://deno.land/std@0.162.0/_util/assert.ts';
 import { parseCliArgs } from './parser.ts';
 import { noError } from '../error/no_error.ts';
 import { assertEquals } from 'https://deno.land/std@0.201.0/assert/assert_equals.ts';
+import { COMMANDS } from '../../constants/commands.ts';
 
 Deno.test('parseCliArgs', async function testParseCliArgs() {
+	const command = [...COMMANDS.init.split(' ')];
+
 	const booleans = [
 		'-h',
 		'--h',
@@ -26,6 +29,7 @@ Deno.test('parseCliArgs', async function testParseCliArgs() {
 	];
 
 	const args = [
+		...command,
 		...booleans,
 		cargs[0],
 		...keyValues,
@@ -40,6 +44,9 @@ Deno.test('parseCliArgs', async function testParseCliArgs() {
 	);
 
 	const parsedArgs = parseCliArgs(args);
+	console.log(parsedArgs);
+
+	assertEquals(parsedArgs.command, command.join(' '), 'command');
 
 	booleans.forEach((v) => {
 		const boolean = v.replace(/^(--|-)/, '');

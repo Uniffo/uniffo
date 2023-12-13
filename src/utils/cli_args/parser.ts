@@ -1,3 +1,5 @@
+import { COMMANDS } from '../../constants/commands.ts';
+
 /**
  * The `parseCliArgs` function parses command-line arguments in Deno and categorizes them into boolean
  * flags, key-value pairs, and regular arguments.
@@ -7,6 +9,7 @@
  */
 export const parseCliArgs = (denoArgs = Deno.args) => {
 	const parsed = {
+		command: '',
 		boolean: [] as string[],
 		keyValue: [] as [string, string][],
 		args: [] as string[],
@@ -73,6 +76,23 @@ export const parseCliArgs = (denoArgs = Deno.args) => {
 			parsed.args.push(value);
 		}
 	});
+
+	Object.keys(COMMANDS).forEach((k) => {
+		const cmd = (COMMANDS as { [k: string]: string })[k];
+		const argCmd = [] as string[];
+		parsed.args.forEach((arg) => {
+			argCmd.push(arg);
+
+			if (
+				cmd.startsWith(argCmd.join(' ')) &&
+				argCmd.length >= parsed.command.split(' ').length
+			) {
+				parsed.command = argCmd.join(' ');
+			}
+		});
+	});
+
+	parsed.args = parsed.args.filter((v, i) => v !== parsed.command.split(' ')[i]);
 
 	return { ...parsed };
 };
