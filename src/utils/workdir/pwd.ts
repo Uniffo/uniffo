@@ -1,4 +1,4 @@
-import { UNIFFO_PROJECT_STRUCTURE } from '../../constants/constants.ts';
+import { UNIFFO_PROJECT_STRUCTURE } from '../../constants/index.ts';
 import { pathExist } from '../path/exist.ts';
 import { cwd } from './cwd.ts';
 

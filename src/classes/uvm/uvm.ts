@@ -1,4 +1,4 @@
-import { UNIFFO_DIR } from '../../constants/constants.ts';
+import { UNIFFO_DIR } from '../../constants/index.ts';
 import { logger } from '../../services/logger.ts';
 import { getOsAlias } from '../../utils/os/get_os_alias.ts';
 import { pathExist } from '../../utils/path/exist.ts';
@@ -90,11 +90,11 @@ export class classUvm {
 	}
 
 	/**
-	 * The function shouldDispatchCmd returns the value of the dispatch variable and logs it to the debug
+	 * The function shouldOutsourceCmd returns the value of the dispatch variable and logs it to the debug
 	 * logger.
 	 * @returns The value of the variable `shouldDispatch`.
 	 */
-	public shouldDispatchCmd() {
+	public shouldOutsourceCmd() {
 		const shouldDispatch = this.dispatch;
 		logger.debug(`Var shouldDispatch: "${shouldDispatch}"`);
 

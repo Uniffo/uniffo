@@ -1,4 +1,4 @@
-import { UNIFFO_PVFB } from '../../constants/constants.ts';
+import { UNIFFO_PVFB } from '../../constants/index.ts';
 import { pwd } from '../workdir/pwd.ts';
 
 /**

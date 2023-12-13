@@ -1,4 +1,4 @@
-import { UNIFFO_PVFB } from '../../constants/constants.ts';
+import { UNIFFO_PVFB } from '../../constants/index.ts';
 import createProjectStructure from '../../utils/project_structure/create_project_structure.ts';
 import { cwd } from '../../utils/workdir/cwd.ts';
 import { classUvm } from './uvm.ts';

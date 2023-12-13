@@ -1,7 +1,7 @@
 import { classLogger } from '../classes/logger/logger.ts';
 import { parseCliArgs } from '../utils/cli_args/parser.ts';
 
-const _CLI_ARGS = parseCliArgs(Deno.args);
+const _CLI_ARGS = parseCliArgs();
 
 /* The code is creating a new instance of the `classLogger` class and assigning it to the `logger`
 constant. The `classLogger` constructor takes an object as an argument with two properties:

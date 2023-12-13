@@ -2,7 +2,7 @@ import { assertEquals } from 'https://deno.land/std@0.201.0/assert/assert_equals
 import {
 	UNIFFO_PROJECT_STRUCTURE,
 	UNIFFO_PROJECT_STRUCTURE_EMPTY_DIR,
-} from '../../constants/constants.ts';
+} from '../../constants/index.ts';
 import { loopOnProjectStructure } from './loop_on_project_structure.ts';
 import _ from 'npm:lodash';
 

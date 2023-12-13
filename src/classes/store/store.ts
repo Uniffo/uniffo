@@ -1,4 +1,4 @@
-import { UNIFFO_DIR } from '../../constants/constants.ts';
+import { UNIFFO_DIR } from '../../constants/index.ts';
 import { logger } from '../../services/logger.ts';
 import { getRandomId } from '../../utils/random_id/get_random_id.ts';
 import { classDocumentStorage } from '../document_storage/document_storage.ts';

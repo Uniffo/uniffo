@@ -2,7 +2,7 @@ import { assertEquals } from 'https://deno.land/std@0.201.0/assert/assert_equals
 import { generateUniqueBasename } from '../file/generate_unique_basename.ts';
 import { cwd } from '../workdir/cwd.ts';
 import { getCliVersionRequiredByProject } from './get_cli_version_required_by_project.ts';
-import { UNIFFO_PROJECT_STRUCTURE, UNIFFO_PVFB } from '../../constants/constants.ts';
+import { UNIFFO_PROJECT_STRUCTURE, UNIFFO_PVFB } from '../../constants/index.ts';
 import { logger } from '../../services/logger.ts';
 import { loopOnProjectStructure } from '../project_structure/loop_on_project_structure.ts';
 import createProjectStructure from '../project_structure/create_project_structure.ts';

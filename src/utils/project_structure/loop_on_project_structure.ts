@@ -1,4 +1,4 @@
-import { UNIFFO_PROJECT_STRUCTURE } from '../../constants/constants.ts';
+import { UNIFFO_PROJECT_STRUCTURE } from '../../constants/index.ts';
 import { logger } from '../../services/logger.ts';
 
 /**

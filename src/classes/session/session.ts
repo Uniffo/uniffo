@@ -1,4 +1,4 @@
-import { UNIFFO_DIR } from '../../constants/constants.ts';
+import { UNIFFO_DIR } from '../../constants/index.ts';
 import { logger } from '../../services/logger.ts';
 import { generateUniqueBasename } from '../../utils/file/generate_unique_basename.ts';
 import { classStore } from '../store/store.ts';
