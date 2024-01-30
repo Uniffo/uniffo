@@ -1,4 +1,5 @@
 import { COMMANDS } from '../../constants/commands.ts';
+import { logger } from '../../services/logger.ts';
 
 /**
  * The `parseCliArgs` function parses command-line arguments in Deno and categorizes them into boolean
@@ -8,8 +9,10 @@ import { COMMANDS } from '../../constants/commands.ts';
  * @returns The function `parseCliArgs` returns an object with the following properties:
  */
 export const parseCliArgs = (denoArgs = Deno.args) => {
+	logger.debug(`denoArgs: ${JSON.stringify(denoArgs)}`);
+
 	const parsed = {
-		command: '',
+		commandPhrase: '',
 		boolean: [] as string[],
 		keyValue: [] as [string, string][],
 		args: [] as string[],
@@ -78,21 +81,21 @@ export const parseCliArgs = (denoArgs = Deno.args) => {
 	});
 
 	Object.keys(COMMANDS).forEach((k) => {
-		const cmd = (COMMANDS as { [k: string]: string })[k];
+		const cmd = COMMANDS?.[k as keyof typeof COMMANDS]?.phrase;
 		const argCmd = [] as string[];
 		parsed.args.forEach((arg) => {
 			argCmd.push(arg);
 
 			if (
 				cmd.startsWith(argCmd.join(' ')) &&
-				argCmd.length >= parsed.command.split(' ').length
+				argCmd.length >= parsed.commandPhrase.split(' ').length
 			) {
-				parsed.command = argCmd.join(' ');
+				parsed.commandPhrase = argCmd.join(' ');
 			}
 		});
 	});
 
-	parsed.args = parsed.args.filter((v, i) => v !== parsed.command.split(' ')[i]);
+	parsed.args = parsed.args.filter((v, i) => v !== parsed.commandPhrase.split(' ')[i]);
 
 	return { ...parsed };
 };
