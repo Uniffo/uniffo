@@ -51,7 +51,7 @@ Deno.test('classEnging', async function testClassEngine() {
 		await noError(async () => {
 			await engine.exec(['no-args']);
 		}),
-		'dispatch uniffo cmd to another version',
+		'dispatch uniffo default cmd to current version',
 	);
 
 	Deno.removeSync(testDir, { recursive: true });

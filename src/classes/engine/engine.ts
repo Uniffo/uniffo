@@ -1,4 +1,6 @@
+import { COMMANDS } from '../../constants/commands.ts';
 import { logger } from '../../services/logger.ts';
+import { parseCliArgs } from '../../utils/cli_args/parser.ts';
 import { ensureExecutePermissions } from '../../utils/path/ensureExecutePermissions.ts';
 import { pathExist } from '../../utils/path/exist.ts';
 import { version } from '../../utils/types/version.d.ts';
@@ -31,15 +33,14 @@ export class classEngine {
 
 			await this.uniffoVersionManager.init(prefferedUniffoVersion);
 
-			if (this.uniffoVersionManager.shouldDispatchCmd()) {
-				logger.debug(`Will dispatch uniffo command.`);
+			if (this.uniffoVersionManager.shouldOutsourceCmd()) {
+				logger.debug(`Will outsource uniffo command`);
 
-				const dispatchTarget = await this.getDispatchTarget();
+				const dispatchTarget = await this.getOutsourceTarget();
 
-				ensureExecutePermissions(dispatchTarget);
-				await this.dispatchCommand(dispatchTarget, args);
+				await this.outsourceCommand(dispatchTarget, args);
 			} else {
-				// TODO(#2): execute command
+				await this.dispatchCommand(args);
 			}
 
 			await this.session.destroy();
@@ -50,15 +51,17 @@ export class classEngine {
 	}
 
 	/**
-	 * The function dispatches a command with the given path and arguments and waits for the process to
-	 * complete.
-	 * @param {string} path - A string representing the path to the command or executable file that you
-	 * want to run.
+	 * The function `outsourceCommand` dispatches a command with the given path and arguments and waits
+	 * for it to complete.
+	 * @param {string} path - A string representing the path to the executable or script that you want to
+	 * run.
 	 * @param args - The `args` parameter is an array of strings representing the command line arguments
 	 * to be passed to the command being executed.
 	 */
-	private async dispatchCommand(path: string, args: typeof Deno.args) {
-		logger.debug(`Dispatch "${path} ${args.join(' ')}"`);
+	private async outsourceCommand(path: string, args: typeof Deno.args) {
+		ensureExecutePermissions(path);
+
+		logger.debug(`Outsource "${path} ${args.join(' ')}"`);
 
 		const command = new Deno.Command(path, {
 			args,
@@ -70,11 +73,11 @@ export class classEngine {
 	}
 
 	/**
-	 * The function `getDispatchTarget` retrieves the dispatch target from the `uniffoVersionManager` and
+	 * The function `getOutsourceTarget` retrieves the dispatch target from the `uniffoVersionManager` and
 	 * checks if it exists, throwing an error if it doesn't.
 	 * @returns the value of the variable `dispatchTarget`.
 	 */
-	private async getDispatchTarget() {
+	private async getOutsourceTarget() {
 		const dispatchTarget = this.uniffoVersionManager.getDispatchTarget();
 		logger.debug(`Var dispatchTarget: ${dispatchTarget}`);
 
@@ -83,5 +86,23 @@ export class classEngine {
 		}
 
 		return dispatchTarget;
+	}
+
+	private dispatchCommand(args: typeof Deno.args) {
+		const parsedArgs = parseCliArgs(args);
+
+		logger.debug(`Dispatch command: ${JSON.stringify(parsedArgs)}`);
+
+		const commandsKeys = Object.keys(COMMANDS) as Array<keyof typeof COMMANDS>;
+
+		for (let i = 0; i < commandsKeys.length; i++) {
+			const command = COMMANDS[commandsKeys[i]];
+
+			if (command.phrase === parsedArgs.commandPhrase) {
+				return command.fn(parsedArgs);
+			}
+		}
+
+		throw `Command not found: "${parsedArgs.commandPhrase}"!`;
 	}
 }
