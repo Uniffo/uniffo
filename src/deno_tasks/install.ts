@@ -1,3 +1,4 @@
+import classDependencyChecker from '../classes/dependency_checker/dependency_checker.ts';
 import { logger } from '../services/logger.ts';
 import { session } from '../services/session.ts';
 import { uvm } from '../services/uvm.ts';
@@ -74,20 +75,5 @@ await (async function installer() {
 		`Uniffo ${latest} successfully installed. Please restart terminal and try to execute "uniffo"`,
 	);
 
-	logger.info('Checking required dependencies');
-
-	if (!shell) {
-		logger.error(
-			`Can not verify required dependencies because "SHELL" environment variable "${shell}"!`,
-		);
-		return;
-	}
-
-	const checkDockerCmd = new TextDecoder().decode(
-		new Deno.Command(shell, { args: ['command', '-v', 'docker'] }).outputSync().stdout,
-	);
-
-	if (!checkDockerCmd) {
-		logger.error('"docker" is required!');
-	}
+	classDependencyChecker.check();
 })();
