@@ -6,8 +6,9 @@ import { classStore } from '../store/store.ts';
 import { classUvm } from '../uvm/uvm.ts';
 import { classEngine } from './engine.ts';
 import { noError } from '../../utils/error/no_error.ts';
+import { getCurrentCliVersion } from '../../utils/version/get_current_cli_version.ts';
 
-Deno.test('classEnging', async function testClassEngine() {
+Deno.test('classEngine', async function testClassEngine() {
 	const testDir = `${cwd()}/test_classEngine`;
 	const testData = {
 		dir: {
@@ -42,14 +43,20 @@ Deno.test('classEnging', async function testClassEngine() {
 
 	assert(
 		await noError(async () => {
-			await engine.exec(['no-args'], '0.3.0');
+			await engine.exec(['no-args'], {
+				prefferedUniffoVersion: '0.3.0',
+				checkDependency: false,
+			});
 		}),
 		'dispatch uniffo cmd to another version',
 	);
 
 	assert(
 		await noError(async () => {
-			await engine.exec(['no-args']);
+			await engine.exec(['no-args'], {
+				prefferedUniffoVersion: getCurrentCliVersion(),
+				checkDependency: false,
+			});
 		}),
 		'dispatch uniffo default cmd to current version',
 	);

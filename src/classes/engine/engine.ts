@@ -4,8 +4,10 @@ import { parseCliArgs } from '../../utils/cli_args/parser.ts';
 import { ensureExecutePermissions } from '../../utils/path/ensureExecutePermissions.ts';
 import { pathExist } from '../../utils/path/exist.ts';
 import { version } from '../../utils/types/version.d.ts';
+import classDependencyChecker from '../dependency_checker/dependency_checker.ts';
 import { classSession } from '../session/session.ts';
 import { classUvm } from '../uvm/uvm.ts';
+import _ from 'npm:lodash';
 
 export class classEngine {
 	private uniffoVersionManager;
@@ -25,13 +27,16 @@ export class classEngine {
 	 * argument that specifies the preferred version of Uniffo to use. If provided, the `init` method of
 	 * the `uniffoVersionManager` is called with this version to initialize the Uniffo version manager.
 	 */
-	public async exec(args: typeof Deno.args, prefferedUniffoVersion?: version) {
+	public async exec(
+		args: typeof Deno.args,
+		fnArgs?: { prefferedUniffoVersion?: version; checkDependency?: boolean },
+	) {
 		logger.debug(`Args: "${JSON.stringify(args)}"`);
 
 		try {
 			await this.session.init();
 
-			await this.uniffoVersionManager.init(prefferedUniffoVersion);
+			await this.uniffoVersionManager.init(fnArgs?.prefferedUniffoVersion);
 
 			if (this.uniffoVersionManager.shouldOutsourceCmd()) {
 				logger.debug(`Will outsource uniffo command`);
@@ -40,7 +45,10 @@ export class classEngine {
 
 				await this.outsourceCommand(dispatchTarget, args);
 			} else {
-				await this.dispatchCommand(args);
+				await this.dispatchCommand(
+					args,
+					_.isBoolean(fnArgs?.checkDependency) ? !!fnArgs?.checkDependency : true,
+				);
 			}
 
 			await this.session.destroy();
@@ -88,7 +96,11 @@ export class classEngine {
 		return dispatchTarget;
 	}
 
-	private dispatchCommand(args: typeof Deno.args) {
+	private dispatchCommand(args: typeof Deno.args, checkDependency: boolean) {
+		if (checkDependency) {
+			classDependencyChecker.check();
+		}
+
 		const parsedArgs = parseCliArgs(args);
 
 		logger.debug(`Dispatch command: ${JSON.stringify(parsedArgs)}`);
