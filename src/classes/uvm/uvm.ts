@@ -46,6 +46,9 @@ export class classUvm {
 	 * @returns The code is returning nothing.
 	 */
 	public async init(prefferedUniffoVersion?: version) {
+		this.dispatch = false;
+		this.dispatchTarget = '';
+
 		logger.debug('Initialize Unifo Version Manager');
 
 		if (!await pathExist(this.uniffoDir.main)) {
