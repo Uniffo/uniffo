@@ -1,15 +1,33 @@
+import { classCliVersionManager } from '../classes/cli_version_manager/cli_version_manager.ts';
+import { classDatabase } from '../classes/database/database.ts';
 import classDependencyChecker from '../classes/dependency_checker/dependency_checker.ts';
+import { classGitHubApiClient } from '../classes/github/gh_api_client.ts';
+import { CLI_DIR } from '../constants/index.ts';
 import { logger } from '../services/logger.ts';
-import { session } from '../services/session.ts';
-import { uvm } from '../services/uvm.ts';
+import { generateUniqueBasename } from '../utils/file/generate_unique_basename.ts';
 
 await (async function installer() {
-	logger.info('Initialize installer');
-	await session.init();
-	await uvm.init();
+	const tmpDir = `${CLI_DIR.tmp}/${await generateUniqueBasename({ basePath: CLI_DIR.tmp })}`;
+	const database = new classDatabase({ dirname: `${CLI_DIR.localStorage}` });
+	const gitHubApiClient = new classGitHubApiClient({
+		github: {
+			owner: 'Uniffo',
+			repo: 'uniffo',
+			apiUrl: 'https://api.github.com',
+		},
+		database,
+	});
+	const cliVersionManager = new classCliVersionManager({
+		cliDir: CLI_DIR,
+		gitHubApiClient,
+		tmpDir,
+	});
 
-	logger.info('Install latest version of uniffo');
-	const latest = await uvm.useLatest();
+	logger.info('Initialize installer');
+	await cliVersionManager.init();
+
+	logger.info('Install latest version of wpd');
+	const latest = await cliVersionManager.useLatest();
 
 	const shell = Deno.env.get('SHELL');
 

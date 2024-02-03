@@ -1,24 +1,24 @@
-import { UNIFFO_PROJECT_STRUCTURE } from '../../constants/index.ts';
+import { CLI_PROJECT_STRUCTURE } from '../../constants/index.ts';
 import { logger } from '../../services/logger.ts';
 
 /**
  * The function `loopOnProjectStructure` iterates over a project structure object and executes a
  * callback function for each key-value pair, including nested objects.
  * @param obj - The `obj` parameter is an object that represents the project structure. It is of type
- * `typeof UNIFFO_PROJECT_STRUCTURE`, which means it should have the same structure as the
- * `UNIFFO_PROJECT_STRUCTURE` object.
+ * `typeof CLI_PROJECT_STRUCTURE`, which means it should have the same structure as the
+ * `CLI_PROJECT_STRUCTURE` object.
  * @param callback - The `callback` parameter is a function that will be called for each item in the
- * `UNIFFO_PROJECT_STRUCTURE` object. It will be passed an object with the following properties:
+ * `CLI_PROJECT_STRUCTURE` object. It will be passed an object with the following properties:
  * @param [initialPath=.] - The initialPath parameter is a string that represents the starting path for
  * the loop. It is set to '.' by default, which means the loop will start at the current directory.
  * However, you can provide a different path if you want the loop to start at a specific directory.
  */
 export const loopOnProjectStructure = (
-	obj: typeof UNIFFO_PROJECT_STRUCTURE,
+	obj: typeof CLI_PROJECT_STRUCTURE,
 	callback: (args: {
 		path: string;
 		value: typeof obj[keyof typeof obj];
-		key: keyof typeof UNIFFO_PROJECT_STRUCTURE;
+		key: keyof typeof CLI_PROJECT_STRUCTURE;
 	}) => void,
 	initialPath = '.',
 ) => {
@@ -27,7 +27,7 @@ export const loopOnProjectStructure = (
 	logger.debug(`Directory items: "${keys.join(', ')}"`);
 
 	keys.forEach(function iteration(v) {
-		const key = v as keyof typeof UNIFFO_PROJECT_STRUCTURE;
+		const key = v as keyof typeof CLI_PROJECT_STRUCTURE;
 		const value = obj[key];
 		const currentPath = `${initialPath}/${key}`;
 
@@ -39,7 +39,7 @@ export const loopOnProjectStructure = (
 
 		if (null !== value && typeof value === 'object' && Object.keys(value).length) {
 			logger.debug('Jump to subdir!');
-			loopOnProjectStructure(value as typeof UNIFFO_PROJECT_STRUCTURE, callback, currentPath);
+			loopOnProjectStructure(value as typeof CLI_PROJECT_STRUCTURE, callback, currentPath);
 		}
 	});
 };

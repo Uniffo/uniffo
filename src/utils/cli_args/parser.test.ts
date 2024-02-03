@@ -5,7 +5,7 @@ import { assertEquals } from 'https://deno.land/std@0.201.0/assert/assert_equals
 import { COMMANDS } from '../../constants/commands.ts';
 
 Deno.test('parseCliArgs', async function testParseCliArgs() {
-	const commandPhrase = [...COMMANDS.projectInit.phrase.split(' ')];
+	const commandPhrase = [...COMMANDS.init.phrase.split(' ')];
 
 	const booleans = [
 		'-h',

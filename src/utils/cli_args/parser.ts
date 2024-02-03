@@ -56,6 +56,7 @@ export const parseCliArgs = (denoArgs = Deno.args) => {
 
 			return result;
 		},
+		primitive: denoArgs,
 	};
 
 	denoArgs.forEach((value) => {

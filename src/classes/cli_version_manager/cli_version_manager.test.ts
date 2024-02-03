@@ -1,0 +1,99 @@
+import { CLI_PVFB } from '../../constants/index.ts';
+import createProjectStructure from '../../utils/project_structure/create_project_structure.ts';
+import { cwd } from '../../utils/workdir/cwd.ts';
+import { classCliVersionManager } from './cli_version_manager.ts';
+import { classDatabase } from '../database/database.ts';
+import { classGitHubApiClient } from '../github/gh_api_client.ts';
+import { getError } from '../../utils/error/get_error.ts';
+import { assert } from 'https://deno.land/std@0.162.0/_util/assert.ts';
+import { pathExist } from '../../utils/path/exist.ts';
+import closeOpenedResources from '../../utils/close_opened_resources/close_opened_resources.ts';
+
+Deno.test('classCliVersionManager', async function testClassCliVersionManager() {
+	const testDir = `${cwd()}/test_classCliVersionManager`;
+	const testData = {
+		dir: {
+			test: `${testDir}`,
+			project: `${testDir}/project`,
+			cli: {
+				main: `${testDir}/.cli`,
+				tmp: `${testDir}/.cli/tmp`,
+				versions: `${testDir}/.cli/versions`,
+				localStorage: `${testDir}/.cli/localStorage`,
+			},
+		},
+	};
+
+	await createProjectStructure(`${testData.dir.project}`);
+
+	const database = new classDatabase({ dirname: testData.dir.test });
+
+	await database.init('testName');
+
+	const gitHubApiClient = new classGitHubApiClient({
+		github: {
+			owner: 'Uniffo',
+			repo: 'uniffo',
+			apiUrl: 'https://api.github.com',
+		},
+		database,
+	});
+
+	const cliVersionManager = new classCliVersionManager({
+		cliDir: testData.dir.cli,
+		gitHubApiClient,
+		tmpDir: testData.dir.cli.tmp,
+	});
+
+	await cliVersionManager.init();
+
+	const _cwd = cwd();
+
+	Deno.chdir(testData.dir.project);
+
+	await cliVersionManager.init();
+
+	Deno.writeTextFileSync(`${testData.dir.project}/${CLI_PVFB}`, `999.999.999`);
+
+	assert(
+		(await getError<string>(async () => {
+			await cliVersionManager.init();
+		})).length > 0,
+		'try to get unavailable version',
+	);
+
+	assert(
+		cliVersionManager.getDispatchTarget().includes(testData.dir.cli.versions),
+		'get dispatch path',
+	);
+
+	assert(
+		(await getError<string>(async () => {
+			await cliVersionManager.downloadVersion(`0.1.0`);
+		})) === undefined,
+		'download version',
+	);
+
+	assert(await pathExist(`${testData.dir.cli.versions}/0.1.0/uniffo`), 'verify download');
+
+	assert(await cliVersionManager.ensureVersion('0.1.0') === undefined, 'ensure version');
+
+	assert(
+		(await getError<string>(async () => {
+			await cliVersionManager.useLatest();
+		})) === undefined,
+		'use latest version',
+	);
+
+	assert(Array.isArray(await cliVersionManager.getVersionsList()), 'versions list');
+
+	assert(cliVersionManager.getDirInfo(), '');
+
+	Deno.chdir(_cwd);
+
+	await database.deleteAll();
+
+	await Deno.remove(testDir, { recursive: true });
+
+	closeOpenedResources();
+});

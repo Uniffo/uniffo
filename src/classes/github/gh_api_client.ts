@@ -1,5 +1,5 @@
 import { logger } from '../../services/logger.ts';
-import { classStore } from '../store/store.ts';
+import { classDatabase } from '../database/database.ts';
 import { IReleaseByTagName } from './release_by_tag_name.d.ts';
 import { IReleases } from './releases_list.d.ts';
 
@@ -7,7 +7,7 @@ import { IReleases } from './releases_list.d.ts';
 GitHub repository, caching the responses, and retrieving cached data. */
 export class classGitHubApiClient {
 	private github;
-	private store;
+	private database;
 
 	/**
 	 * The constructor function initializes the GitHub API client with the provided owner, repo, and
@@ -15,16 +15,16 @@ export class classGitHubApiClient {
 	 * @param args - An object containing the following properties:
 	 */
 	constructor(
-		args: { github: { owner: string; repo: string; apiUrl: string }; store: classStore },
+		args: { github: { owner: string; repo: string; apiUrl: string }; database: classDatabase },
 	) {
 		this.github = args.github;
-		this.store = args.store;
+		this.database = args.database;
 	}
 
 	/**
 	 * The function returns an object containing data and expiration time for caching purposes.
 	 * @param {string} data - The `data` parameter is a string that represents the data that you want to
-	 * store in the cache object.
+	 * database in the cache object.
 	 * @param {number} expiration - The expiration parameter is a number that represents the duration in
 	 * milliseconds for which the cache object should be considered valid. After this duration has passed,
 	 * the cache object should be considered expired and should not be used.
@@ -40,8 +40,8 @@ export class classGitHubApiClient {
 	/**
 	 * The addCache function adds a value to the cache with an optional expiration time.
 	 * @param {string} id - The `id` parameter is a string that represents the unique identifier for the
-	 * cache entry. It is used to store and retrieve the cache data.
-	 * @param {string} data - The `data` parameter is a string that represents the value to be stored in
+	 * cache entry. It is used to database and retrieve the cache data.
+	 * @param {string} data - The `data` parameter is a string that represents the value to be databased in
 	 * the cache.
 	 * @param {number} [expiration] - The `expiration` parameter is an optional parameter that specifies
 	 * the expiration time for the cache entry. It is a number representing the number of milliseconds
@@ -55,24 +55,26 @@ export class classGitHubApiClient {
 
 		logger.debug(`Add cache "${id}" as "${JSON.stringify(value)}"`);
 
-		await this.store.setPersistentValue(id, value);
+		await this.database.setPersistentValue(id, value);
 	}
 
 	/**
-	 * The function `getCache` retrieves a cached value from a store and checks if it has expired.
+	 * The function `getCache` retrieves a cached value from a database and checks if it has expired.
 	 * @param {string} id - The `id` parameter is a string that represents the unique identifier for the
-	 * cache. It is used to retrieve the cache object from the this.store.
+	 * cache. It is used to retrieve the cache object from the this.database.
 	 * @returns the `data` property of the `cache` object.
 	 */
 	private async getCache(id: string) {
-		const cache = await this.store.getPersistentValue<ReturnType<typeof this.getCacheObject>>(
+		const cache = await this.database.getPersistentValue<
+			ReturnType<typeof this.getCacheObject>
+		>(
 			id,
 		);
 
 		logger.debug(`Get cache "${id}" as "${JSON.stringify(cache)}"`);
 
 		if (Date.now() > (cache?.expiration || 0)) {
-			await this.store.removePersistentKey(id);
+			await this.database.removePersistentKey(id);
 			return undefined;
 		}
 

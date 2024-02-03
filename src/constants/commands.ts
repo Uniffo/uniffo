@@ -1,4 +1,8 @@
 export const COMMANDS = {
-	init: 'project init',
-	y: 'project',
+	default: {
+		phrase: '',
+	},
+	init: {
+		phrase: 'init',
+	},
 };

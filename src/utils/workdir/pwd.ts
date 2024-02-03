@@ -1,9 +1,9 @@
-import { UNIFFO_PROJECT_STRUCTURE } from '../../constants/index.ts';
+import { CLI_PROJECT_STRUCTURE } from '../../constants/index.ts';
 import { pathExist } from '../path/exist.ts';
 import { cwd } from './cwd.ts';
 
 const iAmInTopLevelOfUniffoProject = async (path: string) => {
-	const topLevelKeys = Object.keys(UNIFFO_PROJECT_STRUCTURE);
+	const topLevelKeys = Object.keys(CLI_PROJECT_STRUCTURE);
 	for (let i = 0; i < topLevelKeys.length; i++) {
 		const partOfPath = topLevelKeys[i];
 		const pathToCheck = `${path}/${partOfPath}`;

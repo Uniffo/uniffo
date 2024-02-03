@@ -1,14 +1,10 @@
 import { assertEquals } from 'https://deno.land/std@0.201.0/assert/assert_equals.ts';
-import {
-	UNIFFO_PROJECT_STRUCTURE,
-	UNIFFO_PROJECT_STRUCTURE_EMPTY_DIR,
-} from '../../constants/index.ts';
+import { CLI_PROJECT_STRUCTURE, CLI_PROJECT_STRUCTURE_EMPTY_DIR } from '../../constants/index.ts';
 import { loopOnProjectStructure } from './loop_on_project_structure.ts';
-import _ from 'npm:lodash';
 
 Deno.test('loopOnProjectStructure', function testLoopOnProjectStructure() {
-	const testStructure = Object.assign(UNIFFO_PROJECT_STRUCTURE, {
-		testDir: { emptyTestDir: UNIFFO_PROJECT_STRUCTURE_EMPTY_DIR, testFile: 'test content' },
+	const testStructure = Object.assign(CLI_PROJECT_STRUCTURE, {
+		testDir: { emptyTestDir: CLI_PROJECT_STRUCTURE_EMPTY_DIR, testFile: 'test content' },
 	});
 
 	const customKeys = ['testDir', 'emptyTestDir', 'testFile'];

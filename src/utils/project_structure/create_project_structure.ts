@@ -1,4 +1,4 @@
-import { UNIFFO_PROJECT_STRUCTURE } from '../../constants/index.ts';
+import { CLI_PROJECT_STRUCTURE } from '../../constants/index.ts';
 import { logger } from '../../services/logger.ts';
 import { pathExist } from '../path/exist.ts';
 import { loopOnProjectStructure } from './loop_on_project_structure.ts';
@@ -9,7 +9,7 @@ import { loopOnProjectStructure } from './loop_on_project_structure.ts';
  * @param {string} workdir - The `workdir` parameter is a string that represents the directory where
  * the project structure will be created.
  */
-const createProjectStructure = async (workdir: string, structure = UNIFFO_PROJECT_STRUCTURE) => {
+const createProjectStructure = async (workdir: string, structure = CLI_PROJECT_STRUCTURE) => {
 	if (!workdir) {
 		throw `Invalid workdir "${workdir}"`;
 	}

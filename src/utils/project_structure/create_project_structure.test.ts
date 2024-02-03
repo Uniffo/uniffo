@@ -1,9 +1,5 @@
 import { assertEquals } from 'https://deno.land/std@0.201.0/assert/assert_equals.ts';
-import {
-	UNIFFO_PROJECT_STRUCTURE,
-	UNIFFO_PROJECT_STRUCTURE_EMPTY_DIR,
-} from '../../constants/index.ts';
-import _ from 'npm:lodash';
+import { CLI_PROJECT_STRUCTURE, CLI_PROJECT_STRUCTURE_EMPTY_DIR } from '../../constants/index.ts';
 import createProjectStructure from './create_project_structure.ts';
 import { getError } from '../error/get_error.ts';
 import { assert } from 'https://deno.land/std@0.162.0/_util/assert.ts';
@@ -12,8 +8,8 @@ import { noError } from '../error/no_error.ts';
 import { pathExist } from '../path/exist.ts';
 
 Deno.test('createProjectStructure', async function testCreateProjectStructure() {
-	const testStructure = Object.assign(UNIFFO_PROJECT_STRUCTURE, {
-		testDir: { emptyTestDir: UNIFFO_PROJECT_STRUCTURE_EMPTY_DIR, testFile: 'test content' },
+	const testStructure = Object.assign(CLI_PROJECT_STRUCTURE, {
+		testDir: { emptyTestDir: CLI_PROJECT_STRUCTURE_EMPTY_DIR, testFile: 'test content' },
 	});
 
 	assert(
