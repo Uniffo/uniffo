@@ -4,11 +4,11 @@ import { getOsAlias } from '../../utils/os/get_os_alias.ts';
 import { pathExist } from '../../utils/path/exist.ts';
 import { classGitHubApiClient } from '../github/gh_api_client.ts';
 import { downloadFile } from '../../utils/download/download_file.ts';
-import extract from 'npm:extract-zip';
 import { getCurrentCliVersion } from '../../utils/version/get_current_cli_version.ts';
 import { getCliVersionRequiredByProject } from '../../utils/version/get_cli_version_required_by_project.ts';
 import { version } from '../../utils/types/version.d.ts';
 import { ensureExecutePermissions } from '../../utils/path/ensureExecutePermissions.ts';
+import { decompress } from 'https://deno.land/x/zip@v1.2.5/mod.ts';
 
 /* The `classCliVersionManager` class is a TypeScript class that represents the Unifo Version Manager, which is
 responsible for managing the versions of the "uniffo" software by downloading and extracting
@@ -326,7 +326,7 @@ export class classCliVersionManager {
 		}
 
 		logger.info(`Extracting into ${destDir}`);
-		await extract(downloadDetails.filename, { dir: destDir });
+		await decompress(downloadDetails.filename, destDir);
 
 		for (const dirEntry of Deno.readDirSync(destDir)) {
 			if (!dirEntry.isFile) continue;

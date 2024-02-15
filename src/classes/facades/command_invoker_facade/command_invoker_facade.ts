@@ -1,6 +1,5 @@
 import { logger } from '../../../services/logger.ts';
 import { parseCliArgs } from '../../../utils/cli_args/parser.ts';
-import closeOpenedResources from '../../../utils/close_opened_resources/close_opened_resources.ts';
 import { pathExist } from '../../../utils/path/exist.ts';
 import { version } from '../../../utils/types/version.d.ts';
 import { classCliVersionManager } from '../../cli_version_manager/cli_version_manager.ts';
@@ -67,7 +66,6 @@ export class classCommandInvokerFacade {
 	async destroy() {
 		await this.rmTmpDir();
 		await this.database.destroySession();
-		closeOpenedResources();
 	}
 
 	/**

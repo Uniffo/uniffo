@@ -4,7 +4,7 @@ import { cwd } from '../../utils/workdir/cwd.ts';
 import { classDatabase } from '../database/database.ts';
 
 Deno.test('classGitHubApiClient', async function testClassGitHubApiClient() {
-	const testDir = `${cwd()}/test_classCliVersionManager`;
+	const testDir = `${cwd()}/test_classGitHubApiClient`;
 	const testData = {
 		dir: {
 			test: `${testDir}`,
@@ -35,4 +35,6 @@ Deno.test('classGitHubApiClient', async function testClassGitHubApiClient() {
 		'object',
 		'ghApi.fetchReleaseByTagName(releaseTagName) return object',
 	);
+
+	await Deno.remove(testDir, { recursive: true });
 });

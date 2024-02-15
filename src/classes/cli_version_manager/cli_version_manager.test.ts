@@ -7,7 +7,6 @@ import { classGitHubApiClient } from '../github/gh_api_client.ts';
 import { getError } from '../../utils/error/get_error.ts';
 import { assert } from 'https://deno.land/std@0.162.0/_util/assert.ts';
 import { pathExist } from '../../utils/path/exist.ts';
-import closeOpenedResources from '../../utils/close_opened_resources/close_opened_resources.ts';
 
 Deno.test('classCliVersionManager', async function testClassCliVersionManager() {
 	const testDir = `${cwd()}/test_classCliVersionManager`;
@@ -94,6 +93,4 @@ Deno.test('classCliVersionManager', async function testClassCliVersionManager() 
 	await database.deleteAll();
 
 	await Deno.remove(testDir, { recursive: true });
-
-	closeOpenedResources();
 });
