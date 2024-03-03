@@ -1,9 +1,9 @@
-import { parseCliArgs } from '../../utils/cli_args/parser.ts';
+import {TCommandArgs} from './command.d.ts'
 
 export abstract class classCommand {
 	public args;
 
-	constructor(args: { commandArgs: ReturnType<typeof parseCliArgs> }) {
+	constructor(args: TCommandArgs) {
 		this.args = args.commandArgs;
 	}
 
@@ -11,5 +11,5 @@ export abstract class classCommand {
 		return this.args.commandPhrase;
 	}
 
-	abstract exec(): Promise<void>;
+	abstract exec(): Promise<void> | void;
 }
