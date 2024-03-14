@@ -1,7 +1,7 @@
-import { writeAllSync } from 'https://deno.land/std@0.201.0/streams/write_all.ts';
 import { ansiColors } from './colors.ts';
 import { getCallingFunctionName } from '../../utils/calling_function_name/calling_function_name.ts';
 import { formatDate } from '../../utils/date/format_date.ts';
+import { isString } from 'https://cdn.skypack.dev/lodash-es@4.17.21';
 
 /* The `classLogger` class is a TypeScript class that provides logging functionality with configurable
 options. */
@@ -96,7 +96,25 @@ export class classLogger {
 	 * @param {string} message - A string representing the log message.
 	 * @returns An object with the properties "message" and "logType".
 	 */
-	private getLogLine(logType: string, message: string) {
+	private getLogLine(logType: string, data: any[]) {
+		const message = data.map((v) => {
+			let value = JSON.stringify(v);
+
+			if (!isString(value)) {
+				return value;
+			}
+
+			if (value.startsWith('"')) {
+				value = value.slice(1);
+			}
+
+			if (value.endsWith('"')) {
+				value = value.slice(0, -1);
+			}
+
+			return value;
+		}).join(', ');
+
 		return {
 			message,
 			logType,
@@ -113,37 +131,40 @@ export class classLogger {
 	 * of the log message.
 	 */
 	private primaryLogFunction(
-		message: string,
+		data: any[],
 		logType: string,
+		callback: (...data: any[]) => void,
 	) {
-		const logLine = this.getLogLine(logType, message);
+		const logLine = this.getLogLine(logType, data);
 
 		!this.config.omitStorage && this.archive.push(logLine);
 
 		this.keepLogsOptimized();
 
-		const maxMsgLength = 300;
-		const truncatedMessage = message.length > maxMsgLength
-			? `${message.slice(0, maxMsgLength)}...`
-			: message;
 		const now = new Date();
 		const date = formatDate(now);
 		const MessageColor = this.getMessageColor(logType);
 		const dateColor = MessageColor;
 		const resetColor = ansiColors.Reset;
-		const extraDebugMsg = logType == 'debug' ? `${getCallingFunctionName()}(...): ` : '';
+		const extraDebugMsg = logType == 'debug' ? ` ${getCallingFunctionName()}(...):` : '';
 		const extraDebugMsgColor = ansiColors.Dim;
 
-		const coloredText = `${
-			this.config.displayDate ? `${dateColor}[${date}]${resetColor}` : ''
-		}${MessageColor}[${logType}]:${resetColor} ${extraDebugMsgColor}${extraDebugMsg}${resetColor}${truncatedMessage}`;
+		const coloredText = [
+			`${
+				this.config.displayDate
+					? `${dateColor}[${date}]${resetColor}`
+					: ''
+			}${MessageColor}[${logType}]:${resetColor}${extraDebugMsgColor}${extraDebugMsg}${resetColor}`,
+			...data,
+		];
 
 		const omitDebug = logType == 'debug' && !this.config.displayDebug;
 
-		!omitDebug && writeAllSync(
-			logType == 'error' ? Deno.stderr : Deno.stdout,
-			new TextEncoder().encode(coloredText + '\n'),
-		);
+		if (omitDebug) {
+			return;
+		}
+
+		!omitDebug && callback(...coloredText);
 	}
 
 	/**
@@ -180,8 +201,8 @@ export class classLogger {
 	 * @param {string} message - The parameter "message" is of type string. It is used to pass a message
 	 * that will be logged.
 	 */
-	public log(message: string) {
-		this.primaryLogFunction(message, 'log');
+	public log(...data: any[]) {
+		this.primaryLogFunction(data, 'log', console.log);
 	}
 
 	/**
@@ -189,8 +210,8 @@ export class classLogger {
 	 * @param {string} message - The parameter "message" is of type string. It is used to pass a message
 	 * that will be logged as an information message.
 	 */
-	public info(message: string) {
-		this.primaryLogFunction(message, 'info');
+	public info(...data: any[]) {
+		this.primaryLogFunction(data, 'info', console.log);
 	}
 
 	/**
@@ -198,8 +219,8 @@ export class classLogger {
 	 * @param {string} message - The parameter "message" is of type string. It is used to pass a debug
 	 * message that needs to be logged or displayed for debugging purposes.
 	 */
-	public debug(message: string) {
-		this.primaryLogFunction(message, 'debug');
+	public debug(...data: any[]) {
+		this.primaryLogFunction(data, 'debug', console.debug);
 	}
 
 	/**
@@ -207,8 +228,8 @@ export class classLogger {
 	 * @param {string} message - The parameter "message" is a string that represents the success message
 	 * that you want to log.
 	 */
-	public success(message: string) {
-		this.primaryLogFunction(message, 'success');
+	public success(...data: any[]) {
+		this.primaryLogFunction(data, 'success', console.log);
 	}
 
 	/**
@@ -216,8 +237,8 @@ export class classLogger {
 	 * @param {string} message - The parameter "message" is of type string and represents the error
 	 * message that you want to log.
 	 */
-	public error(message: string) {
-		this.primaryLogFunction(message, 'error');
+	public error(...data: any[]) {
+		this.primaryLogFunction(data, 'error', console.error);
 	}
 
 	/**

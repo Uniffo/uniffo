@@ -67,7 +67,9 @@ Deno.test('classLogger', async function testClassLogger() {
 		'display date',
 	);
 
-	logger1.info('info message!');
+	logger1.info('info message!', { my_test: 'v1' });
+
+	console.log(logger1.getAllLogs());
 
 	const maxWeight = 1024 * 1024 * 2;
 	const logger2 = new classLogger({ omitStorage: false, maxWeight });
