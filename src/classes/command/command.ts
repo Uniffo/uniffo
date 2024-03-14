@@ -1,4 +1,4 @@
-import {TCommandArgs} from './command.d.ts'
+import { TCommandArgs } from './command.d.ts';
 
 export abstract class classCommand {
 	public args;

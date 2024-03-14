@@ -2,81 +2,95 @@ import { assert } from 'https://deno.land/std@0.162.0/_util/assert.ts';
 import { parseCliArgs } from './parser.ts';
 import { noError } from '../error/no_error.ts';
 import { assertEquals } from 'https://deno.land/std@0.201.0/assert/assert_equals.ts';
-import { COMMANDS } from '../../constants/commands.ts';
+import { COMMANDS_META } from '../../pre_compiled/__commands_meta.ts';
 
-Deno.test('parseCliArgs', async function testParseCliArgs() {
-	const commandPhrase = [...COMMANDS.init.phrase.split(' ')];
+Deno.test('parseCliArgs', async function testParseCliArgs(testContext) {
+	for (let i = 0; i < COMMANDS_META.length; i++) {
+		const commandMeta = COMMANDS_META[i];
+		const commandPhrase = [...commandMeta.phrase.split(' ')];
 
-	const booleans = [
-		'-h',
-		'--h',
-		'--help',
-		'--my-boolean',
-	];
+		await testContext.step({
+			name: `parseCliArgs - test of command "${commandPhrase}"`,
+			fn: async () => {
+				const booleans = [
+					'-h',
+					'--h',
+					'--help',
+					'--my-boolean',
+				];
 
-	const keyValues = [
-		'-h=',
-		'-h=loerm ipsum sot dolor am',
-		'-h=loerm i#$psum sot do$#@%_8=lor am',
-		'--h=loerm ipsum sot dolor am',
-		'--h=loerm i#$psum sot do$#@%_8=lor am',
-		'--my-argument=my custom value',
-	];
+				const keyValues = [
+					'-h=',
+					'-h=loerm ipsum sot dolor am',
+					'-h=loerm i#$psum sot do$#@%_8=lor am',
+					'--h=loerm ipsum sot dolor am',
+					'--h=loerm i#$psum sot do$#@%_8=lor am',
+					'--my-argument=my custom value',
+				];
 
-	const cargs = [
-		'arg 1',
-		'arg 2',
-	];
+				const cargs = [
+					'arg 1',
+					'arg 2',
+				];
 
-	const args = [
-		...commandPhrase,
-		...booleans,
-		cargs[0],
-		...keyValues,
-		cargs[1],
-	];
+				const args = [
+					...commandPhrase,
+					...booleans,
+					cargs[0],
+					...keyValues,
+					cargs[1],
+				];
 
-	assert(
-		await noError(() => {
-			parseCliArgs(args);
-		}),
-		'parse args',
-	);
+				assert(
+					await noError(() => {
+						parseCliArgs(args);
+					}),
+					'parse args',
+				);
 
-	const parsedArgs = parseCliArgs(args);
-	console.log(parsedArgs);
+				const parsedArgs = parseCliArgs(args);
+				console.log(parsedArgs);
 
-	assertEquals(parsedArgs.commandPhrase, commandPhrase.join(' '), 'command');
+				assertEquals(parsedArgs.commandPhrase, commandPhrase.join(' '), 'command');
 
-	booleans.forEach((v) => {
-		const boolean = v.replace(/^(--|-)/, '');
+				booleans.forEach((v) => {
+					const boolean = v.replace(/^(--|-)/, '');
 
-		assert(parsedArgs.hasBoolean([boolean]), 'single hasBoolean');
-	});
+					assert(parsedArgs.hasBoolean([boolean]), 'single hasBoolean');
+				});
 
-	assert(
-		parsedArgs.hasBoolean(booleans.map((item) => item.replace(/^(--|-)/, ''))),
-		'multiple hasBoolean',
-	);
-	assert(
-		parsedArgs.hasBoolean(booleans.map((item) => item.replace(/^(--|-)/, '')), 'OR'),
-		'multiple hasBoolean OR',
-	);
-	assert(
-		parsedArgs.hasBoolean(booleans.map((item) => item.replace(/^(--|-)/, '')), 'AND'),
-		'multiple hasBoolean AND',
-	);
+				assert(
+					parsedArgs.hasBoolean(booleans.map((item) => item.replace(/^(--|-)/, ''))),
+					'multiple hasBoolean',
+				);
+				assert(
+					parsedArgs.hasBoolean(
+						booleans.map((item) => item.replace(/^(--|-)/, '')),
+						'OR',
+					),
+					'multiple hasBoolean OR',
+				);
+				assert(
+					parsedArgs.hasBoolean(
+						booleans.map((item) => item.replace(/^(--|-)/, '')),
+						'AND',
+					),
+					'multiple hasBoolean AND',
+				);
 
-	keyValues.forEach((v) => {
-		const kv = [
-			v.slice(0, v.indexOf('=')).replace(/^(--|-)/, ''),
-			v.slice(v.indexOf('=') + 1),
-		] as [string, string];
+				keyValues.forEach((v) => {
+					const kv = [
+						v.slice(0, v.indexOf('=')).replace(/^(--|-)/, ''),
+						v.slice(v.indexOf('=') + 1),
+					] as [string, string];
 
-		assert(parsedArgs.getKV([kv[0]])[0][0] === kv[0], 'single getKV');
-	});
+					assert(parsedArgs.getKV([kv[0]])[0][0] === kv[0], 'single getKV');
+				});
 
-	assert(Array.isArray(parsedArgs.getKV()), 'getKV');
+				assert(Array.isArray(parsedArgs.getKV()), 'getKV');
 
-	assertEquals(parsedArgs.args, cargs, 'check args');
+				assertEquals(parsedArgs.args, cargs, 'check args');
+			},
+		});
+	}
 });

@@ -1,4 +1,4 @@
-import { COMMANDS } from '../../constants/commands.ts';
+import { COMMANDS_META } from '../../pre_compiled/__commands_meta.ts';
 import { logger } from '../../services/logger.ts';
 
 /**
@@ -81,8 +81,8 @@ export const parseCliArgs = (denoArgs = Deno.args) => {
 		}
 	});
 
-	Object.keys(COMMANDS).forEach((k) => {
-		const cmd = COMMANDS?.[k as keyof typeof COMMANDS]?.phrase;
+	COMMANDS_META.forEach((commandMeta) => {
+		const cmd = commandMeta.phrase;
 		const argCmd = [] as string[];
 		parsed.args.forEach((arg) => {
 			argCmd.push(arg);
