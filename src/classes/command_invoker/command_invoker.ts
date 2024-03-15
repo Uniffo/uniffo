@@ -30,7 +30,7 @@ export class classCommandInvoker {
 				throw 'Command execution callback is not a function!';
 			}
 
-			await executionCallback(command);
+			await executionCallback.apply(this, [command]);
 		} catch (error) {
 			throw error;
 		}
@@ -50,7 +50,7 @@ export class classCommandInvoker {
 	}
 
 	private async outsourceCommand(command: classCommand) {
-		logger.debug(`Will outsource command!`);
+		logger.debug(`Will execute command!`, command);
 
 		const path = this.outsourceTarget;
 		logger.debug(`Outsource path: "${path}"`);
@@ -71,7 +71,7 @@ export class classCommandInvoker {
 	}
 
 	private async dispatchCommand(command: classCommand) {
-		logger.debug(`Will execute command!`);
+		logger.debug(`Will execute command!`, command);
 
 		if (this.checkDependencies) {
 			classDependencyChecker.check();

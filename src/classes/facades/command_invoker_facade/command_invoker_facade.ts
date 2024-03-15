@@ -3,7 +3,7 @@ import { parseCliArgs } from '../../../utils/cli_args/parser.ts';
 import { pathExist } from '../../../utils/path/exist.ts';
 import { version } from '../../../utils/types/version.d.ts';
 import { classCliVersionManager } from '../../cli_version_manager/cli_version_manager.ts';
-import { classCommand } from '../../command/command.ts';
+import { TCommandMeta } from '../../command/command.d.ts';
 import { classCommandInvoker } from '../../command_invoker/command_invoker.ts';
 import { classCommandsRepository } from '../../command_repository/command_repository.ts';
 import { classDatabase } from '../../database/database.ts';
@@ -42,8 +42,8 @@ export class classCommandInvokerFacade {
 		this.prefferedCliVersion = version;
 	}
 
-	public addCommand(command: classCommand) {
-		this.commandsRepository.add(command);
+	public addCommand(commandMeta: TCommandMeta) {
+		this.commandsRepository.add(commandMeta);
 	}
 
 	public setCheckDependenciesBeforeExecution(bool: boolean) {
@@ -100,6 +100,18 @@ export class classCommandInvokerFacade {
 		}
 	}
 
+	public getCommandObject() {
+		const commandClass = this.commandsRepository.get(this.commandArguments.commandPhrase);
+
+		if (!commandClass) {
+			throw `Command "${this.commandArguments.primitive.join(' ')}" not found!`;
+		}
+
+		const command = new commandClass({ commandArgs: this.commandArguments });
+
+		return command;
+	}
+
 	public async exec() {
 		logger.debug(`Args: "${JSON.stringify(this.commandArguments)}"`);
 
@@ -110,18 +122,12 @@ export class classCommandInvokerFacade {
 			this.commandInvoker.setOutsourceTarget(await this.getOutsourceTarget());
 			this.commandInvoker.setCheckDependencies(this.checkDependenciesBeforeExecution);
 
-			const command = this.commandsRepository.get(this.commandArguments.commandPhrase);
-
-			if (!command) {
-				throw `Command "${this.commandArguments.primitive.join(' ')}" not found!`;
-			}
-
-			await this.commandInvoker.exec(command);
+			await this.commandInvoker.exec(this.getCommandObject());
 
 			await this.destroy();
 		} catch (error) {
 			await this.destroy();
-			logger.error(JSON.stringify(error));
+			logger.error(error);
 		}
 	}
 
@@ -129,7 +135,7 @@ export class classCommandInvokerFacade {
 		const dispatchTarget = this.cliVersionManager.getDispatchTarget();
 		logger.debug(`Var dispatchTarget: ${dispatchTarget}`);
 
-		if (!await pathExist(dispatchTarget)) {
+		if (!!dispatchTarget && !await pathExist(dispatchTarget)) {
 			throw `Uniffo dispatch target doesn't exist "${dispatchTarget}"!`;
 		}
 

@@ -7,6 +7,7 @@ import { classGitHubApiClient } from './classes/github/gh_api_client.ts';
 import { CLI_DIR } from './constants/index.ts';
 import { parseCliArgs } from './utils/cli_args/parser.ts';
 import { generateUniqueBasename } from './utils/file/generate_unique_basename.ts';
+import { COMMANDS_META } from './pre_compiled/__commands_meta.ts';
 
 const tmpDir = `${CLI_DIR.tmp}/${await generateUniqueBasename({ basePath: CLI_DIR.tmp })}`;
 const commandArguments = parseCliArgs(Deno.args);
@@ -34,5 +35,7 @@ const commandInvokerFacade = new classCommandInvokerFacade({
 	commandsRepository,
 	commandInvoker,
 });
+
+COMMANDS_META.forEach((commandMeta) => commandInvokerFacade.addCommand(commandMeta));
 
 await commandInvokerFacade.exec();

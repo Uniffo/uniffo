@@ -1,26 +1,26 @@
+import { TCommandMeta } from '../command/command.d.ts';
 import { classCommand } from '../command/command.ts';
 
 export class classCommandsRepository {
-	private commands: [string, classCommand][] = [];
+	private commands: TCommandMeta[] = [];
 
-	public add(command: classCommand) {
-		if (this.has(command)) {
+	public add(commandMeta: TCommandMeta) {
+		if (this.has(commandMeta.phrase)) {
 			return;
 		}
 
-		this.commands.push([command.getPhrase(), command]);
+		this.commands.push(commandMeta);
 	}
 
 	public get(phrase: string) {
-		const found = this.commands.find((record) => record[0] === phrase)?.[1];
+		const found = this.commands.find((record) => record.phrase === phrase)?.class;
 
 		return found;
 	}
 
-	public has(command: classCommand) {
-		const phrase = command.getPhrase();
-		const found = this.get(phrase);
+	public has(commandPhrase: TCommandMeta['phrase']) {
+		const found = this.get(commandPhrase);
 
-		return found instanceof classCommand;
+		return found?.prototype instanceof classCommand;
 	}
 }
