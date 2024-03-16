@@ -18,6 +18,7 @@ export class classCliVersionManager {
 	public dispatch = false;
 	public dispatchTarget = '';
 	public requiredCliVersion: version | undefined;
+	public prefferedCliVersion: version | undefined;
 	public cliDir;
 	public tmpDir;
 
@@ -83,21 +84,29 @@ export class classCliVersionManager {
 	}
 
 	/**
+	 * The function `setPrefferdCliVersion` sets the preferred CLI version in TypeScript.
+	 * @param {version} prefferedCliVersion - It looks like there is a typo in your method signature. The
+	 * parameter should be named "preferredCliVersion" instead of "prefferedCliVersion".
+	 */
+	public setPrefferdCliVersion(prefferedCliVersion: version) {
+		this.prefferedCliVersion = prefferedCliVersion;
+	}
+
+	/**
+	 * This function unsets the preferred CLI version by setting it to undefined.
+	 */
+	public unsetPrefferdCliVersion() {
+		this.prefferedCliVersion = undefined;
+	}
+
+	/**
 	 * The function `autoSetDispatch` asynchronously determines the required CLI version for a project and
 	 * sets the dispatch flag accordingly.
-	 * @param {version} [prefferedUniffoVersion] - The `prefferedUniffoVersion` parameter in the
-	 * `autoSetDispatch` function is an optional parameter that represents the preferred version of
-	 * Uniffo. This parameter allows the function to determine the required CLI version for the project
-	 * based on the preferred Uniffo version provided. If no preferred
-	 * @returns If the current CLI version is the same as the required CLI version, the function will
-	 * return without making any changes and log a debug message saying "No need to change uniffo
-	 * version". If the required CLI version is different from the current CLI version, the function will
-	 * set the `dispatch` property to `true` and set the `dispatchTarget` property to the filename of the
-	 * required CLI version
+	 * @returns No need to change uniffo version
 	 */
-	public async autoSetDispatch(prefferedUniffoVersion?: version) {
+	public async autoSetDispatch() {
 		const projectRequiredCliVersion = await this.getProjectRequiredCliVersion(
-			prefferedUniffoVersion,
+			this.prefferedCliVersion,
 		);
 		const currentCliVersion = getCurrentCliVersion();
 
@@ -119,13 +128,13 @@ export class classCliVersionManager {
 	 * input that specifies a preferred version of Uniffo to be used during initialization. If provided,
 	 * the code will attempt to use this version when setting up the Uniffo Version Manager.
 	 */
-	public async init(prefferedUniffoVersion?: version) {
+	public async init() {
 		logger.debug('Initialize Unifo Version Manager');
 
 		this.resetDispatchValue();
 		this.resetDispatchTargetValue();
 		await this.makeCvmDir();
-		await this.autoSetDispatch(prefferedUniffoVersion);
+		await this.autoSetDispatch();
 
 		if (!this.requiredCliVersion) {
 			throw `Invalid required cli version tagname "${this.requiredCliVersion}"!`;

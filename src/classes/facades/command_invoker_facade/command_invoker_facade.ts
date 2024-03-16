@@ -38,16 +38,8 @@ export class classCommandInvokerFacade {
 		this.commandInvoker = args.commandInvoker;
 	}
 
-	public setPrefferedCliVersion(version?: version) {
-		this.prefferedCliVersion = version;
-	}
-
 	public addCommand(commandMeta: TCommandMeta) {
 		this.commandsRepository.add(commandMeta);
-	}
-
-	public setCheckDependenciesBeforeExecution(bool: boolean) {
-		this.checkDependenciesBeforeExecution = bool;
 	}
 
 	/**
@@ -56,7 +48,6 @@ export class classCommandInvokerFacade {
 	async init() {
 		await this.database.init('wpd');
 		await this.mkTmpDir();
-		await this.cliVersionManager.init(this.prefferedCliVersion);
 	}
 
 	/**
@@ -116,18 +107,14 @@ export class classCommandInvokerFacade {
 		logger.debug(`Var commandArguments:`, this.commandArguments);
 
 		try {
-			await this.init();
-
+			await this.cliVersionManager.init();
 			this.commandInvoker.setCheckDependencies(true);
 			this.commandInvoker.setOutsourceTarget(await this.getOutsourceTarget());
 			this.commandInvoker.setCheckDependencies(this.checkDependenciesBeforeExecution);
 
 			await this.commandInvoker.exec(this.getCommandObject());
-
-			await this.destroy();
 		} catch (error) {
-			await this.destroy();
-			logger.error(error);
+			throw error;
 		}
 	}
 

@@ -47,13 +47,20 @@ Deno.test('classCliVersionManager', async function testClassCliVersionManager() 
 
 	const latestVer = (await cliVersionManager.getVersionsList()).at(-1)?.tagName;
 
-	await cliVersionManager.init(latestVer);
+	if (!latestVer) {
+		throw 'Undefined latest version of cli!';
+	}
+
+	cliVersionManager.setPrefferdCliVersion(latestVer);
+	await cliVersionManager.init();
 
 	const _cwd = cwd();
 
 	Deno.chdir(testData.dir.project);
 
-	await cliVersionManager.init(latestVer);
+	cliVersionManager.setPrefferdCliVersion(latestVer);
+	await cliVersionManager.init();
+	cliVersionManager.unsetPrefferdCliVersion();
 
 	Deno.writeTextFileSync(`${testData.dir.project}/${CLI_PVFB}`, `999.999.999`);
 
