@@ -2,7 +2,7 @@ import { classCliVersionManager } from './classes/cli_version_manager/cli_versio
 import { classCommandInvoker } from './classes/command_invoker/command_invoker.ts';
 import { classCommandsRepository } from './classes/command_repository/command_repository.ts';
 import { classDatabase } from './classes/database/database.ts';
-import { classCommandInvokerFacade } from './classes/facades/command_invoker_facade/command_invoker_facade.ts';
+import { classCommandInvokerFacade } from './classes/command_invoker_facade/command_invoker_facade.ts';
 import { classGitHubApiClient } from './classes/github/gh_api_client.ts';
 import { CLI_DIR } from './constants/index.ts';
 import { parseCliArgs } from './utils/parser/parser.ts';
