@@ -1,6 +1,12 @@
 import { logger } from '../../global/logger.ts';
 
 export default class classDependencyChecker {
+	public static commandsToCheck: Parameters<typeof this.getFeed>[0] = [
+		{ cmd: 'unzip', args: ['-v'] },
+		{ cmd: 'docker', args: ['-v'] },
+		{ cmd: 'docker', args: ['compose', 'version'], name: 'docker compose' },
+	];
+
 	/**
 	 * The `getFeed` function checks if the commands "docker" and "docker compose" exist and returns a
 	 * feed object with a general flag indicating if all commands exist.
@@ -10,24 +16,18 @@ export default class classDependencyChecker {
 	 * information about specific commands. Each command has a `check` property which is a boolean value
 	 * indicating whether the command exists
 	 */
-	static getFeed() {
+	static getFeed(extraCommands?: { cmd: string; args: string[]; name?: string }[]) {
 		const feed = {
 			general: true,
-			commands: {
-				unzip: {
-					check: this.commandExist('unzip', ['-v']),
-					name: 'unzip',
-				},
-				docker: {
-					check: this.commandExist('docker', ['-v']),
-					name: 'docker',
-				},
-				dockerComposer: {
-					check: this.commandExist('docker', ['compose', 'version']),
-					name: 'docker compose',
-				},
-			},
+			commands: {} as { [key: string]: { check: boolean; name: string } },
 		};
+
+		[...(extraCommands || []), ...(this.commandsToCheck || [])].forEach((item) => {
+			feed.commands[item?.cmd] = {
+				check: this.commandExist(item.cmd, item.args),
+				name: item?.name || item.cmd,
+			};
+		});
 
 		const commandsKeys = Object.keys(feed.commands) as Array<keyof typeof feed.commands>;
 
@@ -50,8 +50,8 @@ export default class classDependencyChecker {
 	 * error is thrown with the message "Missing dependencies" followed by the names of the commands with
 	 * missing dependencies joined by commas.
 	 */
-	static check() {
-		const feed = this.getFeed();
+	static check(extraCommands?: Parameters<typeof this.getFeed>[0]) {
+		const feed = this.getFeed(extraCommands);
 
 		if (feed.general) {
 			return;
