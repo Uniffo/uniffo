@@ -1,4 +1,4 @@
-import { logger } from '../../services/logger.ts';
+import { logger } from '../../global/logger.ts';
 
 /**
  * The function `ensureUniffoPermissions` checks if a file at a given path is executable and upgrades

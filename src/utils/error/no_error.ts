@@ -1,4 +1,4 @@
-import { logger } from '../../services/logger.ts';
+import { logger } from '../../global/logger.ts';
 
 /**
  * The `noError` function is a TypeScript function that wraps a callback function and handles any

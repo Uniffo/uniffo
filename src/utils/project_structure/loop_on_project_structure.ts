@@ -1,5 +1,5 @@
 import { CLI_PROJECT_STRUCTURE } from '../../constants/index.ts';
-import { logger } from '../../services/logger.ts';
+import { logger } from '../../global/logger.ts';
 
 /**
  * The function `loopOnProjectStructure` iterates over a project structure object and executes a

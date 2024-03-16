@@ -1,4 +1,4 @@
-import { logger } from '../../services/logger.ts';
+import { logger } from '../../global/logger.ts';
 import { ensureExecutePermissions } from '../../utils/path/ensureExecutePermissions.ts';
 import { pathExist } from '../../utils/path/exist.ts';
 import { classCommand } from '../command/command.ts';

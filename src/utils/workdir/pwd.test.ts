@@ -2,7 +2,7 @@ import { assertEquals } from 'https://deno.land/std@0.201.0/assert/assert_equals
 import { pathExist } from '../path/exist.ts';
 import { cwd } from './cwd.ts';
 import { pwd } from './pwd.ts';
-import { logger } from '../../services/logger.ts';
+import { logger } from '../../global/logger.ts';
 import createProjectStructure from '../project_structure/create_project_structure.ts';
 
 Deno.test('pwd', async function testPwd() {

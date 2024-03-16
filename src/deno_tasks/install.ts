@@ -3,7 +3,7 @@ import { classDatabase } from '../classes/database/database.ts';
 import classDependencyChecker from '../classes/dependency_checker/dependency_checker.ts';
 import { classGitHubApiClient } from '../classes/github/gh_api_client.ts';
 import { CLI_DIR } from '../constants/index.ts';
-import { logger } from '../services/logger.ts';
+import { logger } from '../global/logger.ts';
 import { generateUniqueBasename } from '../utils/file/generate_unique_basename.ts';
 
 await (async function installer() {

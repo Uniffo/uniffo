@@ -1,4 +1,4 @@
-import { logger } from '../../services/logger.ts';
+import { logger } from '../../global/logger.ts';
 import { generateUniqueBasename } from '../../utils/file/generate_unique_basename.ts';
 import { pathExist } from '../../utils/path/exist.ts';
 

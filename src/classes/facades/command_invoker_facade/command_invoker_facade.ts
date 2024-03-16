@@ -1,4 +1,4 @@
-import { logger } from '../../../services/logger.ts';
+import { logger } from '../../../global/logger.ts';
 import { parseCliArgs } from '../../../utils/cli_args/parser.ts';
 import { pathExist } from '../../../utils/path/exist.ts';
 import { version } from '../../../utils/types/version.d.ts';

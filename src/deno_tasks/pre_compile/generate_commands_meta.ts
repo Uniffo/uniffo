@@ -1,4 +1,4 @@
-import { logger } from '../../services/logger.ts';
+import { logger } from '../../global/logger.ts';
 import { recursiveReaddir } from 'https://deno.land/x/recursive_readdir@v2.0.0/mod.ts';
 import { extname } from 'https://deno.land/std@0.220.0/path/mod.ts';
 

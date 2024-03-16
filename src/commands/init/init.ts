@@ -1,6 +1,6 @@
 import { TCommandArgs, TCommandMeta } from '../../classes/command/command.d.ts';
 import { classCommand } from '../../classes/command/command.ts';
-import { logger } from '../../services/logger.ts';
+import { logger } from '../../global/logger.ts';
 
 const phrase = 'init';
 class classCommandInit extends classCommand {

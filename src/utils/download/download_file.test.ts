@@ -4,7 +4,7 @@ import { downloadFile } from './download_file.ts';
 import { generateUniqueBasename } from '../file/generate_unique_basename.ts';
 import { cwd } from '../workdir/cwd.ts';
 import { getError } from '../error/get_error.ts';
-import { logger } from '../../services/logger.ts';
+import { logger } from '../../global/logger.ts';
 
 Deno.test('downloadFile', async function testDownloadFile() {
 	const testUrl =

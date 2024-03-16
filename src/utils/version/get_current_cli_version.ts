@@ -1,4 +1,4 @@
-import { logger } from '../../services/logger.ts';
+import { logger } from '../../global/logger.ts';
 import { cliVersion } from '../../pre_compiled/__cli_version.ts';
 import { version } from '../types/version.d.ts';
 

@@ -1,4 +1,4 @@
-import { logger } from '../../services/logger.ts';
+import { logger } from '../../global/logger.ts';
 import { pathExist } from '../../utils/path/exist.ts';
 
 const cliVersionTsFile = async (versionFile: string, versionTsFile: string) => {

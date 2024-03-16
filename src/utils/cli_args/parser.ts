@@ -1,5 +1,5 @@
 import { COMMANDS_META } from '../../pre_compiled/__commands_meta.ts';
-import { logger } from '../../services/logger.ts';
+import { logger } from '../../global/logger.ts';
 
 /**
  * The `parseCliArgs` function parses command-line arguments in Deno and categorizes them into boolean

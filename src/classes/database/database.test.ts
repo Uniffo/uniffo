@@ -1,7 +1,7 @@
 import { assertEquals } from 'https://deno.land/std@0.201.0/assert/assert_equals.ts';
 import { getError } from '../../utils/error/get_error.ts';
 import { assert } from 'https://deno.land/std@0.162.0/_util/assert.ts';
-import { logger } from '../../services/logger.ts';
+import { logger } from '../../global/logger.ts';
 import { cwd } from '../../utils/workdir/cwd.ts';
 import { classDatabase } from './database.ts';
 

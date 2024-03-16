@@ -1,4 +1,4 @@
-import { logger } from '../../services/logger.ts';
+import { logger } from '../../global/logger.ts';
 import { classDatabase } from '../database/database.ts';
 import { IReleaseByTagName } from './release_by_tag_name.d.ts';
 import { IReleases } from './releases_list.d.ts';

@@ -1,4 +1,4 @@
-import { logger } from '../../services/logger.ts';
+import { logger } from '../../global/logger.ts';
 import { getRandomId } from '../../utils/random_id/get_random_id.ts';
 import { classDocumentStorage } from '../document_storage/document_storage.ts';
 
