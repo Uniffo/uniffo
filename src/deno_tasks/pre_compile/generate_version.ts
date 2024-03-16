@@ -1,9 +1,25 @@
-import { logger } from '../services/logger.ts';
-import { cwd } from '../utils/workdir/cwd.ts';
+import { logger } from '../../services/logger.ts';
+import { pathExist } from '../../utils/path/exist.ts';
 
-(function generateVersion() {
+const cliVersionTsFile = async (versionFile: string, versionTsFile: string) => {
+	if (!await pathExist(versionFile)) {
+		await Deno.writeTextFile(versionFile, `0.0.0`);
+	}
+
+	if (await pathExist(versionFile)) {
+		const version = await Deno.readTextFile(versionFile);
+		logger.debug(`Var version: "${version}"`);
+
+		const moduleContent = `export const cliVersion = "${version}";`;
+		logger.debug(`Var moduleContent: "${moduleContent}"`);
+
+		logger.debug(`Write module "${versionTsFile}"`);
+		Deno.writeTextFileSync(versionTsFile, moduleContent);
+	}
+};
+
+const generateVersionFile = (versionFile: string) => {
 	// Init
-	const workdir = cwd();
 	let error = '';
 
 	const getLatestReleaseTag = './.github/workflows/shell-scripts/get_latest_release_tag.sh';
@@ -68,10 +84,10 @@ import { cwd } from '../utils/workdir/cwd.ts';
 
 	logger.debug(`nextSemanticVersion: "${nextSemanticVersion}"`);
 
-	// Write to file
-	const versionFile = `${workdir}/VERSION`;
-
-	logger.debug(`write to file "${nextSemanticVersion}"`);
-
 	Deno.writeTextFileSync(versionFile, nextSemanticVersion);
-})();
+};
+
+export const generateVersion = async (versionFile: string, versionTsFile: string) => {
+	generateVersionFile(versionFile);
+	await cliVersionTsFile(versionFile, versionTsFile);
+};
