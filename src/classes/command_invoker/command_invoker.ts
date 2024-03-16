@@ -21,7 +21,7 @@ export class classCommandInvoker {
 	}
 
 	public async exec(command: classCommand) {
-		logger.debug(`command: "${JSON.stringify(command)}"`);
+		logger.debug(`Var command:`, command);
 
 		try {
 			const executionCallback = this.getCommandExecutionCallback();

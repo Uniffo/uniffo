@@ -31,9 +31,9 @@ export const loopOnProjectStructure = (
 		const value = obj[key];
 		const currentPath = `${initialPath}/${key}`;
 
-		logger.debug(`key: "${key}"`);
-		logger.debug(`value: "${JSON.stringify(value)}"`);
-		logger.debug(`currentPath: "${currentPath}"`);
+		logger.debug(`key:`, key);
+		logger.debug(`value:`, value);
+		logger.debug(`currentPath:`, currentPath);
 
 		callback({ path: currentPath, value, key });
 

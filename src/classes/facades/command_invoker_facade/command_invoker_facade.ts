@@ -113,7 +113,7 @@ export class classCommandInvokerFacade {
 	}
 
 	public async exec() {
-		logger.debug(`Args: "${JSON.stringify(this.commandArguments)}"`);
+		logger.debug(`Var commandArguments:`, this.commandArguments);
 
 		try {
 			await this.init();

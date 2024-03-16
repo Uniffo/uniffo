@@ -13,7 +13,7 @@ export const noError = async (callback: () => Promise<void> | void) => {
 	try {
 		await callback();
 	} catch (error) {
-		logger.debug(`Error: "${JSON.stringify(error)}"`);
+		logger.debug(`Error:`, error);
 		return false;
 	}
 

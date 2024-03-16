@@ -216,11 +216,7 @@ export class classDatabase {
 
 		database.session[this.sessionId] = { ...database.session[this.sessionId], [key]: value };
 
-		logger.debug(
-			`Set session value "${key}":"${
-				typeof value === 'string' && !value.length ? value : JSON.stringify(value)
-			}"`,
-		);
+		logger.debug(`Set session value "${key}":`, value);
 
 		await this.updateDatabase(database);
 	}
@@ -240,11 +236,7 @@ export class classDatabase {
 
 		database.persistent = { ...database.persistent, [key]: value };
 
-		logger.debug(
-			`Set persistent value "${key}":"${
-				typeof value === 'string' && !value.length ? value : JSON.stringify(value)
-			}"`,
-		);
+		logger.debug(`Set persistent value "${key}":`, value);
 
 		await this.updateDatabase(database);
 	}
@@ -271,11 +263,7 @@ export class classDatabase {
 			output = database.session[this.sessionId];
 		}
 
-		logger.debug(
-			`Get session value "${key}":"${
-				typeof output === 'string' && !output.length ? output : JSON.stringify(output)
-			}"`,
-		);
+		logger.debug(`Get session value "${key}":`, output);
 
 		return output as T;
 	}
@@ -299,11 +287,7 @@ export class classDatabase {
 			output = database.persistent;
 		}
 
-		logger.debug(
-			`Get persistent value "${key}":"${
-				typeof output === 'string' && !output.length ? output : JSON.stringify(output)
-			}"`,
-		);
+		logger.debug(`Get persistent value "${key}":`, output);
 
 		return output as T;
 	}

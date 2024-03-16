@@ -9,7 +9,7 @@ import { logger } from '../../services/logger.ts';
  * @returns The function `parseCliArgs` returns an object with the following properties:
  */
 export const parseCliArgs = (denoArgs = Deno.args) => {
-	logger.debug(`denoArgs: ${JSON.stringify(denoArgs)}`);
+	logger.debug(`Var denoArgs:`, denoArgs);
 
 	const parsed = {
 		commandPhrase: '',

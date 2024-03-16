@@ -53,7 +53,7 @@ export class classGitHubApiClient {
 
 		const value = this.getCacheObject(data, expiration || _expiration);
 
-		logger.debug(`Add cache "${id}" as "${JSON.stringify(value)}"`);
+		logger.debug(`Add cache "${id}" as`, value);
 
 		await this.database.setPersistentValue(id, value);
 	}
@@ -71,7 +71,7 @@ export class classGitHubApiClient {
 			id,
 		);
 
-		logger.debug(`Get cache "${id}" as "${JSON.stringify(cache)}"`);
+		logger.debug(`Get cache "${id}" as`, cache);
 
 		if (Date.now() > (cache?.expiration || 0)) {
 			await this.database.removePersistentKey(id);
@@ -101,8 +101,8 @@ export class classGitHubApiClient {
 			`${this.github.apiUrl}/repos/${this.github.owner}/${this.github.repo}/releases?per_page=20&page=1`;
 		const headers = {};
 
-		logger.debug(`Var url: ${url}`);
-		logger.debug(`Var headers: ${JSON.stringify(headers)}`);
+		logger.debug(`Var url:`, url);
+		logger.debug(`Var headers:`, headers);
 
 		const req = await fetch(url, {
 			method: 'GET',
@@ -142,8 +142,8 @@ export class classGitHubApiClient {
 			`${this.github.apiUrl}/repos/${this.github.owner}/${this.github.repo}/releases/tags/${tagName}`;
 		const headers = {};
 
-		logger.debug(`Var url: ${url}`);
-		logger.debug(`Var headers: ${JSON.stringify(headers)}`);
+		logger.debug(`Var url:`, url);
+		logger.debug(`Var headers:`, headers);
 
 		const req = await fetch(url, {
 			method: 'GET',

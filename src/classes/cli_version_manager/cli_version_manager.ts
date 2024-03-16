@@ -140,7 +140,7 @@ export class classCliVersionManager {
 		logger.debug('Use latest uniffo version');
 
 		const versions = await this.getVersionsList();
-		logger.debug(`Var versions: ${JSON.stringify(versions)}`);
+		logger.debug(`Var versions:`, versions);
 
 		if (!versions.length) {
 			throw 'No available uniffo version!';
@@ -245,7 +245,7 @@ export class classCliVersionManager {
 
 		const releases = await this.gitHubApi.fetchReleases();
 
-		logger.debug(`Var releases: ${JSON.stringify(releases)}`);
+		logger.debug(`Var releases:`, releases);
 		return releases?.map((item) => {
 			const publishedDate = item.published_at
 				? new Date(item.published_at).getTime()
@@ -274,7 +274,7 @@ export class classCliVersionManager {
 		logger.debug(`Download uniffo "${tagName}" version`);
 
 		const release = await this.gitHubApi.fetchReleaseByTagName(tagName);
-		logger.debug(`Var release: ${JSON.stringify(release)}`);
+		logger.debug(`Var release:`, release);
 
 		const osAlias = getOsAlias();
 		logger.debug(`Var osAlias: ${osAlias}`);
@@ -291,7 +291,7 @@ export class classCliVersionManager {
 			throw `Not found download url for uniffo "${tagName}" version!`;
 		}
 
-		logger.debug(`Var releaseUrlForCurrentOS: "${JSON.stringify(releaseUrlForCurrentOS)}"`);
+		logger.debug(`Var releaseUrlForCurrentOS:`, releaseUrlForCurrentOS);
 
 		logger.info(`Download uniffo version "${tagName}" from "${releaseUrlForCurrentOS}"`);
 
@@ -308,7 +308,7 @@ export class classCliVersionManager {
 			url: releaseUrlForCurrentOS,
 			destDir: tmpDir,
 		});
-		logger.debug(`Var downloadDetails: "${JSON.stringify(downloadDetails)}"`);
+		logger.debug(`Var downloadDetails:`, downloadDetails);
 
 		if (!downloadDetails.filename) {
 			throw 'Downloaded filename is incorrect!';

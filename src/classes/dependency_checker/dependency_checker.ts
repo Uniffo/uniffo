@@ -89,11 +89,11 @@ export default class classDependencyChecker {
 				(new Deno.Command(cmd, { args })).outputSync().stdout,
 			);
 		} catch ({ message }) {
-			logger.debug(`execution result: "${JSON.stringify(message)}"`);
+			logger.debug(`execution result:`, message);
 			return false;
 		}
 
-		logger.debug(`execution result: "${executionResult}"`);
+		logger.debug(`execution result:`, executionResult);
 
 		if (!executionResult) {
 			return false;
