@@ -1,4 +1,4 @@
-import { pathExist } from '../../utils/path/exist.ts';
+import { pathExist } from '../../utils/path_exist/path_exist.ts';
 
 export const recreate_pre_compiled_dir = async (pre_compiled_dir: string) => {
 	const dirExist = () => pathExist(pre_compiled_dir);

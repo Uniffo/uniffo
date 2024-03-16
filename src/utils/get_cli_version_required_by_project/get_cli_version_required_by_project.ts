@@ -1,6 +1,6 @@
+import { version } from '../../classes/cli_version_manager/cli_version_manager.d.ts';
 import { CLI_PVFB } from '../../constants/index.ts';
-import { version } from '../types/version.d.ts';
-import { pwd } from '../workdir/pwd.ts';
+import { pwd } from '../pwd/pwd.ts';
 
 /**
  * The function `getCliVersionRequiredByProject` reads the contents of a file named `CLI_PVFB` in

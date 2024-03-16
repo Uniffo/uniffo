@@ -1,5 +1,5 @@
-import { pathExist } from '../path/exist.ts';
-import { getRandomId } from '../random_id/get_random_id.ts';
+import { pathExist } from '../path_exist/path_exist.ts';
+import { getRandomId } from '../get_random_id/get_random_id.ts';
 
 /**
  * The function `generateUniqueBasename` generates a unique basename by appending a random ID to a

@@ -4,7 +4,7 @@ import classDependencyChecker from '../classes/dependency_checker/dependency_che
 import { classGitHubApiClient } from '../classes/github/gh_api_client.ts';
 import { CLI_DIR } from '../constants/index.ts';
 import { logger } from '../global/logger.ts';
-import { generateUniqueBasename } from '../utils/file/generate_unique_basename.ts';
+import { generateUniqueBasename } from '../utils/generate_unique_basename/generate_unique_basename.ts';
 
 await (async function installer() {
 	const tmpDir = `${CLI_DIR.tmp}/${await generateUniqueBasename({ basePath: CLI_DIR.tmp })}`;

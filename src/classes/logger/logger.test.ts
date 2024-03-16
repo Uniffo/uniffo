@@ -2,7 +2,7 @@ import { assertEquals } from 'https://deno.land/std@0.201.0/assert/assert_equals
 import { classLogger } from './logger.ts';
 import { assertGreater } from 'https://deno.land/std@0.201.0/assert/assert_greater.ts';
 import { ansiColors } from './colors.ts';
-import { noError } from '../../utils/error/no_error.ts';
+import { noError } from '../../utils/no_error/no_error.ts';
 import { assert } from 'https://deno.land/std@0.162.0/_util/assert.ts';
 
 Deno.test('classLogger', async function testClassLogger() {

@@ -1,6 +1,6 @@
 import { CLI_PROJECT_STRUCTURE } from '../../constants/index.ts';
-import { pathExist } from '../path/exist.ts';
-import { cwd } from './cwd.ts';
+import { pathExist } from '../path_exist/path_exist.ts';
+import { cwd } from '../cwd/cwd.ts';
 
 const iAmInTopLevelOfUniffoProject = async (path: string) => {
 	const topLevelKeys = Object.keys(CLI_PROJECT_STRUCTURE);

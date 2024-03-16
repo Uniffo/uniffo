@@ -1,8 +1,8 @@
 import { assert } from 'https://deno.land/std@0.162.0/_util/assert.ts';
 import { parseCliArgs } from './parser.ts';
-import { noError } from '../error/no_error.ts';
 import { assertEquals } from 'https://deno.land/std@0.201.0/assert/assert_equals.ts';
 import { COMMANDS_META } from '../../pre_compiled/__commands_meta.ts';
+import { noError } from '../no_error/no_error.ts';
 
 Deno.test('parseCliArgs', async function testParseCliArgs(testContext) {
 	for (let i = 0; i < COMMANDS_META.length; i++) {

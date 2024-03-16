@@ -1,5 +1,5 @@
-import { getCurrentCliVersion } from '../utils/version/get_current_cli_version.ts';
-import { cwd } from '../utils/workdir/cwd.ts';
+import { getCurrentCliVersion } from '../utils/get_current_cli_version/get_current_cli_version.ts';
+import { cwd } from '../utils/cwd/cwd.ts';
 
 export const PRECOMPILED_DIR = `${cwd()}/src/pre_compiled`;
 /* The `CLI_CVFB` => Uniffo CLI Version File Basename */

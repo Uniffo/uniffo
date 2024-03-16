@@ -1,5 +1,5 @@
 import { assertEquals } from 'https://deno.land/std@0.201.0/assert/assert_equals.ts';
-import { cwd } from '../../utils/workdir/cwd.ts';
+import { cwd } from '../../utils/cwd/cwd.ts';
 import { classDocumentStorage } from './document_storage.ts';
 
 Deno.test('classDocumentStorage', async function testClassDocumentStorage() {

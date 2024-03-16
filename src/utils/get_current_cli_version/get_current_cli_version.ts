@@ -1,6 +1,6 @@
+import { version } from '../../classes/cli_version_manager/cli_version_manager.d.ts';
 import { logger } from '../../global/logger.ts';
 import { cliVersion } from '../../pre_compiled/__cli_version.ts';
-import { version } from '../types/version.d.ts';
 
 /**
  * The function `getCurrentCliVersion` is an asynchronous function that retrieves the current CLI

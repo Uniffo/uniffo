@@ -1,14 +1,14 @@
 import { CLI_DIR } from '../../constants/index.ts';
 import { logger } from '../../global/logger.ts';
-import { getOsAlias } from '../../utils/os/get_os_alias.ts';
-import { pathExist } from '../../utils/path/exist.ts';
+import { getOsAlias } from '../../utils/get_od_alias/get_os_alias.ts';
 import { classGitHubApiClient } from '../github/gh_api_client.ts';
-import { downloadFile } from '../../utils/download/download_file.ts';
-import { getCurrentCliVersion } from '../../utils/version/get_current_cli_version.ts';
-import { getCliVersionRequiredByProject } from '../../utils/version/get_cli_version_required_by_project.ts';
-import { version } from '../../utils/types/version.d.ts';
-import { ensureExecutePermissions } from '../../utils/path/ensureExecutePermissions.ts';
+import { downloadFile } from '../../utils/download_file/download_file.ts';
+import { getCurrentCliVersion } from '../../utils/get_current_cli_version/get_current_cli_version.ts';
+import { getCliVersionRequiredByProject } from '../../utils/get_cli_version_required_by_project/get_cli_version_required_by_project.ts';
+import { ensureExecutePermissions } from '../../utils/path/ensure_execute_permissions.ts';
 import { decompress } from 'https://deno.land/x/zip@v1.2.5/mod.ts';
+import { pathExist } from '../../utils/path_exist/path_exist.ts';
+import { version } from './cli_version_manager.d.ts';
 
 /* The `classCliVersionManager` class is a TypeScript class that represents the Unifo Version Manager, which is
 responsible for managing the versions of the "uniffo" software by downloading and extracting

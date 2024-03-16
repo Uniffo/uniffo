@@ -1,7 +1,7 @@
 import { logger } from '../../../global/logger.ts';
-import { parseCliArgs } from '../../../utils/cli_args/parser.ts';
-import { pathExist } from '../../../utils/path/exist.ts';
-import { version } from '../../../utils/types/version.d.ts';
+import { parseCliArgs } from '../../../utils/parser/parser.ts';
+import { pathExist } from '../../../utils/path_exist/path_exist.ts';
+import { version } from '../../cli_version_manager/cli_version_manager.d.ts';
 import { classCliVersionManager } from '../../cli_version_manager/cli_version_manager.ts';
 import { TCommandMeta } from '../../command/command.d.ts';
 import { classCommandInvoker } from '../../command_invoker/command_invoker.ts';

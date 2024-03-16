@@ -1,6 +1,6 @@
 import { assertEquals } from 'https://deno.land/std@0.201.0/assert/assert_equals.ts';
 import { classGitHubApiClient } from './gh_api_client.ts';
-import { cwd } from '../../utils/workdir/cwd.ts';
+import { cwd } from '../../utils/cwd/cwd.ts';
 import { classDatabase } from '../database/database.ts';
 
 Deno.test('classGitHubApiClient', async function testClassGitHubApiClient() {

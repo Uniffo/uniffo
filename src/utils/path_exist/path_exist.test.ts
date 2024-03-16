@@ -1,5 +1,5 @@
 import { assertEquals } from 'https://deno.land/std@0.201.0/assert/assert_equals.ts';
-import { pathExist } from './exist.ts';
+import { pathExist } from './path_exist.ts';
 
 Deno.test('pathExist', async function testPathExist() {
 	const shouldExist = await pathExist(Deno.cwd());

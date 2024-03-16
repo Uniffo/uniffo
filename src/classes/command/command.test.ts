@@ -1,6 +1,6 @@
 import { classCommand } from './command.ts';
 import { TCommandArgs } from './command.d.ts';
-import { parseCliArgs } from '../../utils/cli_args/parser.ts';
+import { parseCliArgs } from '../../utils/parser/parser.ts';
 import { assert } from 'https://deno.land/std@0.162.0/_util/assert.ts';
 
 Deno.test('classCommand', function testClassCommand() {

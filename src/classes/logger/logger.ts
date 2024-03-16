@@ -1,6 +1,6 @@
 import { ansiColors } from './colors.ts';
 import { getCallingFunctionName } from '../../utils/calling_function_name/calling_function_name.ts';
-import { formatDate } from '../../utils/date/format_date.ts';
+import { formatDate } from '../../utils/format_date/format_date.ts';
 import { isString } from 'https://cdn.skypack.dev/lodash-es@4.17.21';
 
 /* The `classLogger` class is a TypeScript class that provides logging functionality with configurable

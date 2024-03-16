@@ -1,4 +1,4 @@
-import { parseCliArgs } from '../../utils/cli_args/parser.ts';
+import { parseCliArgs } from '../../utils/parser/parser.ts';
 import { classCommand } from './command.ts';
 
 export type TCommandArgs = { commandArgs: ReturnType<typeof parseCliArgs> };

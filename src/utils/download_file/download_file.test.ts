@@ -1,10 +1,9 @@
 import { assertEquals } from 'https://deno.land/std@0.201.0/assert/assert_equals.ts';
-import { pathExist } from '../path/exist.ts';
 import { downloadFile } from './download_file.ts';
-import { generateUniqueBasename } from '../file/generate_unique_basename.ts';
-import { cwd } from '../workdir/cwd.ts';
-import { getError } from '../error/get_error.ts';
-import { logger } from '../../global/logger.ts';
+import { generateUniqueBasename } from '../generate_unique_basename/generate_unique_basename.ts';
+import { cwd } from '../cwd/cwd.ts';
+import { getError } from '../get_error/get_error.ts';
+import { pathExist } from '../path_exist/path_exist.ts';
 
 Deno.test('downloadFile', async function testDownloadFile() {
 	const testUrl =

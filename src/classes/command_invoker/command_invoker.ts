@@ -1,6 +1,6 @@
 import { logger } from '../../global/logger.ts';
-import { ensureExecutePermissions } from '../../utils/path/ensureExecutePermissions.ts';
-import { pathExist } from '../../utils/path/exist.ts';
+import { ensureExecutePermissions } from '../../utils/path/ensure_execute_permissions.ts';
+import { pathExist } from '../../utils/path_exist/path_exist.ts';
 import { classCommand } from '../command/command.ts';
 import classDependencyChecker from '../dependency_checker/dependency_checker.ts';
 import { lodash as _ } from 'https://deno.land/x/deno_ts_lodash@0.0.1/mod.ts';

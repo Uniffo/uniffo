@@ -1,11 +1,11 @@
 import { assertEquals } from 'https://deno.land/std@0.201.0/assert/assert_equals.ts';
-import { generateUniqueBasename } from '../file/generate_unique_basename.ts';
-import { cwd } from '../workdir/cwd.ts';
+import { generateUniqueBasename } from '../generate_unique_basename/generate_unique_basename.ts';
+import { cwd } from '../cwd/cwd.ts';
 import { getCliVersionRequiredByProject } from './get_cli_version_required_by_project.ts';
 import { CLI_PROJECT_STRUCTURE, CLI_PVFB } from '../../constants/index.ts';
 import { logger } from '../../global/logger.ts';
-import { loopOnProjectStructure } from '../project_structure/loop_on_project_structure.ts';
-import createProjectStructure from '../project_structure/create_project_structure.ts';
+import { loopOnProjectStructure } from '../loop_on_project_structure/loop_on_project_structure.ts';
+import createProjectStructure from '../create_project_structure/create_project_structure.ts';
 
 Deno.test('getCliVersionRequiredByProject', async function testGetCliVersionRequiredByProject() {
 	const baseCwd = cwd();

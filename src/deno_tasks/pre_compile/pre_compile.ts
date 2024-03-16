@@ -1,4 +1,4 @@
-import { cwd } from '../../utils/workdir/cwd.ts';
+import { cwd } from '../../utils/cwd/cwd.ts';
 import { generateVersion } from './generate_version.ts';
 import { generateCommandsMeta } from './generate_commands_meta.ts';
 import { recreate_pre_compiled_dir } from './recreate_pre_compiled_dir.ts';

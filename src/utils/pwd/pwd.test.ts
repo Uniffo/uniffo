@@ -1,9 +1,9 @@
 import { assertEquals } from 'https://deno.land/std@0.201.0/assert/assert_equals.ts';
-import { pathExist } from '../path/exist.ts';
-import { cwd } from './cwd.ts';
 import { pwd } from './pwd.ts';
 import { logger } from '../../global/logger.ts';
-import createProjectStructure from '../project_structure/create_project_structure.ts';
+import createProjectStructure from '../create_project_structure/create_project_structure.ts';
+import { pathExist } from '../path_exist/path_exist.ts';
+import { cwd } from '../cwd/cwd.ts';
 
 Deno.test('pwd', async function testPwd() {
 	const getRandomDig = () => Math.floor(Math.random() * (9 - 1)) + 1;

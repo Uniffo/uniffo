@@ -1,4 +1,4 @@
-import { pathExist } from '../path/exist.ts';
+import { pathExist } from '../path_exist/path_exist.ts';
 
 /**
  * The `downloadFile` function is a TypeScript function that downloads a file from a given URL, saves

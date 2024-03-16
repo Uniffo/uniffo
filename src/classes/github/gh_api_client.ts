@@ -109,8 +109,11 @@ export class classGitHubApiClient {
 			headers,
 		});
 
-		if (req.status == 404) {
-			throw 'Not found uniffo releases!';
+		logger.debug('Var request:', req);
+
+		if (req.status.toString().slice(0, 1) != '2') {
+			const message = (await req.json())?.message || req;
+			throw message;
 		}
 
 		const jsonResponse: Promise<IReleases[]> = req.json();

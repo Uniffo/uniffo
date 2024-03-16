@@ -1,5 +1,5 @@
 import { logger } from '../../global/logger.ts';
-import { getRandomId } from '../../utils/random_id/get_random_id.ts';
+import { getRandomId } from '../../utils/get_random_id/get_random_id.ts';
 import { classDocumentStorage } from '../document_storage/document_storage.ts';
 
 /* The `classDatabase` class is a TypeScript class that provides methods for managing a database with session
