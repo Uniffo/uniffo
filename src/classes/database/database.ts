@@ -5,9 +5,9 @@ import { classDocumentStorage } from '../document_storage/document_storage.ts';
 /* The `classDatabase` class is a TypeScript class that provides methods for managing a database with session
 and persistent data in local storage. */
 export class classDatabase {
-	private databaseName = '';
-	private sessionId = '';
-	private localStorage;
+	public databaseName = '';
+	public sessionId = '';
+	public localStorage;
 	constructor(args: { dirname: string }) {
 		this.localStorage = new classDocumentStorage(args.dirname);
 	}
@@ -46,7 +46,7 @@ export class classDatabase {
 	 * The function `ensureDateOfCreation` updates the database with the current date if the `_createdAt` key
 	 * does not exist in the persistent or session storage.
 	 */
-	private async ensureDateOfCreation() {
+	public async ensureDateOfCreation() {
 		const database = await this.getDatabase();
 		const key = '_createdAt';
 		const date = Date.now();
@@ -68,7 +68,7 @@ export class classDatabase {
 	 * generated. It is an optional parameter with a default value of 32.
 	 * @returns the generated session id.
 	 */
-	private async generateSessionId(idLength = 32) {
+	public async generateSessionId(idLength = 32) {
 		if (!idLength) {
 			throw 'Session id length can not be 0!';
 		}
@@ -92,7 +92,7 @@ export class classDatabase {
 	 * undefined. The "session" property is also an empty object with keys of type string and values of
 	 * type undefined or an object with keys of type string and values of type string,
 	 */
-	private getInitialDatabase() {
+	public getInitialDatabase() {
 		return {
 			persistent: {} as { [key: string]: string | number | object | boolean | undefined },
 			session: {} as {
@@ -106,7 +106,7 @@ export class classDatabase {
 	/**
 	 * The function "setInitialDatabase" asynchronously updates the database with the initial values.
 	 */
-	private async setInitialDatabase() {
+	public async setInitialDatabase() {
 		await this.updateDatabase(this.getInitialDatabase());
 	}
 
@@ -115,7 +115,7 @@ export class classDatabase {
 	 * not found or is invalid.
 	 * @returns the value of the `database` variable.
 	 */
-	private async getDatabase(): Promise<ReturnType<typeof this.getInitialDatabase>> {
+	public async getDatabase(): Promise<ReturnType<typeof this.getInitialDatabase>> {
 		const database = await this.localStorage.getItem(this.databaseName);
 
 		if (!database) {
@@ -135,7 +135,7 @@ export class classDatabase {
 	 * be databased in the local storage. It can be any type of data, such as an object, array, or primitive
 	 * value.
 	 */
-	private async updateDatabase<T>(database: T) {
+	public async updateDatabase<T>(database: T) {
 		await this.localStorage.setItem(this.databaseName, database);
 	}
 
@@ -145,7 +145,7 @@ export class classDatabase {
 	 * @returns a boolean value. It returns true if the database exists and has both a session and persistent
 	 * property, otherwise it returns false.
 	 */
-	private async isValidDatabase() {
+	public async isValidDatabase() {
 		const database = await this.localStorage.getItem(this.databaseName);
 
 		if (!database || !database?.session || !database?.persistent) {
@@ -158,7 +158,7 @@ export class classDatabase {
 	/**
 	 * The function `ensureDatabase` checks if the database is valid and sets the initial database if it is not.
 	 */
-	private async ensureDatabase() {
+	public async ensureDatabase() {
 		if (!await this.isValidDatabase()) {
 			await this.setInitialDatabase();
 		}

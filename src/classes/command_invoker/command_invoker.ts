@@ -6,8 +6,8 @@ import classDependencyChecker from '../dependency_checker/dependency_checker.ts'
 import { lodash as _ } from 'https://deno.land/x/deno_ts_lodash@0.0.1/mod.ts';
 
 export class classCommandInvoker {
-	private outsourceTarget?: string;
-	private checkDependencies = true;
+	public outsourceTarget?: string;
+	public checkDependencies = true;
 
 	constructor() {
 	}
@@ -36,7 +36,7 @@ export class classCommandInvoker {
 		}
 	}
 
-	private getCommandExecutionCallback() {
+	public getCommandExecutionCallback() {
 		switch (!!this.outsourceTarget) {
 			case true:
 				return this.outsourceCommand;
@@ -49,7 +49,7 @@ export class classCommandInvoker {
 		}
 	}
 
-	private async outsourceCommand(command: classCommand) {
+	public async outsourceCommand(command: classCommand) {
 		logger.debug(`Will execute command!`, command);
 
 		const path = this.outsourceTarget;
@@ -70,7 +70,7 @@ export class classCommandInvoker {
 		await process.status;
 	}
 
-	private async dispatchCommand(command: classCommand) {
+	public async dispatchCommand(command: classCommand) {
 		logger.debug(`Will execute command!`, command);
 
 		if (this.checkDependencies) {

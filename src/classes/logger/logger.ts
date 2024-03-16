@@ -6,13 +6,13 @@ import { isString } from 'https://cdn.skypack.dev/lodash-es@4.17.21';
 /* The `classLogger` class is a TypeScript class that provides logging functionality with configurable
 options. */
 export class classLogger {
-	private config = {
+	public config = {
 		omitStorage: false,
 		maxWeight: 1024 * 1024 * 100,
 		displayDebug: true,
 		displayDate: true,
 	};
-	private archive: ReturnType<typeof this.getLogLine>[] = [];
+	public archive: ReturnType<typeof this.getLogLine>[] = [];
 
 	/**
 	 * The constructor function initializes a Logger instance with optional configuration parameters.
@@ -53,7 +53,7 @@ export class classLogger {
 	 * message. It can have one of the following values: 'log', 'debug', 'error', 'info', or 'success'.
 	 * @returns The color code corresponding to the given log type.
 	 */
-	private getMessageColor(logType: string) {
+	public getMessageColor(logType: string) {
 		switch (logType) {
 			case 'log':
 				return ansiColors.Reset;
@@ -79,7 +79,7 @@ export class classLogger {
 	 * The function "keepLogsOptimized" checks if the weight of the logger exceeds the maximum weight, and
 	 * if so, shifts logs, omits storage, and recursively calls itself.
 	 */
-	private keepLogsOptimized() {
+	public keepLogsOptimized() {
 		if (this.getWeight() > this.config.maxWeight) {
 			this.archive.shift();
 			this.omitStorage(true);
@@ -96,7 +96,7 @@ export class classLogger {
 	 * @param {string} message - A string representing the log message.
 	 * @returns An object with the properties "message" and "logType".
 	 */
-	private getLogLine(logType: string, data: any[]) {
+	public getLogLine(logType: string, data: any[]) {
 		const message = data.map((v) => {
 			let value = JSON.stringify(v);
 
@@ -122,7 +122,7 @@ export class classLogger {
 	}
 
 	/**
-	 * The primaryLogFunction is a private function in TypeScript that logs a message with a specified log
+	 * The primaryLogFunction is a public function in TypeScript that logs a message with a specified log
 	 * type and performs additional formatting and handling based on the configuration settings.
 	 * @param {string} message - The `message` parameter is a string that represents the log message that
 	 * you want to log.
@@ -130,7 +130,7 @@ export class classLogger {
 	 * message being passed to the `primaryLogFunction`. It is used to determine the color and formatting
 	 * of the log message.
 	 */
-	private primaryLogFunction(
+	public primaryLogFunction(
 		data: any[],
 		logType: string,
 		callback: (...data: any[]) => void,

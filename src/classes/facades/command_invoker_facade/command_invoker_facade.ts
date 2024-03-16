@@ -14,11 +14,11 @@ export class classCommandInvokerFacade {
 	public database;
 	public commandInvoker;
 	public cliVersionManager;
-	private prefferedCliVersion?: version;
-	private commandArguments;
-	private commandsRepository;
-	private checkDependenciesBeforeExecution = true;
-	private tmpDir;
+	public prefferedCliVersion?: version;
+	public commandArguments;
+	public commandsRepository;
+	public checkDependenciesBeforeExecution = true;
+	public tmpDir;
 
 	constructor(
 		args: {
@@ -72,7 +72,7 @@ export class classCommandInvokerFacade {
 	 * The function `mkTmpDir` creates a temporary directory for the session if it doesn't already exist.
 	 * @returns nothing.
 	 */
-	private async mkTmpDir() {
+	public async mkTmpDir() {
 		if (!this.tmpDir) {
 			throw `Invalid tmp directory "${this.tmpDir}"!`;
 		}
@@ -92,7 +92,7 @@ export class classCommandInvokerFacade {
 	 * string, NaN). Otherwise, it is removing the session temporary directory using `Deno.remove()` and
 	 * returning a promise.
 	 */
-	private async rmTmpDir() {
+	public async rmTmpDir() {
 		await this.database.removeSessionKey('tmpDir');
 
 		if (await pathExist(this.tmpDir)) {
@@ -131,7 +131,7 @@ export class classCommandInvokerFacade {
 		}
 	}
 
-	private async getOutsourceTarget() {
+	public async getOutsourceTarget() {
 		const dispatchTarget = this.cliVersionManager.getDispatchTarget();
 		logger.debug(`Var dispatchTarget: ${dispatchTarget}`);
 

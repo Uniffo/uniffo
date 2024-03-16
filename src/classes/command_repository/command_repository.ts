@@ -2,7 +2,7 @@ import { TCommandMeta } from '../command/command.d.ts';
 import { classCommand } from '../command/command.ts';
 
 export class classCommandsRepository {
-	private commands: TCommandMeta[] = [];
+	public commands: TCommandMeta[] = [];
 
 	public add(commandMeta: TCommandMeta) {
 		if (this.has(commandMeta.phrase)) {

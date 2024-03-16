@@ -82,7 +82,7 @@ export default class classDependencyChecker {
 	 * check for existence.
 	 * @returns a boolean value. It returns `true` if the specified command exists, and `false` otherwise.
 	 */
-	private static commandExist(cmd: string, args: string[]) {
+	public static commandExist(cmd: string, args: string[]) {
 		logger.debug(`cmd: "${cmd}"`);
 		logger.debug(`args: "${args.join('", "')}"`);
 

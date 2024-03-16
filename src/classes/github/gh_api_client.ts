@@ -6,8 +6,8 @@ import { IReleases } from './releases_list.d.ts';
 /* The `classGitHubApiClient` is a TypeScript class that provides methods for fetching releases from a
 GitHub repository, caching the responses, and retrieving cached data. */
 export class classGitHubApiClient {
-	private github;
-	private database;
+	public github;
+	public database;
 
 	/**
 	 * The constructor function initializes the GitHub API client with the provided owner, repo, and
@@ -30,7 +30,7 @@ export class classGitHubApiClient {
 	 * the cache object should be considered expired and should not be used.
 	 * @returns An object with properties "data" and "expiration" is being returned.
 	 */
-	private getCacheObject(data: string, expiration: number) {
+	public getCacheObject(data: string, expiration: number) {
 		return {
 			data,
 			expiration,
@@ -48,7 +48,7 @@ export class classGitHubApiClient {
 	 * since the Unix epoch. If not provided, the default expiration time is set to 5 minutes (1000
 	 * milliseconds * 60 seconds * 5 minutes).
 	 */
-	private async addCache(id: string, data: string, expiration?: number) {
+	public async addCache(id: string, data: string, expiration?: number) {
 		const _expiration = Date.now() + (1000 * 60 * 5);
 
 		const value = this.getCacheObject(data, expiration || _expiration);
@@ -64,7 +64,7 @@ export class classGitHubApiClient {
 	 * cache. It is used to retrieve the cache object from the this.database.
 	 * @returns the `data` property of the `cache` object.
 	 */
-	private async getCache(id: string) {
+	public async getCache(id: string) {
 		const cache = await this.database.getPersistentValue<
 			ReturnType<typeof this.getCacheObject>
 		>(

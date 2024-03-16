@@ -5,11 +5,11 @@ import { pathExist } from '../../utils/path_exist/path_exist.ts';
 /* The `classDocumentStorage` is a TypeScript class that provides methods for creating, managing, and
 manipulating a document storage system. */
 export class classDocumentStorage {
-	private dirname;
-	private basename = 'uniffo_ds.txt';
-	private basenameLocked = 'uniffo_ds.lock.txt';
-	private sessionId = '';
-	private destroyed = true;
+	public dirname;
+	public basename = 'uniffo_ds.txt';
+	public basenameLocked = 'uniffo_ds.lock.txt';
+	public sessionId = '';
+	public destroyed = true;
 
 	/**
 	 * The constructor function initializes the value of the "dirname" property.
@@ -48,7 +48,7 @@ export class classDocumentStorage {
 	 * The function prevents accessing a destroyed document storage session and throws an error if the
 	 * session is not initialized.
 	 */
-	private preventDestroyedSession() {
+	public preventDestroyedSession() {
 		if (this.destroyed) {
 			throw 'Document storage session is destroyed! First initialize session!';
 		}
@@ -60,7 +60,7 @@ export class classDocumentStorage {
 	 * @returns The `createDocument()` function is returning a promise that resolves to the result of
 	 * `Deno.writeTextFile(this.getDocumentDetails().filename, '')`.
 	 */
-	private async createDocument() {
+	public async createDocument() {
 		if (await this.documentExist()) {
 			await Deno.remove(this.getDocumentDetails().filename);
 		}
@@ -77,7 +77,7 @@ export class classDocumentStorage {
 	 * function.
 	 * @returns the result of the `pathExist(filename)` function call.
 	 */
-	private documentExist() {
+	public documentExist() {
 		const filename = this.getDocumentDetails().filename;
 		logger.debug(`Var filename: "${filename}"`);
 
@@ -89,7 +89,7 @@ export class classDocumentStorage {
 	 * name, base name, locked base name, and file name.
 	 * @returns an object with the following properties:
 	 */
-	private getDocumentDetails() {
+	public getDocumentDetails() {
 		return {
 			dirname: this.dirname,
 			basename: this.basename,
@@ -105,7 +105,7 @@ export class classDocumentStorage {
 	 * can be passed to the `encodeData` function.
 	 * @returns the JSON string representation of the input data.
 	 */
-	private encodeData<T>(data: T) {
+	public encodeData<T>(data: T) {
 		if (data == '') {
 			return '';
 		}
@@ -118,7 +118,7 @@ export class classDocumentStorage {
 	 * @param {string} data - The `data` parameter is a string that represents encoded data.
 	 * @returns the decoded data as an object with string keys and any values.
 	 */
-	private decodeData(data: string) {
+	public decodeData(data: string) {
 		if (data == '') {
 			return '';
 		}
@@ -131,7 +131,7 @@ export class classDocumentStorage {
 	 * The function `registerClient` generates a unique basename for a client and creates a directory for
 	 * the client using that basename.
 	 */
-	private async registerClient() {
+	public async registerClient() {
 		const clientBasename = await generateUniqueBasename({
 			basePath: `${this.getDocumentDetails().dirname}/clients`,
 			prefix: `client_`,
@@ -150,7 +150,7 @@ export class classDocumentStorage {
 	 * @returns If the path does not exist, nothing is returned. If the path exists and is successfully
 	 * removed, nothing is returned.
 	 */
-	private async unregisterClient() {
+	public async unregisterClient() {
 		this.preventDestroyedSession();
 
 		const path = `${this.getDocumentDetails().dirname}/clients/${this.sessionId}`;
@@ -168,7 +168,7 @@ export class classDocumentStorage {
 	 * @returns either `false` if the path does not exist, or the text content of the file at the given
 	 * path.
 	 */
-	private async getCurrentDocumentClientId() {
+	public async getCurrentDocumentClientId() {
 		const path = this.getDocumentDetails().filenameLocked;
 
 		if (!await pathExist(path)) {
@@ -183,7 +183,7 @@ export class classDocumentStorage {
 	 * @returns The method is returning the result of the pathExist() function, which checks if the file
 	 * specified by this.getDocumentDetails().filenameLocked exists.
 	 */
-	private isDocumentLocked() {
+	public isDocumentLocked() {
 		return pathExist(this.getDocumentDetails().filenameLocked);
 	}
 
@@ -192,7 +192,7 @@ export class classDocumentStorage {
 	 * and writes the session ID to a locked file.
 	 * @returns a promise that resolves to the result of writing the session ID to a locked document file.
 	 */
-	private async lockDocument() {
+	public async lockDocument() {
 		this.preventDestroyedSession();
 
 		if (await this.isDocumentLocked()) {
@@ -209,7 +209,7 @@ export class classDocumentStorage {
 	 * false. Otherwise, it will attempt to remove the locked filename and return the result of that
 	 * operation.
 	 */
-	private async releaseDocumentLock() {
+	public async releaseDocumentLock() {
 		this.preventDestroyedSession();
 
 		const currentClientId = await this.getCurrentDocumentClientId();
@@ -226,7 +226,7 @@ export class classDocumentStorage {
 	 * `getDocumentDetails`, and throws an error if the file does not exist.
 	 * @returns the contents of the document file as a string.
 	 */
-	private async getDocument() {
+	public async getDocument() {
 		const filename = this.getDocumentDetails().filename;
 
 		if (!await pathExist(filename)) {
@@ -241,7 +241,7 @@ export class classDocumentStorage {
 	 * returning.
 	 * @returns the result of the `lockDocument()` function call.
 	 */
-	private async openDocument() {
+	public async openDocument() {
 		const tick = 100;
 
 		while (await this.isDocumentLocked()) {
@@ -256,7 +256,7 @@ export class classDocumentStorage {
 	 * @returns The method is returning the result of the `releaseDocumentLock()` method, which is awaited
 	 * using the `await` keyword.
 	 */
-	private async closeDocument() {
+	public async closeDocument() {
 		return await this.releaseDocumentLock();
 	}
 
@@ -267,7 +267,7 @@ export class classDocumentStorage {
 	 * @returns The `updateDocument` function is returning a promise that resolves to the result of
 	 * writing the provided `data` to a text file.
 	 */
-	private async updateDocument(data: string) {
+	public async updateDocument(data: string) {
 		return await Deno.writeTextFile(this.getDocumentDetails().filename, data);
 	}
 
