@@ -1,4 +1,5 @@
 import { CLI_PVFB } from '../../constants/index.ts';
+import { version } from '../types/version.d.ts';
 import { pwd } from '../workdir/pwd.ts';
 
 /**
@@ -15,7 +16,7 @@ export const getCliVersionRequiredByProject = async () => {
 	}
 
 	const projectUniffoVersionFilename = `${projectWorkDir}/${CLI_PVFB}`;
-	const version = await Deno.readTextFile(projectUniffoVersionFilename);
+	const version = await Deno.readTextFile(projectUniffoVersionFilename) as version;
 
 	return version;
 };

@@ -7,6 +7,7 @@ import { classGitHubApiClient } from '../github/gh_api_client.ts';
 import { getError } from '../../utils/error/get_error.ts';
 import { assert } from 'https://deno.land/std@0.162.0/_util/assert.ts';
 import { pathExist } from '../../utils/path/exist.ts';
+import { isBoolean, isObject } from 'https://cdn.skypack.dev/lodash-es@4.17.21';
 
 Deno.test('classCliVersionManager', async function testClassCliVersionManager() {
 	const testDir = `${cwd()}/test_classCliVersionManager`;
@@ -44,13 +45,15 @@ Deno.test('classCliVersionManager', async function testClassCliVersionManager() 
 		tmpDir: testData.dir.cli.tmp,
 	});
 
-	await cliVersionManager.init();
+	const latestVer = (await cliVersionManager.getVersionsList()).at(-1)?.tagName;
+
+	await cliVersionManager.init(latestVer);
 
 	const _cwd = cwd();
 
 	Deno.chdir(testData.dir.project);
 
-	await cliVersionManager.init();
+	await cliVersionManager.init(latestVer);
 
 	Deno.writeTextFileSync(`${testData.dir.project}/${CLI_PVFB}`, `999.999.999`);
 
@@ -86,7 +89,9 @@ Deno.test('classCliVersionManager', async function testClassCliVersionManager() 
 
 	assert(Array.isArray(await cliVersionManager.getVersionsList()), 'versions list');
 
-	assert(cliVersionManager.getDirInfo(), '');
+	assert(isObject(cliVersionManager.getDirInfo()), 'get dir info');
+
+	assert(isBoolean(cliVersionManager.shouldOutsourceCmd()), 'should outsource cmd');
 
 	Deno.chdir(_cwd);
 

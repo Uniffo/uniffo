@@ -151,6 +151,7 @@ export class classGitHubApiClient {
 		});
 
 		if (req.status == 404) {
+			await req.body?.cancel();
 			throw `Not found uniffo release by tag name "${tagName}"!`;
 		}
 

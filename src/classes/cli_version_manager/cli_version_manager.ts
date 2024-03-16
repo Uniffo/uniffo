@@ -14,15 +14,17 @@ import { decompress } from 'https://deno.land/x/zip@v1.2.5/mod.ts';
 responsible for managing the versions of the "uniffo" software by downloading and extracting
 specific versions from GitHub releases. */
 export class classCliVersionManager {
-	private gitHubApi;
-	private dispatch = false;
-	private dispatchTarget = '';
-	private cliDir;
-	private tmpDir;
+	public gitHubApi;
+	public dispatch = false;
+	public dispatchTarget = '';
+	public requiredCliVersion: version | undefined;
+	public cliDir;
+	public tmpDir;
 
 	/**
-	 * The constructor initializes a GitHub API client with specific owner, repo, and API URL, and sets
-	 * the dispatch and dispatchTarget properties to false and an empty string respectively.
+	 * The constructor function initializes the GitHub API client, CLI directory, and temporary directory
+	 * based on the provided arguments.
+	 * @param args - The constructor function takes in an object `args` with the following properties:
 	 */
 	constructor(
 		args: {
@@ -37,46 +39,113 @@ export class classCliVersionManager {
 	}
 
 	/**
-	 * The `init` function initializes the Unifo Version Manager by checking the current CLI version and
-	 * the required CLI version for the project, and then ensuring that the required version is installed
-	 * if it is different from the current version.
-	 * @returns The code is returning nothing.
+	 * The function `makeCvmDir` creates a directory if it does not already exist using Deno's `mkdir`
+	 * function.
 	 */
-	public async init(prefferedUniffoVersion?: version) {
-		logger.debug('Initialize Unifo Version Manager');
-
-		this.dispatch = false;
-		this.dispatchTarget = '';
-
+	public async makeCvmDir() {
 		if (!await pathExist(this.cliDir.main)) {
 			await Deno.mkdir(this.cliDir.main, { recursive: true });
 		}
+	}
 
-		const currentCliVersion = getCurrentCliVersion();
-		logger.debug(`Var currentCliVersion: "${currentCliVersion}"`);
+	/**
+	 * The function `resetDispatchValue` sets the `dispatch` property to `false`.
+	 */
+	public resetDispatchValue() {
+		this.dispatch = false;
+	}
 
+	/**
+	 * The function `resetDispatchTargetValue` resets the value of the `dispatchTarget` property to an
+	 * empty string.
+	 */
+	public resetDispatchTargetValue() {
+		this.dispatchTarget = '';
+	}
+
+	/**
+	 * This TypeScript function retrieves the required CLI version for a project, with an optional
+	 * preferred version parameter.
+	 * @param {version} [prefferedUniffoVersion] - The `prefferedUniffoVersion` parameter is an optional
+	 * parameter that represents the preferred version of the Uniffo CLI that the project requires. If
+	 * this parameter is provided, the function will use this version. Otherwise, it will call the
+	 * `getCliVersionRequiredByProject` function to
+	 * @returns The function `getProjectRequiredCliVersion` returns the CLI version required by the
+	 * project. If a preferred version (`prefferedUniffoVersion`) is provided, it will return that
+	 * version. Otherwise, it will asynchronously fetch the CLI version required by the project using the
+	 * `getCliVersionRequiredByProject` function and return that version.
+	 */
+	public async getProjectRequiredCliVersion(prefferedUniffoVersion?: version) {
 		const cliVersionRequiredByProject = prefferedUniffoVersion ||
 			await getCliVersionRequiredByProject();
-		logger.debug(`Var cliVersionRequiredByProject: "${cliVersionRequiredByProject}"`);
 
-		if (!cliVersionRequiredByProject || currentCliVersion === cliVersionRequiredByProject) {
+		return cliVersionRequiredByProject;
+	}
+
+	/**
+	 * The function `autoSetDispatch` asynchronously determines the required CLI version for a project and
+	 * sets the dispatch flag accordingly.
+	 * @param {version} [prefferedUniffoVersion] - The `prefferedUniffoVersion` parameter in the
+	 * `autoSetDispatch` function is an optional parameter that represents the preferred version of
+	 * Uniffo. This parameter allows the function to determine the required CLI version for the project
+	 * based on the preferred Uniffo version provided. If no preferred
+	 * @returns If the current CLI version is the same as the required CLI version, the function will
+	 * return without making any changes and log a debug message saying "No need to change uniffo
+	 * version". If the required CLI version is different from the current CLI version, the function will
+	 * set the `dispatch` property to `true` and set the `dispatchTarget` property to the filename of the
+	 * required CLI version
+	 */
+	public async autoSetDispatch(prefferedUniffoVersion?: version) {
+		const projectRequiredCliVersion = await this.getProjectRequiredCliVersion(
+			prefferedUniffoVersion,
+		);
+		const currentCliVersion = getCurrentCliVersion();
+
+		this.requiredCliVersion = projectRequiredCliVersion || currentCliVersion;
+
+		if (!this.requiredCliVersion || currentCliVersion === this.requiredCliVersion) {
 			logger.debug(`No need to change uniffo version`);
 			return;
 		}
 
 		this.dispatch = true;
-		this.dispatchTarget = this.getUniffoDetails(cliVersionRequiredByProject).filename;
-
-		await this.ensureVersion(cliVersionRequiredByProject);
+		this.dispatchTarget = this.getUniffoDetails(this.requiredCliVersion).filename;
 	}
 
 	/**
-	 * The function `getUniffoDetails` returns an object containing the directory name and filename based
-	 * on a given tag name.
-	 * @param {string} tagName - The `tagName` parameter is a string that represents the name of a tag.
-	 * @returns An object with the properties `dirname` and `filename`.
+	 * The `init` function initializes the Unifo Version Manager by resetting values, creating a
+	 * directory, setting dispatch, and ensuring a required CLI version.
+	 * @param {version} [prefferedUniffoVersion] - The `prefferedUniffoVersion` parameter is an optional
+	 * input that specifies a preferred version of Uniffo to be used during initialization. If provided,
+	 * the code will attempt to use this version when setting up the Uniffo Version Manager.
 	 */
-	private getUniffoDetails(tagName: string) {
+	public async init(prefferedUniffoVersion?: version) {
+		logger.debug('Initialize Unifo Version Manager');
+
+		this.resetDispatchValue();
+		this.resetDispatchTargetValue();
+		await this.makeCvmDir();
+		await this.autoSetDispatch(prefferedUniffoVersion);
+
+		if (!this.requiredCliVersion) {
+			throw `Invalid required cli version tagname "${this.requiredCliVersion}"!`;
+		}
+
+		await this.ensureVersion(this.requiredCliVersion);
+	}
+
+	/**
+	 * The function `getUniffoDetails` returns the directory name and filename for a specific version of a
+	 * tool.
+	 * @param {version} tagName - The `tagName` parameter is used to specify the version of the Uniffo
+	 * details that you want to retrieve. It is used to construct the directory path and filename for the
+	 * Uniffo details based on the specified version.
+	 * @returns {
+	 *   dirname: `${this.cliDir.versions}/`,
+	 *   filename: `${this.cliDir.versions}//uniffo`
+	 * }
+	 */
+	public getUniffoDetails(tagName: version) {
 		const dirname = `${this.cliDir.versions}/${tagName}`;
 		logger.debug(`Var dirname: "${dirname}"`);
 
@@ -90,9 +159,8 @@ export class classCliVersionManager {
 	}
 
 	/**
-	 * The function shouldOutsourceCmd returns the value of the dispatch variable and logs it to the debug
-	 * logger.
-	 * @returns The value of the variable `shouldDispatch`.
+	 * This function returns the value of the `dispatch` property and logs it at debug level.
+	 * @returns The function shouldOutsourceCmd() is returning the value of the variable shouldDispatch.
 	 */
 	public shouldOutsourceCmd() {
 		const shouldDispatch = this.dispatch;
@@ -102,8 +170,8 @@ export class classCliVersionManager {
 	}
 
 	/**
-	 * The function returns the dispatch target and logs the value of the variable "dispatchTarget".
-	 * @returns The method is returning the value of the variable `dispatchTarget`.
+	 * This TypeScript function returns the dispatch target and logs its value using a debug message.
+	 * @returns The `dispatchTarget` variable is being returned.
 	 */
 	public getDispatchTarget() {
 		const dispatchTarget = this.dispatchTarget;
@@ -113,13 +181,15 @@ export class classCliVersionManager {
 	}
 
 	/**
-	 * The function `ensureVersion` checks if a specific version of a file exists and if not, it downloads
-	 * it.
-	 * @param {string} tagName - The `tagName` parameter is a string that represents the version tag name
-	 * of a particular software or package.
-	 * @returns nothing (undefined).
+	 * The function `ensureVersion` checks if a specific version of a file exists and downloads it if it
+	 * doesn't.
+	 * @param {version} tagName - The `tagName` parameter in the `ensureVersion` function represents the
+	 * version of a software package or library that needs to be checked and potentially downloaded if it
+	 * does not already exist.
+	 * @returns If the file for the specified version already exists, the function will return without
+	 * downloading the version.
 	 */
-	public async ensureVersion(tagName: string) {
+	public async ensureVersion(tagName: version) {
 		const filename = this.getUniffoDetails(tagName).filename;
 		logger.debug(`Var filename: "${filename}"`);
 
@@ -132,9 +202,8 @@ export class classCliVersionManager {
 	}
 
 	/**
-	 * The function "useLatest" retrieves the latest version of "uniffo" and sets it as the default
-	 * version.
-	 * @returns the latest version of "uniffo" as a string.
+	 * The function `useLatest` retrieves the latest version of uniffo and sets it as the default version.
+	 * @returns The function `useLatest` is returning the latest version tag name of the uniffo software.
 	 */
 	public async useLatest() {
 		logger.debug('Use latest uniffo version');
@@ -148,26 +217,28 @@ export class classCliVersionManager {
 
 		const latest = versions[0];
 
-		await this.setDefaultVersion(latest.tagName);
+		await this.setDefaultVersion(latest.tagName as version);
 
 		return latest.tagName;
 	}
 
 	/**
-	 * The function returns the value of the cliDir property.
-	 * @returns The method is returning the value of the variable "cliDir".
+	 * This function returns the directory information stored in the "cliDir" property.
+	 * @returns The `cliDir` property is being returned.
 	 */
 	public getDirInfo() {
 		return this.cliDir;
 	}
 
 	/**
-	 * The function `setDefaultVersion` sets a default version of a software by downloading and copying
-	 * the necessary files.
-	 * @param {string} tagName - The `tagName` parameter is a string that represents the version tag name.
-	 * It is used to set the default version of a software package.
+	 * The function `setDefaultVersion` sets a default version by downloading and managing files based on
+	 * the provided version tag.
+	 * @param {version} tagName - The `tagName` parameter in the `setDefaultVersion` function represents
+	 * the version tag name that you want to set as the default version. This function checks if the
+	 * specified version is available, downloads it if it's not already installed, and then updates the
+	 * necessary files to make it the default version of the
 	 */
-	public async setDefaultVersion(tagName: string) {
+	public async setDefaultVersion(tagName: version) {
 		const availableVersions = (await this.getVersionsList()).map((item) => {
 			return item.tagName;
 		});
@@ -215,6 +286,12 @@ export class classCliVersionManager {
 		}
 	}
 
+	/**
+	 * This function retrieves a list of installed versions by comparing available versions with
+	 * directories in a specified path.
+	 * @returns The `getInstalledVersions` function returns an array of strings representing the installed
+	 * versions of a CLI tool.
+	 */
 	public async getInstalledVersions() {
 		const installedVersions: string[] = [];
 		const availableVersions = (await this.getVersionsList()).map((item) => {
@@ -223,7 +300,9 @@ export class classCliVersionManager {
 
 		if (await pathExist(this.cliDir.versions)) {
 			for (const dirEntry of Deno.readDirSync(this.cliDir.versions)) {
-				const dirname = availableVersions.includes(dirEntry.name) ? dirEntry.name : false;
+				const dirname = availableVersions.includes(dirEntry.name as version)
+					? dirEntry.name
+					: false;
 
 				if (dirname) {
 					installedVersions.push(dirname);
@@ -235,10 +314,12 @@ export class classCliVersionManager {
 	}
 
 	/**
-	 * The function `getVersionsList` fetches a list of releases from a GitHub API, transforms the data,
-	 * and sorts the releases by their published date in descending order.
-	 * @returns a list of versions with their corresponding tag names and published dates. The list is
-	 * sorted in descending order based on the published dates.
+	 * This function fetches a list of versions from GitHub releases, extracts relevant information, and
+	 * sorts them by published date.
+	 * @returns The `getVersionsList` function returns a list of versions fetched from the GitHub API.
+	 * Each version object in the list contains a `tagName` property representing the version tag name and
+	 * a `publishedDate` property representing the published date of the version. The list is sorted in
+	 * descending order based on the published date of each version.
 	 */
 	public async getVersionsList() {
 		logger.debug('Fetch uniffo versions list');
@@ -252,7 +333,7 @@ export class classCliVersionManager {
 				: undefined;
 
 			return {
-				tagName: item.tag_name,
+				tagName: item.tag_name as version,
 				publishedDate,
 			};
 		}).sort((a, b) => {
@@ -265,12 +346,13 @@ export class classCliVersionManager {
 	}
 
 	/**
-	 * The `downloadVersion` function downloads a specific version of a software called "uniffo" from a
-	 * GitHub release, extracts it, and saves it to a destination directory.
-	 * @param {string} tagName - The `tagName` parameter is a string that represents the version of the
-	 * "uniffo" software that you want to download.
+	 * The function `downloadVersion` downloads a specific version of a software package, extracts it, and
+	 * ensures execute permissions on the files.
+	 * @param {version} tagName - The `tagName` parameter in the `downloadVersion` function represents the
+	 * version of the "uniffo" software that you want to download. It is used to fetch the release
+	 * information and assets corresponding to that specific version from GitHub.
 	 */
-	public async downloadVersion(tagName: string) {
+	public async downloadVersion(tagName: version) {
 		logger.debug(`Download uniffo "${tagName}" version`);
 
 		const release = await this.gitHubApi.fetchReleaseByTagName(tagName);
@@ -320,6 +402,10 @@ export class classCliVersionManager {
 
 		const destDir = this.getUniffoDetails(tagName).dirname;
 		logger.debug(`Var destDir: "${destDir}"`);
+
+		if (await pathExist(destDir)) {
+			await Deno.remove(destDir, { recursive: true });
+		}
 
 		if (!await pathExist(destDir)) {
 			await Deno.mkdir(destDir, { recursive: true });

@@ -14,6 +14,10 @@ export default class classDependencyChecker {
 		const feed = {
 			general: true,
 			commands: {
+				unzip: {
+					check: this.commandExist('unzip', ['-v']),
+					name: 'unzip',
+				},
 				docker: {
 					check: this.commandExist('docker', ['-v']),
 					name: 'docker',
