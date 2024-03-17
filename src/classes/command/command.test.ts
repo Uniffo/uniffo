@@ -13,8 +13,13 @@ Deno.test('classCommand', function testClassCommand() {
 
 	const args = parseCliArgs();
 	const testCommandPhrase = 'My test command phrase';
-	const command = new myCommand({ commandArgs: { ...args, commandPhrase: testCommandPhrase } });
+	const testCommandDocs = 'My test command documentation';
+	const command = new myCommand({
+		commandArgs: { ...args, commandPhrase: testCommandPhrase },
+		documentation: testCommandDocs,
+	});
 
 	assert(command instanceof classCommand === true, 'Command is instanceof classCommand');
 	assert(command.getPhrase() === testCommandPhrase, 'Command phrase');
+	assert(command.getDocs() === testCommandDocs, 'Command docs');
 });

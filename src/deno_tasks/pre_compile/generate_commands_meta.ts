@@ -1,6 +1,7 @@
 import { logger } from '../../global/logger.ts';
 import { recursiveReaddir } from 'https://deno.land/x/recursive_readdir@v2.0.0/mod.ts';
 import { extname } from 'https://deno.land/std@0.220.0/path/mod.ts';
+import { pathExist } from '../../utils/path_exist/path_exist.ts';
 
 const generateEmptyCommandsMetaFile = async (commandsMetaFile: string) => {
 	logger.debug('Generate empty commands meta file', commandsMetaFile);
@@ -9,12 +10,12 @@ const generateEmptyCommandsMetaFile = async (commandsMetaFile: string) => {
 };
 
 const generateCommandsMetaFile = async (commandsRootDir: string, commandsMetaFile: string) => {
-	const imports = [];
-	const commands = [];
-
+	const data: { import: string; metaName: string; docs: string }[] = [];
 	for (
 		const file of (await recursiveReaddir(commandsRootDir)).filter(
-			(file: string) => extname(file) === '.ts',
+			(file: string) =>
+				extname(file) === '.ts' && !file.endsWith('.test.ts') && !file.endsWith('.d.ts') &&
+				!file.endsWith('.docs.ts'),
 		)
 	) {
 		logger.debug(`Var file:`, file);
@@ -26,17 +27,33 @@ const generateCommandsMetaFile = async (commandsRootDir: string, commandsMetaFil
 		logger.debug(importResult.class.name);
 
 		const commandImportName = `${importResult.class.name}Meta`;
+		const importPhrase = `import ${commandImportName} from '${file}';`;
+		const docsFile = `${file.slice(0, -3)}.docs.txt`;
+		const docsFileContent = await pathExist(docsFile) ? Deno.readTextFileSync(docsFile) : '';
+		const docs = importResult?.documentation || docsFileContent;
 
-		imports.push(`import ${commandImportName} from '${file}';`);
-
-		commands.push(`${commandImportName}`);
+		data.push({
+			import: importPhrase,
+			metaName: commandImportName,
+			docs: docs,
+		});
 	}
 
-	logger.debug(`Var imports:`, imports);
-	logger.debug(`Var commands:`, commands);
+	logger.debug(`Var data:`, data);
+	const spacing = '    ';
 
-	const moduleContent = `${imports.join('\n')}\nexport const COMMANDS_META = [\n    ${
-		commands.join(',\n    ')
+	const moduleContent = `${
+		data.map((item) => item.import).join('\n')
+	}\n\nexport const COMMANDS_META = [\n${spacing}${
+		data.map((item) => {
+			let result = `{\n`;
+			result += `${spacing}${spacing}...${item.metaName},\n`;
+			result += `${spacing}${spacing}...{\n`;
+			result += `${spacing}${spacing}${spacing}documentation: ${JSON.stringify(item.docs)}\n`;
+			result += `${spacing}${spacing}},\n`;
+			result += `${spacing}}`;
+			return result;
+		}).join(`,\n${spacing}`)
 	},\n];\n`;
 
 	logger.debug(`Var moduleContent:\n`, moduleContent);

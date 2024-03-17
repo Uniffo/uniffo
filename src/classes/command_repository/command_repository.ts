@@ -13,7 +13,7 @@ export class classCommandsRepository {
 	}
 
 	public get(phrase: string) {
-		const found = this.commands.find((record) => record.phrase === phrase)?.class;
+		const found = this.commands.find((record) => record.phrase === phrase);
 
 		return found;
 	}
@@ -21,6 +21,6 @@ export class classCommandsRepository {
 	public has(commandPhrase: TCommandMeta['phrase']) {
 		const found = this.get(commandPhrase);
 
-		return found?.prototype instanceof classCommand;
+		return found?.class?.prototype instanceof classCommand;
 	}
 }

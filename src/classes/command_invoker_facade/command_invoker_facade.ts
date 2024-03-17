@@ -92,13 +92,17 @@ export class classCommandInvokerFacade {
 	}
 
 	public getCommandObject() {
-		const commandClass = this.commandsRepository.get(this.commandArguments.commandPhrase);
+		const commandMeta = this.commandsRepository.get(this.commandArguments.commandPhrase);
+		const commandClass = commandMeta?.class;
 
 		if (!commandClass) {
 			throw `Command "${this.commandArguments.primitive.join(' ')}" not found!`;
 		}
 
-		const command = new commandClass({ commandArgs: this.commandArguments });
+		const command = new commandClass({
+			commandArgs: this.commandArguments,
+			documentation: commandMeta.documentation,
+		});
 
 		return command;
 	}

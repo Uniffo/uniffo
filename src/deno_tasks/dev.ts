@@ -19,23 +19,22 @@ const dispatchEvent = _.debounce((event: Deno.FsEvent) => {
 		const pathSegments = path.split('/');
 		const dirname = pathSegments.slice(0, pathSegments.length - 1).join('/');
 		const basename = pathSegments.slice(-1)[0];
-		const ext = basename.split('.').slice(-1)[0];
 
-		if (ext != 'ts') {
+		if (dirname.includes('src/pre_compiled')) {
 			continue;
 		}
 
-		let runFilename = '';
-
-		if (basename.includes('.test.ts')) {
-			runFilename = path;
-		} else {
-			runFilename = `${dirname}/${basename.replace(`.${ext}`, `.test.${ext}`)}`;
-		}
+		const runFilename = `${dirname}/${basename.split('.').at(0)}.test.ts`;
 
 		if (!pathExist(runFilename)) {
+			console.clear();
+			console.error(`File doesn't exist!`, runFilename);
 			continue;
 		}
+
+		const preCmd = new Deno.Command(Deno.execPath(), {
+			args: ['task', 'pre:compile'],
+		});
 
 		const cmd = new Deno.Command(Deno.execPath(), {
 			args: ['test', ...Deno.args, runFilename, '--', '--debug'],
@@ -43,6 +42,7 @@ const dispatchEvent = _.debounce((event: Deno.FsEvent) => {
 
 		console.clear();
 
+		preCmd.outputSync();
 		cmd.spawn();
 	}
 }, delay);

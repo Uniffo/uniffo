@@ -11,7 +11,7 @@ const generateSecretKeyFile = async (secretKeyFile: string) => {
 	logger.debug('Write secret key to file', secretKeyFile);
 	await Deno.writeTextFile(
 		secretKeyFile,
-		getRandomId(48, 'qwertyuioplkjhgfdsazxcvbnmQWERTYUIOPLKJHGFDSAZXCVBNM'),
+		getRandomId(15, '1234567890qwertyuioplkjhgfdsazxcvbnmQWERTYUIOPLKJHGFDSAZXCVBNM'),
 	);
 };
 

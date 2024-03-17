@@ -25,5 +25,5 @@ Deno.test('classCommand', function testClassCommand() {
 		'Try to add duplicated command to repository',
 	);
 	assert(commandRepo.has(commandMeta.phrase) === true, 'Command repo has command');
-	assert(commandRepo.get(testCommandPhrase) === commandMeta.class, 'Get command from repo');
+	assert(commandRepo.get(testCommandPhrase) === commandMeta, 'Get command from repo');
 });
