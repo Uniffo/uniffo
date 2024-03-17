@@ -1,13 +1,14 @@
 import { logger } from '../../global/logger.ts';
 import { generateUniqueBasename } from '../../utils/generate_unique_basename/generate_unique_basename.ts';
 import { pathExist } from '../../utils/path_exist/path_exist.ts';
+import { classCrypto } from '../crypto/crypto.ts';
 
 /* The `classDocumentStorage` is a TypeScript class that provides methods for creating, managing, and
 manipulating a document storage system. */
 export class classDocumentStorage {
 	public dirname;
-	public basename = 'uniffo_ds.txt';
-	public basenameLocked = 'uniffo_ds.lock.txt';
+	public basename = 'wpd_encrypted_ds.txt';
+	public basenameLocked = 'wpd_encrypted_ds.lock.txt';
 	public sessionId = '';
 	public destroyed = true;
 
@@ -110,7 +111,7 @@ export class classDocumentStorage {
 			return '';
 		}
 
-		return JSON.stringify(data);
+		return classCrypto.encode(JSON.stringify(data));
 	}
 
 	/**
@@ -124,7 +125,7 @@ export class classDocumentStorage {
 		}
 
 		// deno-lint-ignore no-explicit-any
-		return JSON.parse(data) as { [key: string]: any };
+		return JSON.parse(classCrypto.decode(data)) as { [key: string]: any };
 	}
 
 	/**
