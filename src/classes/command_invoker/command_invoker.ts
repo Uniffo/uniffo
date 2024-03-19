@@ -93,6 +93,6 @@ export class classCommandInvoker {
 			classDependencyChecker.check();
 		}
 
-		await command.exec();
+		await command._exec();
 	}
 }

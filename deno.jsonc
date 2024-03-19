@@ -6,7 +6,7 @@
     "test:coverage:lcov": "deno coverage ./.test_coverage --lcov > ./test-coverage.lcov",
     "test:coverage:report": "deno run --allow-read --allow-env --allow-write --allow-run ./src/deno_tasks/test_coverage_report.ts -- --debug",
     "generate:test:coverage:report:html":"genhtml -o ./.test_coverage_report ./test-coverage.lcov",
-    "pre:compile": "deno run --allow-run --allow-read --allow-write --allow-env ./src/deno_tasks/pre_compile/pre_compile.ts -- --debug",
+    "pre:compile": "deno run --allow-run --allow-read --allow-write --allow-env --allow-net ./src/deno_tasks/pre_compile/pre_compile.ts -- --debug",
     "compile": "deno task pre:compile && deno task compile:wpd && deno task compile:install",
     "compile:wpd": "deno task compile:wpd:linux-x64 && deno task compile:wpd:macos-x64 && deno task compile:wpd:macos-arm",
     "compile:wpd:linux-x64": "deno compile --allow-read --allow-run --allow-write --allow-env --allow-net --output dist/linux_x64/wpd --target x86_64-unknown-linux-gnu ./src/entry.ts",

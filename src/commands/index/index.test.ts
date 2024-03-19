@@ -21,5 +21,5 @@ Deno.test('commandIndex', async function testCommandIndex() {
 
 	assert(command.getPhrase() === commandIndexMeta.phrase, 'Check command phrase');
 	assert(command.getDocs() === commandIndexMeta.documentation, 'Check command documentation');
-	assert(await noError(async () => await command.exec()), 'Check command execution');
+	assert(await noError(async () => await command._exec()), 'Check command execution');
 });
