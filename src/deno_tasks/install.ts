@@ -31,7 +31,7 @@ await (async function installer() {
 
 	const shell = Deno.env.get('SHELL');
 
-	logger.info(`Add uniffo path to shell profile "${shell}"`);
+	logger.info(`Add wpd path to shell profile "${shell}"`);
 
 	let profile = '';
 	switch (shell) {
@@ -45,7 +45,7 @@ await (async function installer() {
 
 		default:
 			logger.error(
-				`Not supported shell "${shell}"! Please add manually uniffo path "${cliVersionManager.getDirInfo().main}" to your shell profile (${shell})`,
+				`Not supported shell "${shell}"! Please add manually wpd path "${cliVersionManager.getDirInfo().main}" to your shell profile (${shell})`,
 			);
 			break;
 	}
@@ -53,33 +53,33 @@ await (async function installer() {
 	if (profile) {
 		const profileFilename = `${Deno.env.get('HOME')}/${profile}`;
 		const profileContent = Deno.readTextFileSync(profileFilename);
-		const beginUniffoContent = '# UNIFFO - BEGIN';
-		const endUniffoContent = '# UNIFFO - END';
+		const beginWpdContent = '# WPD - BEGIN';
+		const endWpdContent = '# WPD - END';
 		const newContent: string[] = [];
-		let uniffoContentBoolean = false;
+		let wpdContentBoolean = false;
 		const splitedProfileContent = profileContent.split('\n');
 
 		splitedProfileContent.forEach((line, index) => {
 			const isLastLine = index == splitedProfileContent.length - 1;
 
-			if (line.includes(beginUniffoContent)) {
-				uniffoContentBoolean = true;
+			if (line.includes(beginWpdContent)) {
+				wpdContentBoolean = true;
 			}
 
-			if (uniffoContentBoolean == false && !(isLastLine && line === '')) {
+			if (wpdContentBoolean == false && !(isLastLine && line === '')) {
 				newContent.push(`${line}`);
 			}
 
-			if (line.includes(endUniffoContent)) {
-				uniffoContentBoolean = false;
+			if (line.includes(endWpdContent)) {
+				wpdContentBoolean = false;
 			}
 		});
 
 		const addUninffoToPATH: string[] = [];
 
-		addUninffoToPATH.push(`${beginUniffoContent}`);
+		addUninffoToPATH.push(`${beginWpdContent}`);
 		addUninffoToPATH.push(`PATH="\${PATH}:${cliVersionManager.getDirInfo().main}"`);
-		addUninffoToPATH.push(`${endUniffoContent}`);
+		addUninffoToPATH.push(`${endWpdContent}`);
 
 		newContent.push(...addUninffoToPATH);
 
@@ -90,7 +90,7 @@ await (async function installer() {
 	}
 
 	logger.success(
-		`Uniffo ${latest} successfully installed. Please restart terminal and try to execute "uniffo"`,
+		`Wpd ${latest} successfully installed. Please restart terminal and try to execute "wpd"`,
 	);
 
 	classDependencyChecker.check();

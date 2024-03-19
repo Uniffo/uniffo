@@ -18,7 +18,7 @@ Deno.test('classCommandInvoker', async function testClassCommandInvoker() {
 
 	invoker.setOutsourceTarget('myTarget');
 
-	assert(invoker.outsourceTarget === 'myTarget', 'setOutsourceTarget');
+	assert(invoker.outsourceTarget?.[0] === 'myTarget', 'setOutsourceTarget');
 
 	assert(
 		isFunction(invoker.getCommandExecutionCallback()),

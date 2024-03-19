@@ -15,8 +15,8 @@ export class classDatabase {
 	/**
 	 * The `init` function initializes the session by setting up the local storage, generating a session
 	 * ID, and updating the database with the session ID.
-	 * @param [name=uniffo] - The name parameter is a string that represents the name of the database. By
-	 * default, it is set to 'uniffo'.
+	 * @param [name=wpd] - The name parameter is a string that represents the name of the database. By
+	 * default, it is set to 'wpd'.
 	 * @returns The code is returning the session ID.
 	 */
 	public async init(name: string) {

@@ -2,9 +2,9 @@ import { getCurrentCliVersion } from '../utils/get_current_cli_version/get_curre
 import { cwd } from '../utils/cwd/cwd.ts';
 
 export const PRECOMPILED_DIR = `${cwd()}/src/pre_compiled`;
-/* The `CLI_CVFB` => Uniffo CLI Version File Basename */
+/* The `CLI_CVFB` => Wpd CLI Version File Basename */
 export const CLI_CVFB = 'VERSION';
-/* The `CLI_PVFB` => Uniffo Project Version File Basename */
+/* The `CLI_PVFB` => Wpd Project Version File Basename */
 export const CLI_PVFB = '.wpdvm';
 export const CLI_PROJECT_STRUCTURE_EMPTY_DIR = {};
 export const CLI_PROJECT_STRUCTURE = {

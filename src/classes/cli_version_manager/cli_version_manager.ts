@@ -11,12 +11,12 @@ import { pathExist } from '../../utils/path_exist/path_exist.ts';
 import { version } from './cli_version_manager.d.ts';
 
 /* The `classCliVersionManager` class is a TypeScript class that represents the Unifo Version Manager, which is
-responsible for managing the versions of the "uniffo" software by downloading and extracting
+responsible for managing the versions of the "wpd" software by downloading and extracting
 specific versions from GitHub releases. */
 export class classCliVersionManager {
 	public gitHubApi;
 	public dispatch = false;
-	public dispatchTarget = '';
+	public dispatchTarget: string[] = [];
 	public requiredCliVersion: version | undefined;
 	public prefferedCliVersion: version | undefined;
 	public cliDir;
@@ -61,23 +61,23 @@ export class classCliVersionManager {
 	 * empty string.
 	 */
 	public resetDispatchTargetValue() {
-		this.dispatchTarget = '';
+		this.dispatchTarget = [];
 	}
 
 	/**
 	 * This TypeScript function retrieves the required CLI version for a project, with an optional
 	 * preferred version parameter.
-	 * @param {version} [prefferedUniffoVersion] - The `prefferedUniffoVersion` parameter is an optional
-	 * parameter that represents the preferred version of the Uniffo CLI that the project requires. If
+	 * @param {version} [prefferedWpdVersion] - The `prefferedWpdVersion` parameter is an optional
+	 * parameter that represents the preferred version of the Wpd CLI that the project requires. If
 	 * this parameter is provided, the function will use this version. Otherwise, it will call the
 	 * `getCliVersionRequiredByProject` function to
 	 * @returns The function `getProjectRequiredCliVersion` returns the CLI version required by the
-	 * project. If a preferred version (`prefferedUniffoVersion`) is provided, it will return that
+	 * project. If a preferred version (`prefferedWpdVersion`) is provided, it will return that
 	 * version. Otherwise, it will asynchronously fetch the CLI version required by the project using the
 	 * `getCliVersionRequiredByProject` function and return that version.
 	 */
-	public async getProjectRequiredCliVersion(prefferedUniffoVersion?: version) {
-		const cliVersionRequiredByProject = prefferedUniffoVersion ||
+	public async getProjectRequiredCliVersion(prefferedWpdVersion?: version) {
+		const cliVersionRequiredByProject = prefferedWpdVersion ||
 			await getCliVersionRequiredByProject();
 
 		return cliVersionRequiredByProject;
@@ -102,7 +102,7 @@ export class classCliVersionManager {
 	/**
 	 * The function `autoSetDispatch` asynchronously determines the required CLI version for a project and
 	 * sets the dispatch flag accordingly.
-	 * @returns No need to change uniffo version
+	 * @returns No need to change wpd version
 	 */
 	public async autoSetDispatch() {
 		const projectRequiredCliVersion = await this.getProjectRequiredCliVersion(
@@ -113,20 +113,27 @@ export class classCliVersionManager {
 		this.requiredCliVersion = projectRequiredCliVersion || currentCliVersion;
 
 		if (!this.requiredCliVersion || currentCliVersion === this.requiredCliVersion) {
-			logger.debug(`No need to change uniffo version`);
+			logger.debug(`No need to change wpd version`);
 			return;
 		}
 
 		this.dispatch = true;
-		this.dispatchTarget = this.getUniffoDetails(this.requiredCliVersion).filename;
+
+		const details = this.getWpdDetails(this.requiredCliVersion);
+
+		this.dispatchTarget = [details.filename, details.filenameDepreciated];
+
+		if (!this.dispatchTarget.length) {
+			throw 'No available dispatch target!';
+		}
 	}
 
 	/**
 	 * The `init` function initializes the Unifo Version Manager by resetting values, creating a
 	 * directory, setting dispatch, and ensuring a required CLI version.
-	 * @param {version} [prefferedUniffoVersion] - The `prefferedUniffoVersion` parameter is an optional
-	 * input that specifies a preferred version of Uniffo to be used during initialization. If provided,
-	 * the code will attempt to use this version when setting up the Uniffo Version Manager.
+	 * @param {version} [prefferedWpdVersion] - The `prefferedWpdVersion` parameter is an optional
+	 * input that specifies a preferred version of Wpd to be used during initialization. If provided,
+	 * the code will attempt to use this version when setting up the Wpd Version Manager.
 	 */
 	public async init() {
 		logger.debug('Initialize Unifo Version Manager');
@@ -136,6 +143,10 @@ export class classCliVersionManager {
 		await this.makeCvmDir();
 		await this.autoSetDispatch();
 
+		if (!this.dispatchTarget.length) {
+			return;
+		}
+
 		if (!this.requiredCliVersion) {
 			throw `Invalid required cli version tagname "${this.requiredCliVersion}"!`;
 		}
@@ -144,26 +155,29 @@ export class classCliVersionManager {
 	}
 
 	/**
-	 * The function `getUniffoDetails` returns the directory name and filename for a specific version of a
+	 * The function `getWpdDetails` returns the directory name and filename for a specific version of a
 	 * tool.
-	 * @param {version} tagName - The `tagName` parameter is used to specify the version of the Uniffo
+	 * @param {version} tagName - The `tagName` parameter is used to specify the version of the Wpd
 	 * details that you want to retrieve. It is used to construct the directory path and filename for the
-	 * Uniffo details based on the specified version.
+	 * Wpd details based on the specified version.
 	 * @returns {
 	 *   dirname: `${this.cliDir.versions}/`,
-	 *   filename: `${this.cliDir.versions}//uniffo`
+	 *   filename: `${this.cliDir.versions}//wpd`
 	 * }
 	 */
-	public getUniffoDetails(tagName: version) {
+	public getWpdDetails(tagName: version) {
 		const dirname = `${this.cliDir.versions}/${tagName}`;
 		logger.debug(`Var dirname: "${dirname}"`);
 
-		const filename = `${dirname}/uniffo`;
+		const filenameDepreciated = `${dirname}/uniffo`;
+		logger.debug(`Var filenameDepreciated: "${filenameDepreciated}"`);
+		const filename = `${dirname}/wpd`;
 		logger.debug(`Var filename: "${filename}"`);
 
 		return {
 			dirname,
 			filename,
+			filenameDepreciated,
 		};
 	}
 
@@ -184,7 +198,7 @@ export class classCliVersionManager {
 	 */
 	public getDispatchTarget() {
 		const dispatchTarget = this.dispatchTarget;
-		logger.debug(`Var dispatchTarget: "${dispatchTarget}"`);
+		logger.debug(`Var dispatchTarget:`, dispatchTarget);
 
 		return dispatchTarget;
 	}
@@ -199,11 +213,11 @@ export class classCliVersionManager {
 	 * downloading the version.
 	 */
 	public async ensureVersion(tagName: version) {
-		const filename = this.getUniffoDetails(tagName).filename;
+		const filename = this.getWpdDetails(tagName).filename;
 		logger.debug(`Var filename: "${filename}"`);
 
 		if (await pathExist(filename)) {
-			logger.debug(`Uniffo version "${tagName}" already exist "${filename}"`);
+			logger.debug(`Wpd version "${tagName}" already exist "${filename}"`);
 			return;
 		}
 
@@ -211,17 +225,17 @@ export class classCliVersionManager {
 	}
 
 	/**
-	 * The function `useLatest` retrieves the latest version of uniffo and sets it as the default version.
-	 * @returns The function `useLatest` is returning the latest version tag name of the uniffo software.
+	 * The function `useLatest` retrieves the latest version of wpd and sets it as the default version.
+	 * @returns The function `useLatest` is returning the latest version tag name of the wpd software.
 	 */
 	public async useLatest() {
-		logger.debug('Use latest uniffo version');
+		logger.debug('Use latest wpd version');
 
 		const versions = await this.getVersionsList();
 		logger.debug(`Var versions:`, versions);
 
 		if (!versions.length) {
-			throw 'No available uniffo version!';
+			throw 'No available wpd version!';
 		}
 
 		const latest = versions[0];
@@ -262,36 +276,42 @@ export class classCliVersionManager {
 			await this.downloadVersion(tagName);
 		}
 
-		const uniffoVersionFilename = `${this.cliDir.versions}/${tagName}/uniffo`;
-		const uniffoFilename = `${this.cliDir.main}/uniffo`;
-		const uniffoTmpFilename = `${this.cliDir.main}/tmp_uniffo`;
-		const uniffoToRmFilename = `${this.cliDir.main}/rm_uniffo`;
+		const wpdVersionFilenameDepreciated = `${this.cliDir.versions}/${tagName}/uniffo`;
+		const wpdVersionFilename = `${this.cliDir.versions}/${tagName}/wpd`;
 
-		if (await pathExist(uniffoTmpFilename)) {
-			logger.debug(`Remove: "${uniffoTmpFilename}"`);
-			Deno.removeSync(uniffoTmpFilename);
+		if (await pathExist(wpdVersionFilenameDepreciated)) {
+			await Deno.rename(wpdVersionFilenameDepreciated, wpdVersionFilename);
 		}
 
-		if (await pathExist(uniffoToRmFilename)) {
-			logger.debug(`Remove: "${uniffoToRmFilename}"`);
-			Deno.removeSync(uniffoToRmFilename);
+		const wpdFilename = `${this.cliDir.main}/wpd`;
+		const wpdTmpFilename = `${this.cliDir.main}/tmp_wpd`;
+		const wpdToRmFilename = `${this.cliDir.main}/rm_wpd`;
+
+		if (await pathExist(wpdTmpFilename)) {
+			logger.debug(`Remove: "${wpdTmpFilename}"`);
+			Deno.removeSync(wpdTmpFilename);
 		}
 
-		logger.debug(`Copy "${uniffoVersionFilename}" to "${uniffoTmpFilename}"`);
-
-		Deno.copyFileSync(uniffoVersionFilename, uniffoTmpFilename);
-
-		if (await pathExist(uniffoFilename)) {
-			logger.debug(`Rename "${uniffoFilename}" to "${uniffoToRmFilename}"`);
-			Deno.renameSync(uniffoFilename, uniffoToRmFilename);
+		if (await pathExist(wpdToRmFilename)) {
+			logger.debug(`Remove: "${wpdToRmFilename}"`);
+			Deno.removeSync(wpdToRmFilename);
 		}
 
-		logger.debug(`Rename "${uniffoTmpFilename}" to "${uniffoFilename}"`);
-		Deno.renameSync(uniffoTmpFilename, uniffoFilename);
+		logger.debug(`Copy "${wpdVersionFilename}" to "${wpdTmpFilename}"`);
 
-		if (await pathExist(uniffoToRmFilename)) {
-			logger.debug(`Remove "${uniffoToRmFilename}"`);
-			Deno.removeSync(uniffoToRmFilename);
+		Deno.copyFileSync(wpdVersionFilename, wpdTmpFilename);
+
+		if (await pathExist(wpdFilename)) {
+			logger.debug(`Rename "${wpdFilename}" to "${wpdToRmFilename}"`);
+			Deno.renameSync(wpdFilename, wpdToRmFilename);
+		}
+
+		logger.debug(`Rename "${wpdTmpFilename}" to "${wpdFilename}"`);
+		Deno.renameSync(wpdTmpFilename, wpdFilename);
+
+		if (await pathExist(wpdToRmFilename)) {
+			logger.debug(`Remove "${wpdToRmFilename}"`);
+			Deno.removeSync(wpdToRmFilename);
 		}
 	}
 
@@ -331,7 +351,7 @@ export class classCliVersionManager {
 	 * descending order based on the published date of each version.
 	 */
 	public async getVersionsList() {
-		logger.debug('Fetch uniffo versions list');
+		logger.debug('Fetch wpd versions list');
 
 		const releases = await this.gitHubApi.fetchReleases();
 
@@ -358,11 +378,11 @@ export class classCliVersionManager {
 	 * The function `downloadVersion` downloads a specific version of a software package, extracts it, and
 	 * ensures execute permissions on the files.
 	 * @param {version} tagName - The `tagName` parameter in the `downloadVersion` function represents the
-	 * version of the "uniffo" software that you want to download. It is used to fetch the release
+	 * version of the "wpd" software that you want to download. It is used to fetch the release
 	 * information and assets corresponding to that specific version from GitHub.
 	 */
 	public async downloadVersion(tagName: version) {
-		logger.debug(`Download uniffo "${tagName}" version`);
+		logger.debug(`Download wpd "${tagName}" version`);
 
 		const release = await this.gitHubApi.fetchReleaseByTagName(tagName);
 		logger.debug(`Var release:`, release);
@@ -379,12 +399,12 @@ export class classCliVersionManager {
 		)?.browser_download_url;
 
 		if (!releaseUrlForCurrentOS) {
-			throw `Not found download url for uniffo "${tagName}" version!`;
+			throw `Not found download url for wpd "${tagName}" version!`;
 		}
 
 		logger.debug(`Var releaseUrlForCurrentOS:`, releaseUrlForCurrentOS);
 
-		logger.info(`Download uniffo version "${tagName}" from "${releaseUrlForCurrentOS}"`);
+		logger.info(`Download wpd version "${tagName}" from "${releaseUrlForCurrentOS}"`);
 
 		const tmpDir = this.tmpDir;
 		logger.debug(`Var tmpDir: "${tmpDir}"`);
@@ -409,7 +429,7 @@ export class classCliVersionManager {
 			throw `Downloaded zip is missing!`;
 		}
 
-		const destDir = this.getUniffoDetails(tagName).dirname;
+		const destDir = this.getWpdDetails(tagName).dirname;
 		logger.debug(`Var destDir: "${destDir}"`);
 
 		if (await pathExist(destDir)) {
@@ -429,6 +449,6 @@ export class classCliVersionManager {
 			ensureExecutePermissions(`${destDir}/${dirEntry.name}`);
 		}
 
-		logger.info(`"Uniffo ${tagName} downloaded"`);
+		logger.info(`"Wpd ${tagName} downloaded"`);
 	}
 }

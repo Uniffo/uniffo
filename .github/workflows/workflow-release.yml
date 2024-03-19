@@ -89,17 +89,17 @@ jobs:
 
       - uses: vimtor/action-zip@v1
         with:
-          files: dist/linux_x64/uniffo
+          files: dist/linux_x64/wpd
           dest: linux_x64.zip
 
       - uses: vimtor/action-zip@v1
         with:
-          files: dist/macos_arm/uniffo
+          files: dist/macos_arm/wpd
           dest: macos_arm.zip
 
       - uses: vimtor/action-zip@v1
         with:
-          files: dist/macos_x64/uniffo
+          files: dist/macos_x64/wpd
           dest: macos_x64.zip
 
       - uses: vimtor/action-zip@v1

@@ -6,7 +6,7 @@ import { pwd } from '../pwd/pwd.ts';
  * The function `getCliVersionRequiredByProject` reads the contents of a file named `CLI_PVFB` in
  * the current working directory and returns its contents as a string.
  * @returns The function `getCliVersionRequiredByProject` returns the version number read from the file
- * specified by `projectUniffoVersionFilename`.
+ * specified by `projectWpdVersionFilename`.
  */
 export const getCliVersionRequiredByProject = async () => {
 	const projectWorkDir = await pwd();
@@ -15,8 +15,8 @@ export const getCliVersionRequiredByProject = async () => {
 		return false;
 	}
 
-	const projectUniffoVersionFilename = `${projectWorkDir}/${CLI_PVFB}`;
-	const version = await Deno.readTextFile(projectUniffoVersionFilename) as version;
+	const projectWpdVersionFilename = `${projectWorkDir}/${CLI_PVFB}`;
+	const version = await Deno.readTextFile(projectWpdVersionFilename) as version;
 
 	return version;
 };

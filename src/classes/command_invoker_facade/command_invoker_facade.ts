@@ -113,23 +113,12 @@ export class classCommandInvokerFacade {
 		try {
 			await this.cliVersionManager.init();
 			this.commandInvoker.setCheckDependencies(true);
-			this.commandInvoker.setOutsourceTarget(await this.getOutsourceTarget());
+			this.commandInvoker.setOutsourceTarget(this.cliVersionManager.getDispatchTarget());
 			this.commandInvoker.setCheckDependencies(this.checkDependenciesBeforeExecution);
 
 			await this.commandInvoker.exec(this.getCommandObject());
 		} catch (error) {
 			throw error;
 		}
-	}
-
-	public async getOutsourceTarget() {
-		const dispatchTarget = this.cliVersionManager.getDispatchTarget();
-		logger.debug(`Var dispatchTarget: ${dispatchTarget}`);
-
-		if (!!dispatchTarget && !await pathExist(dispatchTarget)) {
-			throw `Uniffo dispatch target doesn't exist "${dispatchTarget}"!`;
-		}
-
-		return dispatchTarget;
 	}
 }

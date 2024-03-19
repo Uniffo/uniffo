@@ -1,7 +1,7 @@
 import { logger } from '../../global/logger.ts';
 
 /**
- * The function `ensureUniffoPermissions` checks if a file at a given path is executable and upgrades
+ * The function `ensureWpdPermissions` checks if a file at a given path is executable and upgrades
  * its permissions if necessary.
  * @param {string} path - The `path` parameter is a string that represents the file path of the file
  * for which we want to ensure executable permissions.

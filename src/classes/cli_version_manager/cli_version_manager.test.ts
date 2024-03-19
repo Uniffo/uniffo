@@ -72,7 +72,8 @@ Deno.test('classCliVersionManager', async function testClassCliVersionManager() 
 	);
 
 	assert(
-		cliVersionManager.getDispatchTarget().includes(testData.dir.cli.versions),
+		cliVersionManager.getDispatchTarget().map((p) => p.includes(testData.dir.cli.versions))
+			.includes(true),
 		'get dispatch path',
 	);
 
@@ -87,11 +88,13 @@ Deno.test('classCliVersionManager', async function testClassCliVersionManager() 
 
 	assert(await cliVersionManager.ensureVersion('0.1.0') === undefined, 'ensure version');
 
+	const useLatest = await getError<string>(async () => {
+		await cliVersionManager.useLatest();
+	});
+
 	assert(
-		(await getError<string>(async () => {
-			await cliVersionManager.useLatest();
-		})) === undefined,
-		'use latest version',
+		useLatest === undefined,
+		`use latest version = "${useLatest}"`,
 	);
 
 	assert(Array.isArray(await cliVersionManager.getVersionsList()), 'versions list');
