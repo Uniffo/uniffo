@@ -1,7 +1,7 @@
-import { CLI_PROJECT_STRUCTURE } from '../../constants/index.ts';
 import { logger } from '../../global/logger.ts';
 import { pathExist } from '../path_exist/path_exist.ts';
 import { loopOnProjectStructure } from '../loop_on_project_structure/loop_on_project_structure.ts';
+import { CLI_PROJECT_STRUCTURE } from '../../constants/CLI_PROJECT_STRUCTURE.ts';
 
 /**
  * The function creates a project structure by creating directories and files in the specified work

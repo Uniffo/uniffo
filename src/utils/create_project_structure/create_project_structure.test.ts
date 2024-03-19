@@ -1,11 +1,12 @@
 import { assertEquals } from 'https://deno.land/std@0.201.0/assert/assert_equals.ts';
-import { CLI_PROJECT_STRUCTURE, CLI_PROJECT_STRUCTURE_EMPTY_DIR } from '../../constants/index.ts';
 import createProjectStructure from './create_project_structure.ts';
 import { getError } from '../get_error/get_error.ts';
 import { assert } from 'https://deno.land/std@0.162.0/_util/assert.ts';
 import { noError } from '../no_error/no_error.ts';
 import { pathExist } from '../path_exist/path_exist.ts';
 import { cwd } from '../cwd/cwd.ts';
+import { CLI_PROJECT_STRUCTURE } from '../../constants/CLI_PROJECT_STRUCTURE.ts';
+import { CLI_PROJECT_STRUCTURE_EMPTY_DIR } from '../../constants/CLI_PROJECT_STRUCTURE_EMPTY_DIR.ts';
 
 Deno.test('createProjectStructure', async function testCreateProjectStructure() {
 	const testStructure = Object.assign(CLI_PROJECT_STRUCTURE, {

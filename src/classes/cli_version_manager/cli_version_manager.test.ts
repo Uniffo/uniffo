@@ -1,4 +1,4 @@
-import { CLI_PVFB } from '../../constants/index.ts';
+import { CLI_PVFB } from '../../constants/CLI_PVFB.ts';
 import createProjectStructure from '../../utils/create_project_structure/create_project_structure.ts';
 import { cwd } from '../../utils/cwd/cwd.ts';
 import { classCliVersionManager } from './cli_version_manager.ts';

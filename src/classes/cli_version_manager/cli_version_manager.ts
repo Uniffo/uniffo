@@ -1,4 +1,4 @@
-import { CLI_DIR } from '../../constants/index.ts';
+import { CLI_DIR } from '../../constants/CLI_DIR.ts';
 import { logger } from '../../global/logger.ts';
 import { getOsAlias } from '../../utils/get_od_alias/get_os_alias.ts';
 import { classGitHubApiClient } from '../github/gh_api_client.ts';

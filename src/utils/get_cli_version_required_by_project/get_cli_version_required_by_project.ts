@@ -1,5 +1,5 @@
 import { version } from '../../classes/cli_version_manager/cli_version_manager.d.ts';
-import { CLI_PVFB } from '../../constants/index.ts';
+import { CLI_PVFB } from '../../constants/CLI_PVFB.ts';
 import { pwd } from '../pwd/pwd.ts';
 
 /**

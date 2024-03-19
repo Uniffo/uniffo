@@ -1,4 +1,4 @@
-import { CLI_PROJECT_STRUCTURE } from '../../constants/index.ts';
+import { CLI_PROJECT_STRUCTURE } from '../../constants/CLI_PROJECT_STRUCTURE.ts';
 import { logger } from '../../global/logger.ts';
 
 /**

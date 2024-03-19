@@ -1,6 +1,7 @@
 import { assertEquals } from 'https://deno.land/std@0.201.0/assert/assert_equals.ts';
-import { CLI_PROJECT_STRUCTURE, CLI_PROJECT_STRUCTURE_EMPTY_DIR } from '../../constants/index.ts';
 import { loopOnProjectStructure } from './loop_on_project_structure.ts';
+import { CLI_PROJECT_STRUCTURE } from '../../constants/CLI_PROJECT_STRUCTURE.ts';
+import { CLI_PROJECT_STRUCTURE_EMPTY_DIR } from '../../constants/CLI_PROJECT_STRUCTURE_EMPTY_DIR.ts';
 
 Deno.test('loopOnProjectStructure', function testLoopOnProjectStructure() {
 	const testStructure = Object.assign(CLI_PROJECT_STRUCTURE, {
