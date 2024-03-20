@@ -6,7 +6,7 @@ export const CLI_PROJECT_STRUCTURE = {
 	wpd: {
 		environments: CLI_PROJECT_STRUCTURE_EMPTY_DIR,
 	},
-	data: CLI_PROJECT_STRUCTURE_EMPTY_DIR,
-	source: CLI_PROJECT_STRUCTURE_EMPTY_DIR,
+	'wp-data': CLI_PROJECT_STRUCTURE_EMPTY_DIR,
+	'wp-src': CLI_PROJECT_STRUCTURE_EMPTY_DIR,
 	[`${CLI_PVFB}`]: getCurrentCliVersion(),
 };

@@ -1,7 +1,7 @@
 import { TCommandArgs, TCommandMeta } from '../../classes/command/command.d.ts';
 import { classCommand } from '../../classes/command/command.ts';
 import { logger } from '../../global/logger.ts';
-import { emojify } from '../../utils/emojify/emojify.ts';
+import { cwd } from '../../utils/cwd/cwd.ts';
 
 const phrase = 'init';
 class classCommandInit extends classCommand {
@@ -12,8 +12,6 @@ class classCommandInit extends classCommand {
 	}
 	public exec() {
 		logger.debug();
-
-		logger.log(emojify("Let's start a new story :smiling_cat_with_heart_eyes:!"));
 	}
 }
 
