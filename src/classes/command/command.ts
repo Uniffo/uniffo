@@ -2,7 +2,7 @@ import { TCommandArgs } from './command.d.ts';
 import { logger } from '../../global/logger.ts';
 import { getCurrentCliVersion } from '../../utils/get_current_cli_version/get_current_cli_version.ts';
 import { emojify } from '../../utils/emojify/emojify.ts';
-import { random } from 'https://cdn.skypack.dev/lodash-es@4.17.21';
+import { isUndefined, random } from 'https://cdn.skypack.dev/lodash-es@4.17.21';
 
 export abstract class classCommand {
 	public args;
@@ -37,7 +37,7 @@ export abstract class classCommand {
 	public displayDocumentation() {
 		logger.debug();
 
-		logger.log(this.getDocumentationMessage());
+		logger.info(this.getDocumentationMessage());
 	}
 
 	public getCliBrandEmoji() {
@@ -85,7 +85,7 @@ export abstract class classCommand {
 	}
 
 	public displayRandomStartPhrase() {
-		logger.log(this.getRandomMessageFrom(this.getStartPhrases()));
+		logger.info(this.getRandomMessageFrom(this.getStartPhrases()));
 	}
 
 	public geDocumentationPhrases() {
@@ -113,6 +113,35 @@ export abstract class classCommand {
 		];
 	}
 
+	public getEndPhrases() {
+		return [
+			'Task completed.',
+			'Mission accomplished.',
+			'Work finished.',
+			'Assignment fulfilled.',
+			'Objective achieved.',
+			'Project concluded.',
+			'Duty discharged.',
+			'Job finalized.',
+			'Goal attained.',
+			'Work completed successfully.',
+			'Task achieved.',
+			'Mission fulfilled.',
+			'Work done.',
+			'Assignment completed.',
+			'Objective reached.',
+			'Project done.',
+			'Duty completed.',
+			'Job finished.',
+			'Goal accomplished.',
+			'Work wrapped up.',
+		];
+	}
+
+	public displayRandomEndPhrase() {
+		logger.success(this.getRandomMessageFrom(this.getEndPhrases()));
+	}
+
 	public preExec() {
 		logger.debug();
 
@@ -120,6 +149,8 @@ export abstract class classCommand {
 			this.displayDocumentation();
 			this.stopExecution = true;
 			logger.debug('Var stopExecution:', this.stopExecution);
+		} else {
+			this.displayRandomStartPhrase();
 		}
 	}
 
@@ -132,17 +163,53 @@ export abstract class classCommand {
 		return userNeedDocs;
 	}
 
+	public getOrAskForArg(name: string, askMessage: string, required: boolean = false) {
+		logger.debug();
+		const value = this.args.getKV([name])?.[0]?.[1];
+		logger.debug('value', value);
+
+		if (!isUndefined(value)) {
+			return value;
+		}
+
+		return this.askForArg(askMessage, required);
+	}
+
+	public askForArg(message: string, required: boolean = false) {
+		logger.debug();
+		const _prompt = () =>
+			prompt(`${this.getCliBrandEmoji()} ${required == true ? `(Required) ` : ''}${message}`);
+
+		if (required == false) {
+			return _prompt();
+		}
+
+		let userAnswer = '';
+		while (!userAnswer) {
+			logger.debug('Ask for required argument');
+			userAnswer = _prompt() || '';
+			logger.debug('Var userAnswer:', userAnswer);
+		}
+
+		return userAnswer;
+	}
+
 	public async _exec() {
 		logger.debug();
 
-		this.preExec();
+		try {
+			this.preExec();
 
-		if (this.stopExecution) {
-			return;
+			if (this.stopExecution) {
+				this.displayRandomEndPhrase();
+				return;
+			}
+
+			await this.exec();
+			this.displayRandomEndPhrase();
+		} catch (error) {
+			logger.error(`${this.getCliBrandEmoji()}`, error);
 		}
-
-		this.displayRandomStartPhrase();
-		await this.exec();
 	}
 
 	abstract exec(): Promise<void> | void;

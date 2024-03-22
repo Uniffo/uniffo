@@ -12,6 +12,10 @@ class classCommandInit extends classCommand {
 	}
 	public exec() {
 		logger.debug();
+		logger.debug(this.args);
+	}
+
+	public getInputData() {
 	}
 }
 
