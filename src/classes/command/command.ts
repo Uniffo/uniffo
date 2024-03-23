@@ -13,29 +13,41 @@ export abstract class classCommand {
 		logger.debugFn(arguments);
 
 		this.args = args.commandArgs;
+		logger.debugVar('this.args', this.args);
+
 		this.documentation = args.documentation;
+		logger.debugVar('this.documentation', this.documentation);
 	}
 
 	public getPhrase() {
-		logger.debug();
+		logger.debugFn(arguments);
 
-		return this.args.commandPhrase;
+		const phrase = this.args.commandPhrase;
+		logger.debugVar('phrase', phrase);
+
+		return phrase;
 	}
 
 	public getDocs() {
-		logger.debug();
+		logger.debugFn(arguments);
 
-		return this.documentation;
+		const documentation = this.documentation;
+		logger.debugVar('documentation', documentation);
+
+		return documentation;
 	}
 
 	public getDocumentationMessage() {
-		logger.debug();
+		logger.debugFn(arguments);
 
-		return `${this.getIntroForDocumentation()}\n${this.getDocs() || '<empty>'}`;
+		const message = `${this.getIntroForDocumentation()}\n${this.getDocs() || '<empty>'}`;
+		logger.debugVar('message', message);
+
+		return message;
 	}
 
 	public displayDocumentation() {
-		logger.debug();
+		logger.debugFn(arguments);
 
 		logger.info(this.getDocumentationMessage());
 	}
@@ -45,18 +57,21 @@ export abstract class classCommand {
 	}
 
 	public getIntroForDocumentation() {
-		logger.debug();
+		logger.debugFn(arguments);
 
 		let intro = `${this.getRandomMessageFrom(this.geDocumentationPhrases())}\n`;
 		intro += '					 \n';
 		intro += `WPDucker version ${getCurrentCliVersion()}\n\n`;
 		intro += `Documentation:\n`;
+		logger.debugVar('intro', intro);
 
 		return intro;
 	}
 
 	public getStartPhrases() {
-		return [
+		logger.debugFn(arguments);
+
+		const phrases = [
 			"Alright, let's begin.",
 			"Okay, let's kick things off.",
 			"Sure, let's get started.",
@@ -78,18 +93,30 @@ export abstract class classCommand {
 			"Alright, let's ignite the spark of action.",
 			"Okay, let's lay the groundwork and commence.",
 		];
+		logger.debugVar('phrases', phrases);
+
+		return phrases;
 	}
 
 	public getRandomMessageFrom(feed: string[]) {
-		return `${this.getCliBrandEmoji()} ${feed[random(0, feed.length - 1)]}`;
+		logger.debugFn(arguments);
+
+		const randomMessage = `${this.getCliBrandEmoji()} ${feed[random(0, feed.length - 1)]}`;
+		logger.debugVar('randomMessage', randomMessage);
+
+		return randomMessage;
 	}
 
 	public displayRandomStartPhrase() {
+		logger.debugFn(arguments);
+
 		logger.info(this.getRandomMessageFrom(this.getStartPhrases()));
 	}
 
 	public geDocumentationPhrases() {
-		return [
+		logger.debugFn(arguments);
+
+		const phrases = [
 			"Here's my documentation:",
 			'Presenting my documentation:',
 			'Behold, my documentation:',
@@ -111,10 +138,15 @@ export abstract class classCommand {
 			'Disclosing my documentation:',
 			'Offering my documentation for review:',
 		];
+		logger.debugVar('phrases', phrases);
+
+		return phrases;
 	}
 
 	public getEndPhrases() {
-		return [
+		logger.debugFn(arguments);
+
+		const phrases = [
 			'Task completed.',
 			'Mission accomplished.',
 			'Work finished.',
@@ -136,29 +168,33 @@ export abstract class classCommand {
 			'Goal accomplished.',
 			'Work wrapped up.',
 		];
+		logger.debugVar('phrases', phrases);
+
+		return phrases;
 	}
 
 	public displayRandomEndPhrase() {
+		logger.debugFn(arguments);
 		logger.success(this.getRandomMessageFrom(this.getEndPhrases()));
 	}
 
 	public preExec() {
-		logger.debug();
+		logger.debugFn(arguments);
 
 		if (this.userNeedDocs()) {
 			this.displayDocumentation();
 			this.stopExecution = true;
-			logger.debug('Var stopExecution:', this.stopExecution);
+			logger.debugVar('this.stopExecution', this.stopExecution);
 		} else {
 			this.displayRandomStartPhrase();
 		}
 	}
 
 	public userNeedDocs() {
-		logger.debug();
+		logger.debugFn(arguments);
 
 		const userNeedDocs = this.args.hasBoolean(['h', 'help'], 'OR');
-		logger.debug('Var userNeedDocs:', userNeedDocs);
+		logger.debugVar('userNeedDocs', userNeedDocs);
 
 		return userNeedDocs;
 	}
@@ -169,9 +205,10 @@ export abstract class classCommand {
 		required: boolean = false,
 		defaultValue = '',
 	) {
-		logger.debug();
+		logger.debugFn(arguments);
+
 		const value = this.args.getKV([name])?.[0]?.[1];
-		logger.debug('value', value);
+		logger.debugVar('value', value);
 
 		if (!isUndefined(value)) {
 			return value;
@@ -181,7 +218,8 @@ export abstract class classCommand {
 	}
 
 	public askForArg(message: string, required: boolean = false, defaultValue: string) {
-		logger.debug();
+		logger.debugFn(arguments);
+
 		const _prompt = () =>
 			prompt(
 				`${this.getCliBrandEmoji()} ${required == true ? `(Required) ` : ''}${
@@ -190,21 +228,24 @@ export abstract class classCommand {
 			) || defaultValue;
 
 		if (required == false) {
-			return _prompt();
+			const promptValue = _prompt();
+			logger.debugVar('promptValue', promptValue);
+
+			return promptValue;
 		}
 
 		let userAnswer = '';
+		logger.debugVar('userAnswer', userAnswer);
 		while (!userAnswer) {
-			logger.debug('Ask for required argument');
 			userAnswer = _prompt() || '';
-			logger.debug('Var userAnswer:', userAnswer);
+			logger.debugVar('userAnswer', userAnswer);
 		}
 
 		return userAnswer;
 	}
 
 	public async _exec() {
-		logger.debug();
+		logger.debugFn(arguments);
 
 		this.preExec();
 
