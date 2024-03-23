@@ -34,9 +34,16 @@ export class classCliVersionManager {
 			tmpDir: string;
 		},
 	) {
+		logger.debugFn(arguments);
+
 		this.gitHubApi = args.gitHubApiClient;
+		logger.debugVar(`this.gitHubApi`, this.gitHubApi);
+
 		this.cliDir = args.cliDir;
+		logger.debugVar(`this.cliDir`, this.cliDir);
+
 		this.tmpDir = args.tmpDir;
+		logger.debugVar(`this.tmpDir`, this.tmpDir);
 	}
 
 	/**
@@ -44,7 +51,10 @@ export class classCliVersionManager {
 	 * function.
 	 */
 	public async makeCvmDir() {
+		logger.debugFn(arguments);
+
 		if (!await pathExist(this.cliDir.main)) {
+			logger.debug('Make directory', this.cliDir.main, { recursive: true });
 			await Deno.mkdir(this.cliDir.main, { recursive: true });
 		}
 	}
@@ -53,7 +63,10 @@ export class classCliVersionManager {
 	 * The function `resetDispatchValue` sets the `dispatch` property to `false`.
 	 */
 	public resetDispatchValue() {
+		logger.debugFn(arguments);
+
 		this.dispatch = false;
+		logger.debugVar(`this.dispatch`, this.dispatch);
 	}
 
 	/**
@@ -61,7 +74,10 @@ export class classCliVersionManager {
 	 * empty string.
 	 */
 	public resetDispatchTargetValue() {
+		logger.debugFn(arguments);
+
 		this.dispatchTarget = [];
+		logger.debugVar(`this.dispatchTarget`, this.dispatchTarget);
 	}
 
 	/**
@@ -77,8 +93,11 @@ export class classCliVersionManager {
 	 * `getCliVersionRequiredByProject` function and return that version.
 	 */
 	public async getProjectRequiredCliVersion(prefferedWpdVersion?: version) {
+		logger.debugFn(arguments);
+
 		const cliVersionRequiredByProject = prefferedWpdVersion ||
 			await getCliVersionRequiredByProject();
+		logger.debugVar(`cliVersionRequiredByProject`, cliVersionRequiredByProject);
 
 		return cliVersionRequiredByProject;
 	}
@@ -89,14 +108,20 @@ export class classCliVersionManager {
 	 * parameter should be named "preferredCliVersion" instead of "prefferedCliVersion".
 	 */
 	public setPrefferdCliVersion(prefferedCliVersion: version) {
+		logger.debugFn(arguments);
+
 		this.prefferedCliVersion = prefferedCliVersion;
+		logger.debugVar(`this.prefferedCliVersion`, this.prefferedCliVersion);
 	}
 
 	/**
 	 * This function unsets the preferred CLI version by setting it to undefined.
 	 */
 	public unsetPrefferdCliVersion() {
+		logger.debugFn(arguments);
+
 		this.prefferedCliVersion = undefined;
+		logger.debugVar(`this.prefferedCliVersion`, this.prefferedCliVersion);
 	}
 
 	/**
@@ -105,12 +130,18 @@ export class classCliVersionManager {
 	 * @returns No need to change wpd version
 	 */
 	public async autoSetDispatch() {
+		logger.debugFn(arguments);
+
 		const projectRequiredCliVersion = await this.getProjectRequiredCliVersion(
 			this.prefferedCliVersion,
 		);
+		logger.debugVar(`projectRequiredCliVersion`, projectRequiredCliVersion);
+
 		const currentCliVersion = getCurrentCliVersion();
+		logger.debugVar(`currentCliVersion`, currentCliVersion);
 
 		this.requiredCliVersion = projectRequiredCliVersion || currentCliVersion;
+		logger.debugVar(`this.requiredCliVersion`, this.requiredCliVersion);
 
 		if (!this.requiredCliVersion || currentCliVersion === this.requiredCliVersion) {
 			logger.debug(`No need to change wpd version`);
@@ -118,10 +149,13 @@ export class classCliVersionManager {
 		}
 
 		this.dispatch = true;
+		logger.debugVar(`this.dispatch`, this.dispatch);
 
 		const details = this.getWpdDetails(this.requiredCliVersion);
+		logger.debugVar(`details`, details);
 
 		this.dispatchTarget = [details.filename, details.filenameDepreciated];
+		logger.debugVar(`this.dispatchTarget`, this.dispatchTarget);
 
 		if (!this.dispatchTarget.length) {
 			throw 'No available dispatch target!';
@@ -136,7 +170,7 @@ export class classCliVersionManager {
 	 * the code will attempt to use this version when setting up the Wpd Version Manager.
 	 */
 	public async init() {
-		logger.debug('Initialize Unifo Version Manager');
+		logger.debugFn(arguments);
 
 		this.resetDispatchValue();
 		this.resetDispatchTargetValue();
@@ -144,6 +178,7 @@ export class classCliVersionManager {
 		await this.autoSetDispatch();
 
 		if (!this.dispatchTarget.length) {
+			logger.debug(`No dispatch target`);
 			return;
 		}
 
@@ -166,13 +201,16 @@ export class classCliVersionManager {
 	 * }
 	 */
 	public getWpdDetails(tagName: version) {
+		logger.debugFn(arguments);
+
 		const dirname = `${this.cliDir.versions}/${tagName}`;
-		logger.debug(`Var dirname: "${dirname}"`);
+		logger.debugVar(`dirname`, dirname);
 
 		const filenameDepreciated = `${dirname}/uniffo`;
-		logger.debug(`Var filenameDepreciated: "${filenameDepreciated}"`);
+		logger.debugVar(`filenameDepreciated`, filenameDepreciated);
+
 		const filename = `${dirname}/wpd`;
-		logger.debug(`Var filename: "${filename}"`);
+		logger.debugVar(`filename`, filename);
 
 		return {
 			dirname,
@@ -186,8 +224,10 @@ export class classCliVersionManager {
 	 * @returns The function shouldOutsourceCmd() is returning the value of the variable shouldDispatch.
 	 */
 	public shouldOutsourceCmd() {
+		logger.debugFn(arguments);
+
 		const shouldDispatch = this.dispatch;
-		logger.debug(`Var shouldDispatch: "${shouldDispatch}"`);
+		logger.debugVar(`shouldDispatch`, shouldDispatch);
 
 		return shouldDispatch;
 	}
@@ -197,8 +237,10 @@ export class classCliVersionManager {
 	 * @returns The `dispatchTarget` variable is being returned.
 	 */
 	public getDispatchTarget() {
+		logger.debugFn(arguments);
+
 		const dispatchTarget = this.dispatchTarget;
-		logger.debug(`Var dispatchTarget:`, dispatchTarget);
+		logger.debugVar(`dispatchTarget`, dispatchTarget);
 
 		return dispatchTarget;
 	}
@@ -213,8 +255,10 @@ export class classCliVersionManager {
 	 * downloading the version.
 	 */
 	public async ensureVersion(tagName: version) {
+		logger.debugFn(arguments);
+
 		const filename = this.getWpdDetails(tagName).filename;
-		logger.debug(`Var filename: "${filename}"`);
+		logger.debugVar(`filename`, filename);
 
 		if (await pathExist(filename)) {
 			logger.debug(`Wpd version "${tagName}" already exist "${filename}"`);
@@ -229,16 +273,17 @@ export class classCliVersionManager {
 	 * @returns The function `useLatest` is returning the latest version tag name of the wpd software.
 	 */
 	public async useLatest() {
-		logger.debug('Use latest wpd version');
+		logger.debugFn(arguments);
 
 		const versions = await this.getVersionsList();
-		logger.debug(`Var versions:`, versions);
+		logger.debugVar(`versions`, versions);
 
 		if (!versions.length) {
 			throw 'No available wpd version!';
 		}
 
 		const latest = versions[0];
+		logger.debugVar(`latest`, latest);
 
 		await this.setDefaultVersion(latest.tagName as version);
 
@@ -250,7 +295,12 @@ export class classCliVersionManager {
 	 * @returns The `cliDir` property is being returned.
 	 */
 	public getDirInfo() {
-		return this.cliDir;
+		logger.debugFn(arguments);
+
+		const dir = this.cliDir;
+		logger.debugVar('dir', dir);
+
+		return dir;
 	}
 
 	/**
@@ -262,55 +312,67 @@ export class classCliVersionManager {
 	 * necessary files to make it the default version of the
 	 */
 	public async setDefaultVersion(tagName: version) {
+		logger.debugFn(arguments);
+
 		const availableVersions = (await this.getVersionsList()).map((item) => {
 			return item.tagName;
 		});
+		logger.debugVar('availableVersions', availableVersions);
 
 		if (!availableVersions.includes(tagName)) {
 			throw `Version "${tagName}" is not available!`;
 		}
 
 		const installedVersions = await this.getInstalledVersions();
+		logger.debugVar('installedVersions', installedVersions);
 
 		if (!installedVersions.includes(tagName)) {
 			await this.downloadVersion(tagName);
 		}
 
 		const wpdVersionFilenameDepreciated = `${this.cliDir.versions}/${tagName}/uniffo`;
+		logger.debugVar('wpdVersionFilenameDepreciated', wpdVersionFilenameDepreciated);
+
 		const wpdVersionFilename = `${this.cliDir.versions}/${tagName}/wpd`;
+		logger.debugVar('wpdVersionFilename', wpdVersionFilename);
 
 		if (await pathExist(wpdVersionFilenameDepreciated)) {
+			logger.debug('Rename', wpdVersionFilenameDepreciated, wpdVersionFilename);
 			await Deno.rename(wpdVersionFilenameDepreciated, wpdVersionFilename);
 		}
 
 		const wpdFilename = `${this.cliDir.main}/wpd`;
+		logger.debugVar('wpdFilename', wpdFilename);
+
 		const wpdTmpFilename = `${this.cliDir.main}/tmp_wpd`;
+		logger.debugVar('wpdTmpFilename', wpdTmpFilename);
+
 		const wpdToRmFilename = `${this.cliDir.main}/rm_wpd`;
+		logger.debugVar('wpdToRmFilename', wpdToRmFilename);
 
 		if (await pathExist(wpdTmpFilename)) {
-			logger.debug(`Remove: "${wpdTmpFilename}"`);
+			logger.debug(`Remove`, wpdTmpFilename);
 			Deno.removeSync(wpdTmpFilename);
 		}
 
 		if (await pathExist(wpdToRmFilename)) {
-			logger.debug(`Remove: "${wpdToRmFilename}"`);
+			logger.debug(`Remove`, wpdToRmFilename);
 			Deno.removeSync(wpdToRmFilename);
 		}
 
-		logger.debug(`Copy "${wpdVersionFilename}" to "${wpdTmpFilename}"`);
-
+		logger.debug('Copy', wpdVersionFilename, wpdTmpFilename);
 		Deno.copyFileSync(wpdVersionFilename, wpdTmpFilename);
 
 		if (await pathExist(wpdFilename)) {
-			logger.debug(`Rename "${wpdFilename}" to "${wpdToRmFilename}"`);
+			logger.debug('Rename', wpdFilename, wpdToRmFilename);
 			Deno.renameSync(wpdFilename, wpdToRmFilename);
 		}
 
-		logger.debug(`Rename "${wpdTmpFilename}" to "${wpdFilename}"`);
+		logger.debug('Rename', wpdTmpFilename, wpdFilename);
 		Deno.renameSync(wpdTmpFilename, wpdFilename);
 
 		if (await pathExist(wpdToRmFilename)) {
-			logger.debug(`Remove "${wpdToRmFilename}"`);
+			logger.debug('Remove', wpdToRmFilename);
 			Deno.removeSync(wpdToRmFilename);
 		}
 	}
@@ -322,19 +384,26 @@ export class classCliVersionManager {
 	 * versions of a CLI tool.
 	 */
 	public async getInstalledVersions() {
+		logger.debugFn(arguments);
+
 		const installedVersions: string[] = [];
+		logger.debugVar('installedVersions', installedVersions);
+
 		const availableVersions = (await this.getVersionsList()).map((item) => {
 			return item.tagName;
 		});
+		logger.debugVar('availableVersions', availableVersions);
 
 		if (await pathExist(this.cliDir.versions)) {
 			for (const dirEntry of Deno.readDirSync(this.cliDir.versions)) {
 				const dirname = availableVersions.includes(dirEntry.name as version)
 					? dirEntry.name
 					: false;
+				logger.debugVar('dirname', dirname);
 
 				if (dirname) {
 					installedVersions.push(dirname);
+					logger.debugVar('installedVersions', installedVersions);
 				}
 			}
 		}
@@ -351,12 +420,12 @@ export class classCliVersionManager {
 	 * descending order based on the published date of each version.
 	 */
 	public async getVersionsList() {
-		logger.debug('Fetch wpd versions list');
+		logger.debugFn(arguments);
 
 		const releases = await this.gitHubApi.fetchReleases();
+		logger.debugVar('releases', releases);
 
-		logger.debug(`Var releases:`, releases);
-		return releases?.map((item) => {
+		const releasesMapped = releases?.map((item) => {
 			const publishedDate = item.published_at
 				? new Date(item.published_at).getTime()
 				: undefined;
@@ -365,13 +434,19 @@ export class classCliVersionManager {
 				tagName: item.tag_name as version,
 				publishedDate,
 			};
-		}).sort((a, b) => {
+		});
+		logger.debugVar('releasesMapped', releasesMapped);
+
+		const releasesSorted = releasesMapped.sort((a, b) => {
 			if (!a.publishedDate || !b.publishedDate) {
 				return 0;
 			}
 
 			return b.publishedDate - a.publishedDate;
 		});
+		logger.debugVar('releasesSorted', releasesSorted);
+
+		return releasesSorted;
 	}
 
 	/**
@@ -382,13 +457,13 @@ export class classCliVersionManager {
 	 * information and assets corresponding to that specific version from GitHub.
 	 */
 	public async downloadVersion(tagName: version) {
-		logger.debug(`Download wpd "${tagName}" version`);
+		logger.debugFn(arguments);
 
 		const release = await this.gitHubApi.fetchReleaseByTagName(tagName);
-		logger.debug(`Var release:`, release);
+		logger.debugVar('release', release);
 
 		const osAlias = getOsAlias();
-		logger.debug(`Var osAlias: ${osAlias}`);
+		logger.debugVar('osAlias', osAlias);
 
 		if (osAlias === 'Os not recognized') {
 			throw osAlias;
@@ -397,17 +472,16 @@ export class classCliVersionManager {
 		const releaseUrlForCurrentOS = release.assets.find((asset) =>
 			asset.name == `${osAlias}.zip`
 		)?.browser_download_url;
+		logger.debugVar('releaseUrlForCurrentOS', releaseUrlForCurrentOS);
 
 		if (!releaseUrlForCurrentOS) {
 			throw `Not found download url for wpd "${tagName}" version!`;
 		}
 
-		logger.debug(`Var releaseUrlForCurrentOS:`, releaseUrlForCurrentOS);
-
 		logger.info(`Download wpd version "${tagName}" from "${releaseUrlForCurrentOS}"`);
 
 		const tmpDir = this.tmpDir;
-		logger.debug(`Var tmpDir: "${tmpDir}"`);
+		logger.debugVar('tmpDir', tmpDir);
 
 		if (!tmpDir) {
 			throw `Invalid session tmp dir "${tmpDir}"!`;
@@ -419,7 +493,7 @@ export class classCliVersionManager {
 			url: releaseUrlForCurrentOS,
 			destDir: tmpDir,
 		});
-		logger.debug(`Var downloadDetails:`, downloadDetails);
+		logger.debugVar('downloadDetails', downloadDetails);
 
 		if (!downloadDetails.filename) {
 			throw 'Downloaded filename is incorrect!';
@@ -430,20 +504,24 @@ export class classCliVersionManager {
 		}
 
 		const destDir = this.getWpdDetails(tagName).dirname;
-		logger.debug(`Var destDir: "${destDir}"`);
+		logger.debugVar('destDir', destDir);
 
 		if (await pathExist(destDir)) {
+			logger.debug('Remove', destDir);
 			await Deno.remove(destDir, { recursive: true });
 		}
 
 		if (!await pathExist(destDir)) {
+			logger.debug('Make directory', destDir);
 			await Deno.mkdir(destDir, { recursive: true });
 		}
 
 		logger.info(`Extracting into ${destDir}`);
+
 		await decompress(downloadDetails.filename, destDir);
 
 		for (const dirEntry of Deno.readDirSync(destDir)) {
+			logger.debugVar('dirEntry', dirEntry);
 			if (!dirEntry.isFile) continue;
 
 			ensureExecutePermissions(`${destDir}/${dirEntry.name}`);

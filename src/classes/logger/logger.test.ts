@@ -19,8 +19,8 @@ Deno.test('classLogger', async function testClassLogger() {
 		args: ['myVar', 'my custom value'],
 		logType: 'debugVar',
 	}, {
-		message: '',
-		args: [],
+		message: 'Arguments:, ["arg1","arg2"]',
+		args: [['arg1', 'arg2']],
 		logType: 'debugFn',
 	}, {
 		message: 'info',

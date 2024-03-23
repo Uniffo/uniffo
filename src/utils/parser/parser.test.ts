@@ -52,7 +52,6 @@ Deno.test('parseCliArgs', async function testParseCliArgs(testContext) {
 				);
 
 				const parsedArgs = parseCliArgs(args);
-				console.log(parsedArgs);
 
 				assertEquals(parsedArgs.commandPhrase, commandPhrase.join(' '), 'command');
 

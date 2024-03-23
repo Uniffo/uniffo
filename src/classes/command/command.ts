@@ -10,7 +10,7 @@ export abstract class classCommand {
 	public stopExecution = false;
 
 	constructor(args: TCommandArgs) {
-		logger.debug();
+		logger.debugFn(arguments);
 
 		this.args = args.commandArgs;
 		this.documentation = args.documentation;
