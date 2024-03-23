@@ -59,6 +59,8 @@ export class classLogger {
 				return ansiColors.Reset;
 
 			case 'debug':
+			case 'debugVar':
+			case 'debugFn':
 				return ansiColors.FgMagenta;
 
 			case 'error':
@@ -146,7 +148,8 @@ export class classLogger {
 		const MessageColor = this.getMessageColor(logType);
 		const dateColor = MessageColor;
 		const resetColor = ansiColors.Reset;
-		const extraDebugMsg = logType == 'debug' ? ` ${getCallingFunctionName()}(...):` : '';
+		const debug = ['debug', 'debugVar', 'debugFn'].includes(logType);
+		const extraDebugMsg = debug ? ` ${getCallingFunctionName()}(...):` : '';
 		const extraDebugMsgColor = ansiColors.Dim;
 
 		const coloredText = [
@@ -158,7 +161,7 @@ export class classLogger {
 			...data,
 		];
 
-		const omitDebug = logType == 'debug' && !this.config.displayDebug;
+		const omitDebug = debug && !this.config.displayDebug;
 
 		if (omitDebug) {
 			return;
@@ -221,6 +224,28 @@ export class classLogger {
 	 */
 	public debug(...data: any[]) {
 		this.primaryLogFunction(data, 'debug', console.debug);
+	}
+
+	/**
+	 * The `debugVar` function in TypeScript logs the variable name and its data to the console using
+	 * `console.debug`.
+	 * @param {string} name - The `name` parameter in the `debugVar` function is a string that represents
+	 * the name of the variable or data being debugged.
+	 * @param {any[]} data - The `data` parameter in the `debugVar` function is a rest parameter,
+	 * indicated by the use of the spread operator `...`. This means that it can accept an arbitrary
+	 * number of arguments as an array. In this case, it allows you to pass multiple values of any type as
+	 * arguments when
+	 */
+	public debugVar(name: string, ...data: any[]) {
+		this.primaryLogFunction([`Var "${name}":`, ...data], 'debugVar', console.debug);
+	}
+
+	/**
+	 * The `debugFn` function calls the `primaryLogFunction` method with an empty array, 'debug', and
+	 * `console.debug` as arguments.
+	 */
+	public debugFn() {
+		this.primaryLogFunction([], 'debugFn', console.debug);
 	}
 
 	/**
