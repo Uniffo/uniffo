@@ -163,7 +163,12 @@ export abstract class classCommand {
 		return userNeedDocs;
 	}
 
-	public getOrAskForArg(name: string, askMessage: string, required: boolean = false) {
+	public getOrAskForArg(
+		name: string,
+		askMessage: string,
+		required: boolean = false,
+		defaultValue = '',
+	) {
 		logger.debug();
 		const value = this.args.getKV([name])?.[0]?.[1];
 		logger.debug('value', value);
@@ -172,13 +177,17 @@ export abstract class classCommand {
 			return value;
 		}
 
-		return this.askForArg(askMessage, required);
+		return this.askForArg(askMessage, required, defaultValue);
 	}
 
-	public askForArg(message: string, required: boolean = false) {
+	public askForArg(message: string, required: boolean = false, defaultValue: string) {
 		logger.debug();
 		const _prompt = () =>
-			prompt(`${this.getCliBrandEmoji()} ${required == true ? `(Required) ` : ''}${message}`);
+			prompt(
+				`${this.getCliBrandEmoji()} ${required == true ? `(Required) ` : ''}${
+					!!defaultValue == true ? `(Default: "${defaultValue}") ` : ''
+				}${message}`,
+			) || defaultValue;
 
 		if (required == false) {
 			return _prompt();
@@ -197,19 +206,15 @@ export abstract class classCommand {
 	public async _exec() {
 		logger.debug();
 
-		try {
-			this.preExec();
+		this.preExec();
 
-			if (this.stopExecution) {
-				this.displayRandomEndPhrase();
-				return;
-			}
-
-			await this.exec();
+		if (this.stopExecution) {
 			this.displayRandomEndPhrase();
-		} catch (error) {
-			logger.error(`${this.getCliBrandEmoji()}`, error);
+			return;
 		}
+
+		await this.exec();
+		this.displayRandomEndPhrase();
 	}
 
 	abstract exec(): Promise<void> | void;

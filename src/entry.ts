@@ -4,11 +4,12 @@ import { classCommandsRepository } from './classes/command_repository/command_re
 import { classDatabase } from './classes/database/database.ts';
 import { classCommandInvokerFacade } from './classes/command_invoker_facade/command_invoker_facade.ts';
 import { classGitHubApiClient } from './classes/github/gh_api_client.ts';
-import { CLI_DIR } from './constants/index.ts';
+import { CLI_DIR } from './constants/CLI_DIR.ts';
 import { parseCliArgs } from './utils/parser/parser.ts';
 import { generateUniqueBasename } from './utils/generate_unique_basename/generate_unique_basename.ts';
 import { COMMANDS_META } from './pre_compiled/__commands_meta.ts';
 import { logger } from './global/logger.ts';
+import { emojify } from './utils/emojify/emojify.ts';
 
 try {
 	const tmpDir = `${CLI_DIR.tmp}/${await generateUniqueBasename({ basePath: CLI_DIR.tmp })}`;
@@ -44,5 +45,5 @@ try {
 	await commandInvokerFacade.exec();
 	await commandInvokerFacade.destroy();
 } catch (error) {
-	logger.error(error);
+	logger.error(`${emojify(':grave:')} `, error);
 }

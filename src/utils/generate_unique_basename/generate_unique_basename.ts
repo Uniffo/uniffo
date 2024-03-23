@@ -1,5 +1,4 @@
 import { pathExist } from '../path_exist/path_exist.ts';
-import { getRandomId } from '../get_random_id/get_random_id.ts';
 
 /**
  * The function `generateUniqueBasename` generates a unique basename by appending a random ID to a
@@ -18,11 +17,11 @@ export const generateUniqueBasename = async (args: {
 	let candidate = '';
 	const startDate = Date.now();
 	const timeoutDate = args.timeout != undefined ? args.timeout : startDate + (1000 * 60 * 5);
+	let number = 0;
 
 	while (!candidate) {
-		const basename = `${prefix ? prefix : ''}${getRandomId(16)}${
-			extension ? `.${extension}` : ''
-		}`;
+		number++;
+		const basename = `${prefix ? prefix : ''}${number}${extension ? `.${extension}` : ''}`;
 		const path = `${basePath}/${basename}`;
 
 		if (!await pathExist(path)) {

@@ -1,4 +1,5 @@
 import { logger } from '../../global/logger.ts';
+import { emojify } from '../../utils/emojify/emojify.ts';
 import { parseCliArgs } from '../../utils/parser/parser.ts';
 import { pathExist } from '../../utils/path_exist/path_exist.ts';
 import { version } from '../cli_version_manager/cli_version_manager.d.ts';
@@ -118,7 +119,7 @@ export class classCommandInvokerFacade {
 
 			await this.commandInvoker.exec(this.getCommandObject());
 		} catch (error) {
-			throw error;
+			logger.error(`${emojify(':grave:')} `, error);
 		}
 	}
 }

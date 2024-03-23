@@ -16,7 +16,7 @@ export const getCliVersionRequiredByProject = async () => {
 	}
 
 	const projectWpdVersionFilename = `${projectWorkDir}/${CLI_PVFB}`;
-	const version = await Deno.readTextFile(projectWpdVersionFilename) as version;
+	const version = await Deno.readTextFile(projectWpdVersionFilename);
 
-	return version.trim();
+	return version.trim() as version;
 };

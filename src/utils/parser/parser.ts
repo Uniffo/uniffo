@@ -1,5 +1,6 @@
 import { COMMANDS_META } from '../../pre_compiled/__commands_meta.ts';
 import { logger } from '../../global/logger.ts';
+import { isUndefined } from 'https://cdn.skypack.dev/lodash-es@4.17.21';
 
 /**
  * The `parseCliArgs` function parses command-line arguments in Deno and categorizes them into boolean
@@ -54,7 +55,21 @@ export const parseCliArgs = (denoArgs = Deno.args) => {
 
 			const result = parsed.keyValue.filter((row) => searchKey.includes(row[0]));
 
-			return result;
+			if (isUndefined(result?.[0]?.[1])) {
+				return result;
+			}
+
+			return result.map((row) => {
+				if (["'", '"', '`'].includes(row[1][0])) {
+					row[1] = row[1].slice(1);
+				}
+
+				if (["'", '"', '`'].includes(row[1].slice(-1))) {
+					row[1] = row[1].slice(0, -1);
+				}
+
+				return row;
+			});
 		},
 		primitive: denoArgs,
 	};

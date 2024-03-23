@@ -2,7 +2,7 @@ import { classCliVersionManager } from '../classes/cli_version_manager/cli_versi
 import { classDatabase } from '../classes/database/database.ts';
 import classDependencyChecker from '../classes/dependency_checker/dependency_checker.ts';
 import { classGitHubApiClient } from '../classes/github/gh_api_client.ts';
-import { CLI_DIR } from '../constants/index.ts';
+import { CLI_DIR } from '../constants/CLI_DIR.ts';
 import { logger } from '../global/logger.ts';
 import { generateUniqueBasename } from '../utils/generate_unique_basename/generate_unique_basename.ts';
 

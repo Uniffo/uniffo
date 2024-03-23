@@ -26,6 +26,9 @@ Deno.test('parseCliArgs', async function testParseCliArgs(testContext) {
 					'--h=loerm ipsum sot dolor am',
 					'--h=loerm i#$psum sot do$#@%_8=lor am',
 					'--my-argument=my custom value',
+					'--my-argument=`my custom value`',
+					'--my-argument="my custom value"',
+					"--my-argument='my custom value'",
 				];
 
 				const cargs = [
