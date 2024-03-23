@@ -244,7 +244,7 @@ export class classLogger {
 	 * The `debugFn` function calls the `primaryLogFunction` method with an empty array, 'debug', and
 	 * `console.debug` as arguments.
 	 */
-	public debugFn(args: IArguments) {
+	public debugFn(args: IArguments = [] as unknown as IArguments) {
 		this.primaryLogFunction(
 			args.length > 0 ? ['Arguments:', args] : [],
 			'debugFn',

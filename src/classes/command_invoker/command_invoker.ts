@@ -11,22 +11,29 @@ export class classCommandInvoker {
 	public checkDependencies = true;
 
 	constructor() {
+		logger.debugFn(arguments);
 	}
 
 	public setOutsourceTarget(target: string | string[]) {
+		logger.debugFn(arguments);
+
 		this.outsourceTarget = isArray(target) ? target : (target ? [target] : undefined);
-		logger.debug('Var outsourceTarget', this.outsourceTarget);
+		logger.debugVar('this.outsourceTarget', this.outsourceTarget);
 	}
 
 	public setCheckDependencies(bool: boolean) {
+		logger.debugFn(arguments);
+
 		this.checkDependencies = bool;
+		logger.debugVar('this.checkDependencies', this.checkDependencies);
 	}
 
 	public async exec(command: classCommand) {
-		logger.debug(`Var command:`, command);
+		logger.debugFn(arguments);
 
 		try {
 			const executionCallback = this.getCommandExecutionCallback();
+			logger.debugVar('executionCallback', executionCallback);
 
 			if (!_.isFunction(executionCallback)) {
 				throw 'Command execution callback is not a function!';
@@ -39,6 +46,8 @@ export class classCommandInvoker {
 	}
 
 	public getCommandExecutionCallback() {
+		logger.debugFn(arguments);
+
 		switch (!!this.outsourceTarget?.length) {
 			case true:
 				return this.outsourceCommand;
@@ -52,13 +61,14 @@ export class classCommandInvoker {
 	}
 
 	public async outsourceCommand(command: classCommand) {
-		logger.debug(`Will execute command!`, command);
+		logger.debugFn(arguments);
 
 		if (!this.outsourceTarget) {
 			throw `Invalid outsource target! "${JSON.stringify(this.outsourceTarget)}"`;
 		}
 
 		let path;
+		logger.debugVar('path', path);
 
 		for (let i = 0; i < this.outsourceTarget?.length; i++) {
 			if (!await pathExist(this.outsourceTarget[i])) {
@@ -66,10 +76,10 @@ export class classCommandInvoker {
 			}
 
 			path = this.outsourceTarget[i];
+			logger.debugVar('path', path);
+
 			break;
 		}
-
-		logger.debug(`Outsource path: "${path}"`);
 
 		if (!path) {
 			throw `Invalid outsource path: "${path}"`;
@@ -77,17 +87,17 @@ export class classCommandInvoker {
 
 		ensureExecutePermissions(path);
 
+		logger.debug('Spawn command', path, command.args.primitive);
 		const outsourceCommand = new Deno.Command(path, {
 			args: command.args.primitive,
 		});
-
 		const process = outsourceCommand.spawn();
 
 		await process.status;
 	}
 
 	public async dispatchCommand(command: classCommand) {
-		logger.debug(`Will execute command!`, command);
+		logger.debugFn(arguments);
 
 		if (this.checkDependencies) {
 			classDependencyChecker.check();
