@@ -1,20 +1,11 @@
 import { assert } from 'https://deno.land/std@0.162.0/_util/assert.ts';
-import { logger } from '../../global/logger.ts';
 import { classCrypto } from './crypto.ts';
 
 Deno.test('crypto', async function testCrypto(t) {
 	await t.step('simple string', function testSimpleStringCrypto() {
 		const str = 'Super power Cryptography!';
-
-		logger.debug('Var str: ', str);
-
 		const encoded = classCrypto.encode(str);
-
-		logger.debug('Var encoded: ', encoded);
-
 		const decoded = classCrypto.decode(encoded);
-
-		logger.debug('Var decoded: ', decoded);
 
 		assert(str !== encoded, 'encoded result');
 		assert(str === decoded, 'decoded result');
@@ -263,15 +254,8 @@ Deno.test('crypto', async function testCrypto(t) {
 			...obj,
 		];
 
-		logger.debug('Var obj: ', obj);
-
 		const encoded2 = classCrypto.encode(JSON.stringify(testData));
-
-		logger.debug('Var encoded2: ', encoded2);
-
 		const decoded2 = classCrypto.decode(encoded2);
-
-		logger.debug('Var decoded2: ', decoded2);
 
 		assert(typeof obj != typeof encoded2, 'encoded2 result');
 		assert(JSON.stringify(testData) == decoded2, 'decoded2 result');
