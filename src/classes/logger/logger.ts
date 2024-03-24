@@ -246,7 +246,7 @@ export class classLogger {
 	 */
 	public debugFn(args: IArguments = [] as unknown as IArguments) {
 		this.primaryLogFunction(
-			args.length > 0 ? ['Arguments:', args] : [],
+			args.length > 0 ? ['Arguments:', [...args]] : [],
 			'debugFn',
 			console.debug,
 		);

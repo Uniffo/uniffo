@@ -31,15 +31,30 @@ export class classCommandInvokerFacade {
 			commandInvoker: classCommandInvoker;
 		},
 	) {
+		logger.debugFn(arguments);
+
 		this.tmpDir = args.tmpDir;
+		logger.debugVar('this.tmpDir', this.tmpDir);
+
 		this.commandArguments = args.commandArguments;
+		logger.debugVar('this.commandArguments', this.commandArguments);
+
 		this.database = args.database;
+		logger.debugVar('this.database', this.database);
+
 		this.cliVersionManager = args.cliVersionManager;
+		logger.debugVar('this.cliVersionManager', this.cliVersionManager);
+
 		this.commandsRepository = args.commandsRepository;
+		logger.debugVar('this.commandsRepository', this.commandsRepository);
+
 		this.commandInvoker = args.commandInvoker;
+		logger.debugVar('this.commandInvoker', this.commandInvoker);
 	}
 
 	public addCommand(commandMeta: TCommandMeta) {
+		logger.debugFn(arguments);
+
 		this.commandsRepository.add(commandMeta);
 	}
 
@@ -47,6 +62,8 @@ export class classCommandInvokerFacade {
 	 * The `init` function initializes a store and creates a temporary directory.
 	 */
 	async init() {
+		logger.debugFn(arguments);
+
 		await this.database.init('wpd');
 		await this.mkTmpDir();
 	}
@@ -56,6 +73,8 @@ export class classCommandInvokerFacade {
 	 * session, and closing opened resources.
 	 */
 	async destroy() {
+		logger.debugFn(arguments);
+
 		await this.rmTmpDir();
 		await this.database.destroySession();
 	}
@@ -65,11 +84,14 @@ export class classCommandInvokerFacade {
 	 * @returns nothing.
 	 */
 	public async mkTmpDir() {
+		logger.debugFn(arguments);
+
 		if (!this.tmpDir) {
 			throw `Invalid tmp directory "${this.tmpDir}"!`;
 		}
 
 		if (!await pathExist(this.tmpDir)) {
+			logger.debug('Make directory', this.tmpDir);
 			await Deno.mkdir(this.tmpDir, { recursive: true });
 		}
 
@@ -85,16 +107,24 @@ export class classCommandInvokerFacade {
 	 * returning a promise.
 	 */
 	public async rmTmpDir() {
+		logger.debugFn(arguments);
+
 		await this.database.removeSessionKey('tmpDir');
 
 		if (await pathExist(this.tmpDir)) {
+			logger.debug('Remove', this.tmpDir);
 			await Deno.remove(this.tmpDir, { recursive: true });
 		}
 	}
 
 	public getCommandObject() {
+		logger.debugFn(arguments);
+
 		const commandMeta = this.commandsRepository.get(this.commandArguments.commandPhrase);
+		logger.debugVar('commandMeta', commandMeta);
+
 		const commandClass = commandMeta?.class;
+		logger.debugVar('commandClass', commandClass);
 
 		if (!commandClass) {
 			throw `Command "${this.commandArguments.primitive.join(' ')}" not found!`;
@@ -104,12 +134,13 @@ export class classCommandInvokerFacade {
 			commandArgs: this.commandArguments,
 			documentation: commandMeta.documentation,
 		});
+		logger.debugVar('command', command);
 
 		return command;
 	}
 
 	public async exec() {
-		logger.debug(`Var commandArguments:`, this.commandArguments);
+		logger.debugFn(arguments);
 
 		try {
 			await this.cliVersionManager.init();
