@@ -17,8 +17,13 @@ export class classGitHubApiClient {
 	constructor(
 		args: { github: { owner: string; repo: string; apiUrl: string }; database: classDatabase },
 	) {
+		logger.debugFn(arguments);
+
 		this.github = args.github;
+		logger.debugVar('this.github', this.github);
+
 		this.database = args.database;
+		logger.debugVar('this.database', this.database);
 	}
 
 	/**
@@ -31,10 +36,15 @@ export class classGitHubApiClient {
 	 * @returns An object with properties "data" and "expiration" is being returned.
 	 */
 	public getCacheObject(data: string, expiration: number) {
-		return {
+		logger.debugFn(arguments);
+
+		const cacheObj = {
 			data,
 			expiration,
 		};
+		logger.debugVar('cacheObj', cacheObj);
+
+		return cacheObj;
 	}
 
 	/**
@@ -49,11 +59,13 @@ export class classGitHubApiClient {
 	 * milliseconds * 60 seconds * 5 minutes).
 	 */
 	public async addCache(id: string, data: string, expiration?: number) {
+		logger.debugFn(arguments);
+
 		const _expiration = Date.now() + (1000 * 60 * 5);
+		logger.debugVar('_expiration', _expiration);
 
 		const value = this.getCacheObject(data, expiration || _expiration);
-
-		logger.debug(`Add cache "${id}" as`, value);
+		logger.debugVar('value', value);
 
 		await this.database.setPersistentValue(id, value);
 	}
@@ -65,20 +77,24 @@ export class classGitHubApiClient {
 	 * @returns the `data` property of the `cache` object.
 	 */
 	public async getCache(id: string) {
+		logger.debugFn(arguments);
+
 		const cache = await this.database.getPersistentValue<
 			ReturnType<typeof this.getCacheObject>
 		>(
 			id,
 		);
-
-		logger.debug(`Get cache "${id}" as`, cache);
+		logger.debugVar('cache', cache);
 
 		if (Date.now() > (cache?.expiration || 0)) {
 			await this.database.removePersistentKey(id);
 			return undefined;
 		}
 
-		return cache.data;
+		const value = cache.data;
+		logger.debugVar('value', value);
+
+		return value;
 	}
 
 	/**
@@ -87,36 +103,43 @@ export class classGitHubApiClient {
 	 * @returns a Promise that resolves to an array of IReleases objects.
 	 */
 	public async fetchReleases() {
+		logger.debugFn(arguments);
+
 		const cacheId = `${this.github.owner}-${this.github.repo}-fetchReleases`;
+		logger.debugVar('cacheId', cacheId);
+
 		const cache = await this.getCache(cacheId);
-		logger.debug(`Var cacheId: ${cacheId}`);
-		logger.debug(`Var cache: ${cache}`);
+		logger.debugVar('cache', cache);
 
 		if (cache) {
-			logger.debug(`Return cached response`);
-			return JSON.parse(cache) as IReleases[];
+			const cachedResponse = JSON.parse(cache) as IReleases[];
+			logger.debugVar('cachedResponse', cachedResponse);
+
+			return cachedResponse;
 		}
 
 		const url =
 			`${this.github.apiUrl}/repos/${this.github.owner}/${this.github.repo}/releases?per_page=20&page=1`;
-		const headers = {};
+		logger.debugVar('url', url);
 
-		logger.debug(`Var url:`, url);
-		logger.debug(`Var headers:`, headers);
+		const headers = {};
+		logger.debugVar('headers', headers);
 
 		const req = await fetch(url, {
 			method: 'GET',
 			headers,
 		});
-
-		logger.debug('Var request:', req);
+		logger.debugVar('req', req);
 
 		if (req.status.toString().slice(0, 1) != '2') {
 			const message = (await req.json())?.message || req;
+			logger.debugVar('message', message);
+
 			throw message;
 		}
 
 		const jsonResponse: Promise<IReleases[]> = req.json();
+		logger.debugVar('jsonResponse', jsonResponse);
 
 		await this.addCache(cacheId, JSON.stringify(await jsonResponse));
 
@@ -131,27 +154,33 @@ export class classGitHubApiClient {
 	 * @returns a Promise that resolves to an object of type IReleaseByTagName.
 	 */
 	public async fetchReleaseByTagName(tagName: string) {
+		logger.debugFn(arguments);
+
 		const cacheId = `${this.github.owner}-${this.github.repo}-fetchReleaseByTagName-${tagName}`;
+		logger.debugVar('cacheId', cacheId);
+
 		const cache = await this.getCache(cacheId);
-		logger.debug(`Var cacheId: ${cacheId}`);
-		logger.debug(`Var cache: ${cache}`);
+		logger.debugVar('cache', cache);
 
 		if (cache) {
-			logger.debug(`Return cached response`);
-			return JSON.parse(cache) as IReleaseByTagName;
+			const cachedResponse = JSON.parse(cache) as IReleaseByTagName;
+			logger.debugVar('cachedResponse', cachedResponse);
+
+			return cachedResponse;
 		}
 
 		const url =
 			`${this.github.apiUrl}/repos/${this.github.owner}/${this.github.repo}/releases/tags/${tagName}`;
-		const headers = {};
+		logger.debugVar('url', url);
 
-		logger.debug(`Var url:`, url);
-		logger.debug(`Var headers:`, headers);
+		const headers = {};
+		logger.debugVar('headers', headers);
 
 		const req = await fetch(url, {
 			method: 'GET',
 			headers,
 		});
+		logger.debugVar('req', req);
 
 		if (req.status == 404) {
 			await req.body?.cancel();
@@ -159,6 +188,7 @@ export class classGitHubApiClient {
 		}
 
 		const jsonResponse: Promise<IReleaseByTagName> = req.json();
+		logger.debugVar('jsonResponse', jsonResponse);
 
 		await this.addCache(cacheId, JSON.stringify(await jsonResponse));
 

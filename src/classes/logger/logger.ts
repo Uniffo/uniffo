@@ -5,6 +5,7 @@ import { isString } from 'https://cdn.skypack.dev/lodash-es@4.17.21';
 import { secretKey } from '../../pre_compiled/__secret_key.ts';
 import { classCrypto } from '../crypto/crypto.ts';
 import { generateCrptoKey } from '../../utils/generate_crypto_key/generate_crypto_key.ts';
+import { rsDingbatRange } from 'https://deno.land/x/emoji@0.3.0/unicode.ts';
 
 /* The `classLogger` class is a TypeScript class that provides logging functionality with configurable
 options. */
@@ -157,6 +158,8 @@ export class classLogger {
 		const extraDebugMsg = debug ? ` ${getCallingFunctionName()}(...):` : '';
 		const extraDebugMsgColor = ansiColors.Dim;
 
+		data = this.truncateLogData(data);
+
 		const coloredText = [
 			`${
 				this.config.displayDate
@@ -173,6 +176,16 @@ export class classLogger {
 		}
 
 		!omitDebug && callback(...coloredText);
+	}
+
+	public truncateLogData(data: any[]) {
+		return data.map((d) => {
+			if (isString(d)) {
+				d = d.length <= 200 ? d : `${d.slice(0, 197)}...`;
+			}
+
+			return d;
+		});
 	}
 
 	public hashSecrets(data: any[]) {
