@@ -12,8 +12,6 @@ export class classCrypto {
 	}
 
 	public static encode(x: string) {
-		logger.debugFn(arguments);
-
 		const te = new TextEncoder();
 		const key = te.encode(this.key);
 		const data = te.encode(x);
@@ -21,14 +19,11 @@ export class classCrypto {
 		const cipher = new Cbc(Aes, key, iv, Padding.PKCS7);
 		const encrypted = cipher.encrypt(data);
 		const stringifed = JSON.stringify(encrypted);
-		logger.debugVar('stringifed', stringifed);
 
 		return stringifed;
 	}
 
 	public static decode(x: string) {
-		logger.debugFn(arguments);
-
 		const te = new TextEncoder();
 		const td = new TextDecoder();
 		const parsed = JSON.parse(x);
@@ -38,7 +33,6 @@ export class classCrypto {
 		const decipher = new Cbc(Aes, key, iv, Padding.PKCS7);
 		const decrypted = decipher.decrypt(data);
 		const decoded = td.decode(decrypted);
-		logger.debugVar('decoded', decoded);
 
 		return decoded;
 	}

@@ -1,7 +1,6 @@
 import { assertEquals } from 'https://deno.land/std@0.201.0/assert/assert_equals.ts';
 import { getError } from '../../utils/get_error/get_error.ts';
 import { assert } from 'https://deno.land/std@0.162.0/_util/assert.ts';
-import { logger } from '../../global/logger.ts';
 import { cwd } from '../../utils/cwd/cwd.ts';
 import { classDatabase } from './database.ts';
 
@@ -15,8 +14,6 @@ Deno.test('classDatabase', async function testClassDatabase() {
 	await store2.init('customStore2');
 
 	const testStore = async (store: classDatabase, name: string) => {
-		logger.debug(`Test for store: "${name}"`);
-
 		const persistentCreatedAt = await store.getPersistentValue<number>('_createdAt');
 		const sessionCreatedAt = await store.getSessionValue<number>('_createdAt');
 

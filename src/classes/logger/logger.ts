@@ -219,7 +219,7 @@ export class classLogger {
 		for (let i = 0; i < secrets.length; i++) {
 			const secret = secrets[i];
 
-			if (!x.includes(secret)) {
+			if (!x?.includes(secret)) {
 				continue;
 			}
 

@@ -9,7 +9,10 @@ export class classDatabase {
 	public sessionId = '';
 	public localStorage;
 	constructor(args: { dirname: string }) {
+		logger.debugFn(arguments);
+
 		this.localStorage = new classDocumentStorage(args.dirname);
+		logger.debugVar('this.localStorage', this.localStorage);
 	}
 
 	/**
@@ -20,22 +23,30 @@ export class classDatabase {
 	 * @returns The code is returning the session ID.
 	 */
 	public async init(name: string) {
+		logger.debugFn(arguments);
+
 		await this.localStorage.init();
 
 		this.databaseName = name;
+		logger.debugVar('this.databaseName', this.databaseName);
 
 		await this.ensureDatabase();
 
 		if (this.sessionId) {
+			logger.debug('Database has the session');
 			return;
 		}
 
 		this.sessionId = await this.generateSessionId();
+		logger.debugVar('this.sessionId', this.sessionId);
 
 		const database = await this.getDatabase();
+		logger.debugVar('database', '*****');
 
 		if (database && await this.isValidDatabase()) {
 			database.session[this.sessionId] = { _id: this.sessionId };
+			logger.debugVar('database.session[this.sessionId]', '*****');
+
 			await this.updateDatabase(database);
 		}
 
@@ -47,16 +58,25 @@ export class classDatabase {
 	 * does not exist in the persistent or session storage.
 	 */
 	public async ensureDateOfCreation() {
+		logger.debugFn(arguments);
+
 		const database = await this.getDatabase();
+		logger.debugVar('database', '*****');
+
 		const key = '_createdAt';
+		logger.debugVar('key', key);
+
 		const date = Date.now();
+		logger.debugVar('date', date);
 
 		if (!database.persistent?.[key]) {
 			database.persistent[key] = date;
+			logger.debugVar('database.persistent[key]', database.persistent[key]);
 		}
 
 		if (!database.session[this.sessionId]?.[key]) {
 			database.session[this.sessionId] = { ...database.session[this.sessionId], [key]: date };
+			logger.debugVar('database.session[this.sessionId]', '*****');
 		}
 
 		await this.updateDatabase(database);
@@ -69,16 +89,22 @@ export class classDatabase {
 	 * @returns the generated session id.
 	 */
 	public async generateSessionId(idLength = 32) {
+		logger.debugFn();
+
 		if (!idLength) {
 			throw 'Session id length can not be 0!';
 		}
 
 		const database = await this.getDatabase();
+		logger.debugVar('database', '*****');
+
 		const sessions = Object.keys(database?.session || {});
 		let id = '';
+		logger.debugVar('sessions', '*****');
 
 		while (sessions.includes(id) || !id) {
 			id = getRandomId(idLength);
+			logger.debugVar('id', '*****');
 		}
 
 		return id;
@@ -93,6 +119,8 @@ export class classDatabase {
 	 * type undefined or an object with keys of type string and values of type string,
 	 */
 	public getInitialDatabase() {
+		logger.debugFn(arguments);
+
 		return {
 			persistent: {} as { [key: string]: string | number | object | boolean | undefined },
 			session: {} as {
@@ -107,6 +135,8 @@ export class classDatabase {
 	 * The function "setInitialDatabase" asynchronously updates the database with the initial values.
 	 */
 	public async setInitialDatabase() {
+		logger.debugFn(arguments);
+
 		await this.updateDatabase(this.getInitialDatabase());
 	}
 
@@ -116,7 +146,10 @@ export class classDatabase {
 	 * @returns the value of the `database` variable.
 	 */
 	public async getDatabase(): Promise<ReturnType<typeof this.getInitialDatabase>> {
+		logger.debugFn(arguments);
+
 		const database = await this.localStorage.getItem(this.databaseName);
+		logger.debugVar('database', '*****');
 
 		if (!database) {
 			throw 'There is no database!';
@@ -136,6 +169,8 @@ export class classDatabase {
 	 * value.
 	 */
 	public async updateDatabase<T>(database: T) {
+		logger.debugFn();
+
 		await this.localStorage.setItem(this.databaseName, database);
 	}
 
@@ -146,9 +181,15 @@ export class classDatabase {
 	 * property, otherwise it returns false.
 	 */
 	public async isValidDatabase() {
-		const database = await this.localStorage.getItem(this.databaseName);
+		logger.debugFn(arguments);
 
-		if (!database || !database?.session || !database?.persistent) {
+		const database = await this.localStorage.getItem(this.databaseName);
+		logger.debugVar('database', '*****');
+
+		const isInvalid = !database || !database?.session || !database?.persistent;
+		logger.debugVar('isInvalid', isInvalid);
+
+		if (isInvalid) {
 			return false;
 		}
 
@@ -159,6 +200,8 @@ export class classDatabase {
 	 * The function `ensureDatabase` checks if the database is valid and sets the initial database if it is not.
 	 */
 	public async ensureDatabase() {
+		logger.debugFn(arguments);
+
 		if (!await this.isValidDatabase()) {
 			await this.setInitialDatabase();
 		}
@@ -169,9 +212,15 @@ export class classDatabase {
 	 * local storage.
 	 */
 	public async destroySession() {
-		const database = await this.getDatabase();
+		logger.debugFn(arguments);
 
-		if (await this.isValidDatabase() && database) {
+		const database = await this.getDatabase();
+		logger.debugVar('database', '*****');
+
+		const shouldDeleteSession = !!(await this.isValidDatabase() && database);
+		logger.debugVar('shouldDeleteSession', shouldDeleteSession);
+
+		if (shouldDeleteSession) {
 			delete database.session[this.sessionId];
 			await this.updateDatabase(database);
 		}
@@ -184,10 +233,18 @@ export class classDatabase {
 	 * date of creation.
 	 */
 	public async clearPersistent() {
+		logger.debugFn(arguments);
+
 		const database = await this.getDatabase();
+		logger.debugVar('database', '*****');
+
+		const shouldDeletePersistent = !!(await this.isValidDatabase() && database);
+		logger.debugVar('shouldDeletePersistent', shouldDeletePersistent);
 
 		if (await this.isValidDatabase() && database) {
 			database.persistent = {};
+			logger.debugVar('database.persistent', database.persistent);
+
 			await this.updateDatabase(database);
 		}
 
@@ -198,6 +255,8 @@ export class classDatabase {
 	 * The function deletes all items from the local storage.
 	 */
 	public async deleteAll() {
+		logger.debugFn(arguments);
+
 		await this.localStorage.removeItem(this.databaseName);
 	}
 
@@ -212,11 +271,14 @@ export class classDatabase {
 		key: string,
 		value: undefined | string | number | object | boolean,
 	) {
+		logger.debugFn();
+		logger.debugVar('key', key);
+
 		const database = await this.getDatabase();
+		logger.debugVar('database', '*****');
 
 		database.session[this.sessionId] = { ...database.session[this.sessionId], [key]: value };
-
-		logger.debug(`Set session value "${key}":`, value);
+		logger.debugVar('database.session[this.sessionId]', '******');
 
 		await this.updateDatabase(database);
 	}
@@ -232,11 +294,14 @@ export class classDatabase {
 		key: string,
 		value: undefined | string | number | object | boolean,
 	) {
+		logger.debugFn();
+		logger.debugVar('key', key);
+
 		const database = await this.getDatabase();
+		logger.debugVar('database', '*****');
 
 		database.persistent = { ...database.persistent, [key]: value };
-
-		logger.debug(`Set persistent value "${key}":`, value);
+		logger.debugVar('database.persistent', '*****');
 
 		await this.updateDatabase(database);
 	}
@@ -253,19 +318,22 @@ export class classDatabase {
 	 * type.
 	 */
 	public async getSessionValue<T>(key?: string) {
-		const database = await this.getDatabase();
+		logger.debugFn(arguments);
 
-		let output;
+		const database = await this.getDatabase();
+		logger.debugVar('database', '*****');
+
+		let value;
 
 		if (key) {
-			output = database.session[this.sessionId]?.[key];
+			value = database.session[this.sessionId]?.[key];
 		} else {
-			output = database.session[this.sessionId];
+			value = database.session[this.sessionId];
 		}
 
-		logger.debug(`Get session value "${key}":`, output);
+		logger.debugVar('value', '*****');
 
-		return output as T;
+		return value as T;
 	}
 
 	/**
@@ -277,19 +345,22 @@ export class classDatabase {
 	 * @returns the value of the `output` variable, which is of type `T`.
 	 */
 	public async getPersistentValue<T>(key?: string) {
-		const database = await this.getDatabase();
+		logger.debugFn(arguments);
 
-		let output;
+		const database = await this.getDatabase();
+		logger.debugVar('database', '*****');
+
+		let value;
 
 		if (key) {
-			output = database.persistent?.[key];
+			value = database.persistent?.[key];
 		} else {
-			output = database.persistent;
+			value = database.persistent;
 		}
 
-		logger.debug(`Get persistent value "${key}":`, output);
+		logger.debugVar('value', '*****');
 
-		return output as T;
+		return value as T;
 	}
 
 	/**
@@ -298,11 +369,12 @@ export class classDatabase {
 	 * key-value pair that needs to be removed from the session.
 	 */
 	public async removeSessionKey(key: string) {
+		logger.debugFn(arguments);
+
 		const database = await this.getDatabase();
+		logger.debugVar('database', '*****');
 
 		delete database.session[this.sessionId]?.[key];
-
-		logger.debug(`Remove session key "${key}"`);
 
 		await this.updateDatabase(database);
 	}
@@ -313,11 +385,12 @@ export class classDatabase {
 	 * data that needs to be removed from the database.
 	 */
 	public async removePersistentKey(key: string) {
+		logger.debugFn(arguments);
+
 		const database = await this.getDatabase();
+		logger.debugVar('database', '*****');
 
 		delete database.persistent?.[key];
-
-		logger.debug(`Remove persistent key "${key}"`);
 
 		await this.updateDatabase(database);
 	}
