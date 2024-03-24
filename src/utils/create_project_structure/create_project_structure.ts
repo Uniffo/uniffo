@@ -9,27 +9,32 @@ import { CLI_PROJECT_STRUCTURE } from '../../constants/CLI_PROJECT_STRUCTURE.ts'
  * @param {string} workdir - The `workdir` parameter is a string that represents the directory where
  * the project structure will be created.
  */
-const createProjectStructure = async (workdir: string, structure = CLI_PROJECT_STRUCTURE) => {
+async function createProjectStructure(workdir: string, structure = CLI_PROJECT_STRUCTURE) {
+	logger.debugFn(arguments);
+
 	if (!workdir) {
 		throw `Invalid workdir "${workdir}"`;
 	}
 
 	if (!await pathExist(workdir)) {
-		logger.debug(`Creating workdir: '${workdir}'`);
+		logger.debug('Make directory', workdir);
 		await Deno.mkdir(workdir, { recursive: true });
 	}
 
 	loopOnProjectStructure(structure, function structureCreator({ path, value }) {
+		logger.debugFn(arguments);
+
 		const isFile = typeof value === 'string';
+		logger.debugVar('isFile', isFile);
 
 		if (isFile) {
-			logger.debug(`Creating file: "${path}" with content: "${value}"`);
+			logger.debug('Write file', path, value);
 			Deno.writeFileSync(path, new TextEncoder().encode(value));
 		} else {
-			logger.debug(`Creating dir: "${path}"`);
+			logger.debug('Make directory', path);
 			Deno.mkdirSync(path, { recursive: true });
 		}
 	}, workdir);
-};
+}
 
 export default createProjectStructure;
