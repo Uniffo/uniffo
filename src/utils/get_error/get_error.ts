@@ -1,3 +1,5 @@
+import { logger } from '../../global/logger.ts';
+
 /**
  * The `getError` function is a TypeScript async function that executes a callback and returns any
  * error that occurs during its execution.
@@ -6,7 +8,9 @@
  * @returns The function `getError` returns a promise that resolves to the error object caught in the
  * `catch` block, or `undefined` if no error was thrown.
  */
-export const getError = async <T>(callback: () => Promise<void> | void): Promise<T> => {
+export async function getError<T>(callback: () => Promise<void> | void): Promise<T> {
+	logger.debugFn(arguments);
+
 	let _throw = undefined;
 
 	try {
@@ -15,5 +19,7 @@ export const getError = async <T>(callback: () => Promise<void> | void): Promise
 		_throw = error;
 	}
 
+	logger.debugVar('_throw', _throw);
+
 	return _throw;
-};
+}
