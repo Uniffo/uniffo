@@ -17,7 +17,10 @@ export class classDocumentStorage {
 	 * @param {string} dirname - A string representing the name of the directory.
 	 */
 	constructor(dirname: string) {
+		logger.debugFn(arguments);
+
 		this.dirname = dirname;
+		logger.debugVar('this.dirname', this.dirname);
 	}
 
 	/**
@@ -25,7 +28,10 @@ export class classDocumentStorage {
 	 * doesn't, and then registering the client.
 	 */
 	public async init() {
+		logger.debugFn(arguments);
+
 		this.destroyed = false;
+		logger.debugVar('this.destroyed', this.destroyed);
 
 		if (!await this.documentExist()) {
 			await this.createDocument();
@@ -39,10 +45,15 @@ export class classDocumentStorage {
 	 * the session ID, and setting the "destroyed" flag to true.
 	 */
 	public async destroySession() {
+		logger.debugFn(arguments);
+
 		await this.unregisterClient();
 
 		this.sessionId = '';
+		logger.debugVar('this.sessionId', this.sessionId);
+
 		this.destroyed = true;
+		logger.debugVar('this.destroyed', this.destroyed);
 	}
 
 	/**
@@ -50,6 +61,8 @@ export class classDocumentStorage {
 	 * session is not initialized.
 	 */
 	public preventDestroyedSession() {
+		logger.debugFn(arguments);
+
 		if (this.destroyed) {
 			throw 'Document storage session is destroyed! First initialize session!';
 		}
@@ -59,18 +72,26 @@ export class classDocumentStorage {
 	 * The function creates a new document by removing any existing document with the same name, creating
 	 * the necessary directory if it doesn't exist, and then writing an empty text file.
 	 * @returns The `createDocument()` function is returning a promise that resolves to the result of
-	 * `Deno.writeTextFile(this.getDocumentDetails().filename, '')`.
+	 * `Deno.writeTextFile(documentDetails.filename, '')`.
 	 */
 	public async createDocument() {
+		logger.debugFn(arguments);
+
+		const documentDetails = this.getDocumentDetails();
+		logger.debugVar('documentDetails', documentDetails);
+
 		if (await this.documentExist()) {
-			await Deno.remove(this.getDocumentDetails().filename);
+			logger.debug('Remove', documentDetails.filename);
+			await Deno.remove(documentDetails.filename);
 		}
 
-		if (!await pathExist(this.getDocumentDetails().dirname)) {
-			await Deno.mkdir(this.getDocumentDetails().dirname, { recursive: true });
+		if (!await pathExist(documentDetails.dirname)) {
+			logger.debug('Make directory', documentDetails.dirname);
+			await Deno.mkdir(documentDetails.dirname, { recursive: true });
 		}
 
-		return Deno.writeTextFile(this.getDocumentDetails().filename, '');
+		logger.debug('Write text file', documentDetails.filename, '');
+		await Deno.writeTextFile(documentDetails.filename, '');
 	}
 
 	/**
@@ -78,11 +99,16 @@ export class classDocumentStorage {
 	 * function.
 	 * @returns the result of the `pathExist(filename)` function call.
 	 */
-	public documentExist() {
-		const filename = this.getDocumentDetails().filename;
-		logger.debug(`Var filename: "${filename}"`);
+	public async documentExist() {
+		logger.debugFn(arguments);
 
-		return pathExist(filename);
+		const filename = this.getDocumentDetails().filename;
+		logger.debugVar('filename', filename);
+
+		const exist = await pathExist(filename);
+		logger.debugVar('exist', exist);
+
+		return exist;
 	}
 
 	/**
@@ -91,13 +117,18 @@ export class classDocumentStorage {
 	 * @returns an object with the following properties:
 	 */
 	public getDocumentDetails() {
-		return {
+		logger.debugFn(arguments);
+
+		const details = {
 			dirname: this.dirname,
 			basename: this.basename,
 			basenameLocked: this.basenameLocked,
 			filename: `${this.dirname}/${this.basename}`,
 			filenameLocked: `${this.dirname}/${this.basenameLocked}`,
 		};
+		logger.debugVar('details', details);
+
+		return details;
 	}
 
 	/**
@@ -107,6 +138,8 @@ export class classDocumentStorage {
 	 * @returns the JSON string representation of the input data.
 	 */
 	public encodeData<T>(data: T) {
+		logger.debugFn();
+
 		if (data == '') {
 			return '';
 		}
@@ -120,6 +153,8 @@ export class classDocumentStorage {
 	 * @returns the decoded data as an object with string keys and any values.
 	 */
 	public decodeData(data: string) {
+		logger.debugFn();
+
 		if (data == '') {
 			return '';
 		}
@@ -133,14 +168,22 @@ export class classDocumentStorage {
 	 * the client using that basename.
 	 */
 	public async registerClient() {
+		logger.debugFn(arguments);
+
 		const clientBasename = await generateUniqueBasename({
 			basePath: `${this.getDocumentDetails().dirname}/clients`,
 			prefix: `client_`,
 		});
+		logger.debugVar('clientBasename', clientBasename);
 
 		this.sessionId = clientBasename;
+		logger.debugVar('this.sessionId', this.sessionId);
 
-		await Deno.mkdir(`${this.getDocumentDetails().dirname}/clients/${this.sessionId}`, {
+		const clientDir = `${this.getDocumentDetails().dirname}/clients/${this.sessionId}`;
+		logger.debugVar('clientDir', clientDir);
+
+		logger.debug('Make directory', clientDir);
+		await Deno.mkdir(clientDir, {
 			recursive: true,
 		});
 	}
@@ -152,15 +195,20 @@ export class classDocumentStorage {
 	 * removed, nothing is returned.
 	 */
 	public async unregisterClient() {
+		logger.debugFn(arguments);
+
 		this.preventDestroyedSession();
 
-		const path = `${this.getDocumentDetails().dirname}/clients/${this.sessionId}`;
+		const clientDir = `${this.getDocumentDetails().dirname}/clients/${this.sessionId}`;
+		logger.debugVar('clientDir', clientDir);
 
-		if (!await pathExist(path)) {
+		if (!await pathExist(clientDir)) {
+			logger.debug('Client already unregistered!');
 			return;
 		}
 
-		await Deno.remove(path, { recursive: true });
+		logger.debug('remove', clientDir);
+		await Deno.remove(clientDir, { recursive: true });
 	}
 
 	/**
@@ -170,13 +218,20 @@ export class classDocumentStorage {
 	 * path.
 	 */
 	public async getCurrentDocumentClientId() {
+		logger.debugFn(arguments);
+
 		const path = this.getDocumentDetails().filenameLocked;
+		logger.debugVar('path', path);
 
 		if (!await pathExist(path)) {
+			logger.debug("Locked filename path doesn't exist!");
 			return false;
 		}
 
-		return Deno.readTextFile(path);
+		const clientId = await Deno.readTextFile(path);
+		logger.debugVar('clientId', clientId);
+
+		return clientId;
 	}
 
 	/**
@@ -184,8 +239,13 @@ export class classDocumentStorage {
 	 * @returns The method is returning the result of the pathExist() function, which checks if the file
 	 * specified by this.getDocumentDetails().filenameLocked exists.
 	 */
-	public isDocumentLocked() {
-		return pathExist(this.getDocumentDetails().filenameLocked);
+	public async isDocumentLocked() {
+		logger.debugFn(arguments);
+
+		const isLocked = await pathExist(this.getDocumentDetails().filenameLocked);
+		logger.debugVar('isLocked', isLocked);
+
+		return isLocked;
 	}
 
 	/**
@@ -194,12 +254,15 @@ export class classDocumentStorage {
 	 * @returns a promise that resolves to the result of writing the session ID to a locked document file.
 	 */
 	public async lockDocument() {
+		logger.debugFn(arguments);
+
 		this.preventDestroyedSession();
 
 		if (await this.isDocumentLocked()) {
 			throw `Document already locked by "${await this.getCurrentDocumentClientId()}"!`;
 		}
 
+		logger.debug('Locking document');
 		return Deno.writeTextFile(this.getDocumentDetails().filenameLocked, this.sessionId);
 	}
 
@@ -211,14 +274,19 @@ export class classDocumentStorage {
 	 * operation.
 	 */
 	public async releaseDocumentLock() {
+		logger.debugFn(arguments);
+
 		this.preventDestroyedSession();
 
 		const currentClientId = await this.getCurrentDocumentClientId();
+		logger.debugVar('currentClientId', currentClientId);
 
 		if (currentClientId !== this.sessionId) {
+			logger.debug('Invalid client ID!', currentClientId, this.sessionId);
 			return false;
 		}
 
+		logger.debug('Releasing lock from document');
 		return Deno.remove(this.getDocumentDetails().filenameLocked);
 	}
 
@@ -228,13 +296,19 @@ export class classDocumentStorage {
 	 * @returns the contents of the document file as a string.
 	 */
 	public async getDocument() {
+		logger.debugFn(arguments);
+
 		const filename = this.getDocumentDetails().filename;
+		logger.debugVar('filename', filename);
 
 		if (!await pathExist(filename)) {
 			throw `Document filename doesn't exist "${filename}"!`;
 		}
 
-		return Deno.readTextFile(filename);
+		const document = await Deno.readTextFile(filename);
+		logger.debugVar('document', document);
+
+		return document;
 	}
 
 	/**
@@ -243,10 +317,18 @@ export class classDocumentStorage {
 	 * @returns the result of the `lockDocument()` function call.
 	 */
 	public async openDocument() {
+		logger.debugFn(arguments);
+
 		const tick = 100;
+		logger.debugVar('tick', tick);
 
 		while (await this.isDocumentLocked()) {
-			await new Promise((res) => setTimeout(res, tick));
+			await new Promise((res) =>
+				setTimeout(() => {
+					logger.debug('Go to next try');
+					res(undefined);
+				}, tick)
+			);
 		}
 
 		return await this.lockDocument();
@@ -258,6 +340,8 @@ export class classDocumentStorage {
 	 * using the `await` keyword.
 	 */
 	public async closeDocument() {
+		logger.debugFn(arguments);
+
 		return await this.releaseDocumentLock();
 	}
 
@@ -269,6 +353,8 @@ export class classDocumentStorage {
 	 * writing the provided `data` to a text file.
 	 */
 	public async updateDocument(data: string) {
+		logger.debugFn();
+
 		return await Deno.writeTextFile(this.getDocumentDetails().filename, data);
 	}
 
@@ -281,19 +367,25 @@ export class classDocumentStorage {
 	 */
 	// deno-lint-ignore no-explicit-any
 	public async setItem(key: string, value: any) {
+		logger.debugFn(arguments);
+
 		await this.openDocument();
 
 		// deno-lint-ignore no-explicit-any
 		let data = {} as { [key: string]: any };
+		logger.debugVar('data', data);
 
 		try {
 			const decodeData = this.decodeData(await this.getDocument());
+			logger.debugVar('decodeData', decodeData);
 
 			if (typeof decodeData == 'object') {
 				data = decodeData;
+				logger.debugVar('data', data);
 			}
 
 			data[key] = value;
+			logger.debugVar('data[key]', data[key]);
 
 			await this.updateDocument(this.encodeData(data));
 		} catch (err) {
@@ -311,16 +403,21 @@ export class classDocumentStorage {
 	 * @returns The value associated with the given key is being returned.
 	 */
 	public async getItem(key: string) {
+		logger.debugFn(arguments);
+
 		await this.openDocument();
 
 		// deno-lint-ignore no-explicit-any
 		let data = {} as { [key: string]: any };
+		logger.debugVar('data', data);
 
 		try {
 			const decodeData = this.decodeData(await this.getDocument());
+			logger.debugVar('decodeData', decodeData);
 
 			if (typeof decodeData == 'object') {
 				data = decodeData;
+				logger.debugVar('data', data);
 			}
 		} catch (err) {
 			await this.closeDocument();
@@ -328,6 +425,7 @@ export class classDocumentStorage {
 		}
 
 		const value = data[key];
+		logger.debugVar('value', value);
 
 		await this.closeDocument();
 
@@ -340,19 +438,24 @@ export class classDocumentStorage {
 	 * want to remove from the data object.
 	 */
 	public async removeItem(key: string) {
+		logger.debugFn(arguments);
+
 		await this.openDocument();
 
 		// deno-lint-ignore no-explicit-any
 		let data = {} as { [key: string]: any };
+		logger.debugVar('data', data);
 
 		try {
 			const decodeData = this.decodeData(await this.getDocument());
 
 			if (typeof decodeData == 'object') {
 				data = decodeData;
+				logger.debugVar('data', data);
 			}
 
 			delete data[key];
+			logger.debugVar('data[key]', data[key]);
 
 			await this.updateDocument(this.encodeData(data));
 		} catch (err) {
