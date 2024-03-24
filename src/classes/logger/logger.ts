@@ -2,6 +2,9 @@ import { ansiColors } from './colors.ts';
 import { getCallingFunctionName } from '../../utils/calling_function_name/calling_function_name.ts';
 import { formatDate } from '../../utils/format_date/format_date.ts';
 import { isString } from 'https://cdn.skypack.dev/lodash-es@4.17.21';
+import { secretKey } from '../../pre_compiled/__secret_key.ts';
+import { classCrypto } from '../crypto/crypto.ts';
+import { generateCrptoKey } from '../../utils/generate_crypto_key/generate_crypto_key.ts';
 
 /* The `classLogger` class is a TypeScript class that provides logging functionality with configurable
 options. */
@@ -137,6 +140,8 @@ export class classLogger {
 		logType: string,
 		callback: (...data: any[]) => void,
 	) {
+		data = this.hashSecrets(data);
+
 		const logLine = this.getLogLine(logType, data);
 
 		!this.config.omitStorage && this.archive.push(logLine);
@@ -168,6 +173,60 @@ export class classLogger {
 		}
 
 		!omitDebug && callback(...coloredText);
+	}
+
+	public hashSecrets(data: any[]) {
+		const secrets = this.getSecrets();
+
+		return data.map((d) => {
+			const stringifed: string = isString(d) ? d : JSON.stringify(d);
+
+			if (!this.stringContainsSecret(stringifed)) {
+				return d;
+			}
+
+			let hashed = stringifed;
+
+			for (let i = 0; i < secrets.length; i++) {
+				const secret = secrets[i];
+				hashed = hashed.replaceAll(secret, new Array(secret.length).fill('*').join(''));
+			}
+
+			if (isString(d)) {
+				return hashed;
+			}
+
+			try {
+				const parsed = JSON.parse(hashed);
+
+				return parsed;
+			} catch {
+				return hashed;
+			}
+		});
+	}
+
+	public getSecrets() {
+		return [
+			secretKey,
+			generateCrptoKey(secretKey),
+		];
+	}
+
+	public stringContainsSecret(x: string) {
+		const secrets = this.getSecrets();
+
+		for (let i = 0; i < secrets.length; i++) {
+			const secret = secrets[i];
+
+			if (!x.includes(secret)) {
+				continue;
+			}
+
+			return true;
+		}
+
+		return false;
 	}
 
 	/**

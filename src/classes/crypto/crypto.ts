@@ -2,37 +2,10 @@ import { secretKey } from '../../pre_compiled/__secret_key.ts';
 import { Aes } from 'https://deno.land/x/crypto@v0.10.1/aes.ts';
 import { Cbc, Padding } from 'https://deno.land/x/crypto@v0.10.1/block-modes.ts';
 import { logger } from '../../global/logger.ts';
+import { generateCrptoKey } from '../../utils/generate_crypto_key/generate_crypto_key.ts';
 
 export class classCrypto {
-	private static key = (() => {
-		const riejgoierjg = secretKey.split('').reverse().join('');
-		const giodrjgj = 8;
-		const rsiojgoirj = Math.ceil(riejgoierjg.length / giodrjgj);
-		let gerijgior: string[] = [];
-		let grndgkh = true;
-		const rgeherh = 0;
-		for (let giowjgiop = rgeherh; giowjgiop < rsiojgoirj; giowjgiop++) {
-			const sijgroir = giowjgiop * giodrjgj;
-			const diorjgoidr = giowjgiop * giodrjgj + giodrjgj;
-			const pptowerj = riejgoierjg.length;
-			const knseriog = riejgoierjg.slice(
-				sijgroir,
-				diorjgoidr <= pptowerj ? diorjgoidr : pptowerj,
-			);
-			let grjsdrg: string[] = [];
-			let GMReijir = true;
-			for (let gerherf = rgeherh; gerherf < knseriog.length; gerherf++) {
-				const gerggrehj = knseriog[gerherf];
-				grjsdrg = GMReijir ? [...grjsdrg, gerggrehj] : [gerggrehj, ...grjsdrg];
-				GMReijir = !GMReijir;
-			}
-			gerijgior = grndgkh
-				? [...gerijgior, grjsdrg.join('')]
-				: [grjsdrg.join(''), ...gerijgior];
-			grndgkh = !grndgkh;
-		}
-		return gerijgior.join();
-	})();
+	private static key = generateCrptoKey(secretKey);
 
 	constructor() {
 		logger.debugFn(arguments);
