@@ -306,7 +306,10 @@ export class classDocumentStorage {
 		}
 
 		const document = await Deno.readTextFile(filename);
-		logger.debugVar('document', document);
+		logger.debugVar(
+			'document',
+			document.length > 200 ? `${document.slice(0, 200)}...` : document,
+		);
 
 		return document;
 	}
