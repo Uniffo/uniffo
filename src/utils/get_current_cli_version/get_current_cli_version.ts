@@ -7,9 +7,11 @@ import { cliVersion } from '../../pre_compiled/__cli_version.ts';
  * version by importing a module and returning the version string.
  * @returns the current CLI version as a string.
  */
-export const getCurrentCliVersion = () => {
+export function getCurrentCliVersion() {
+	logger.debugFn(arguments);
+
 	const version = cliVersion as version;
-	logger.debug(`Var version: "${version}"`);
+	logger.debugVar('version', version);
 
 	return version;
-};
+}
