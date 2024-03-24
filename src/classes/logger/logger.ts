@@ -86,9 +86,6 @@ export class classLogger {
 	public keepLogsOptimized() {
 		if (this.getWeight() > this.config.maxWeight) {
 			this.archive.shift();
-			this.omitStorage(true);
-			this.debug('Shift logs because of logger size');
-			this.omitStorage(false);
 			this.keepLogsOptimized();
 		}
 	}

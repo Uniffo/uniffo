@@ -48,7 +48,7 @@ export async function downloadFile(
 	logger.debugVar('contentLength', contentLength);
 
 	const fileContent = new Uint8Array(contentLength);
-	logger.debugVar('fileContent', fileContent);
+	logger.debugVar('fileContent', fileContent.length);
 
 	let downloadedBytes = 0;
 	logger.debugVar('downloadedBytes', downloadedBytes);
@@ -91,7 +91,7 @@ export async function downloadFile(
 	} = {
 		basename: filename,
 	};
-	logger.debugVar('details', details);
+	logger.debugVar('details', { ...details, fileContent: `Uint8Array (${contentLength})` });
 
 	if (saveToFile) {
 		if (!await pathExist(destDir)) {
@@ -110,15 +110,15 @@ export async function downloadFile(
 			await Deno.remove(filepath);
 		}
 
-		logger.debug('Write file', filepath, fileContent);
+		logger.debug('Write file', filepath, `Uint8Array (${contentLength})`);
 		await Deno.writeFile(filepath, fileContent);
 	}
 
 	if (returnFileContent) {
 		details.fileContent = fileContent;
-		logger.debugVar('details.fileContent', details.fileContent);
+		logger.debugVar('details.fileContent', `Uint8Array (${contentLength})`);
 	}
 
-	logger.debugVar('details', details);
+	logger.debugVar('details', { ...details, fileContent: `Uint8Array (${contentLength})` });
 	return details;
 }
