@@ -1,5 +1,3 @@
-![logo-uniffo-226x50](https://github.com/Uniffo/uniffo/assets/26837876/447a3630-af21-468f-bc98-b6201bf43f29)
-
 ## Project Description
 
 Uniffo is a tool for unifying WordPress runtime environments, aimed at reducing the time needed to create a WordPress runtime environment and enabling the sharing of such environments.
@@ -32,7 +30,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Author
 
-Project author: [Maciej Koralewski](https://github.com/MaciejKoralewski) <!-- Update the link to your GitHub profile if desired -->
+Project author: [Maciej Koralewski](https://github.com/MaciejKoralewski) 
 
 ## Current Project Status
 

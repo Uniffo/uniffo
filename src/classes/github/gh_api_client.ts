@@ -1,13 +1,15 @@
-import { logger } from '../../services/logger.ts';
-import { classStore } from '../store/store.ts';
-import { IReleaseByTagName } from './release_by_tag_name.d.ts';
-import { IReleases } from './releases_list.d.ts';
+// Copyright 2023-2024 Maciej Koralewski. All rights reserved. MIT license.
+
+import { GH_API_CLIENT_CREDENTIALS } from '../../constants/GH_API_CLIENT_CREDENTIALS.ts';
+import { logger } from '../../global/logger.ts';
+import { classDatabase } from '../database/database.ts';
+import { type IRelease, IReleases } from './releases_list.d.ts';
 
 /* The `classGitHubApiClient` is a TypeScript class that provides methods for fetching releases from a
 GitHub repository, caching the responses, and retrieving cached data. */
 export class classGitHubApiClient {
-	private github;
-	private store;
+	public github;
+	public database;
 
 	/**
 	 * The constructor function initializes the GitHub API client with the provided owner, repo, and
@@ -15,147 +17,191 @@ export class classGitHubApiClient {
 	 * @param args - An object containing the following properties:
 	 */
 	constructor(
-		args: { github: { owner: string; repo: string; apiUrl: string }; store: classStore },
+		args: { github?: { owner: string; repo: string; apiUrl: string }; database: classDatabase },
 	) {
-		this.github = args.github;
-		this.store = args.store;
+		logger.debugFn(arguments);
+
+		const _github = args.github || GH_API_CLIENT_CREDENTIALS;
+		logger.debugVar('_github', _github);
+
+		this.github = _github;
+		logger.debugVar('this.github', this.github);
+
+		this.database = args.database;
+		logger.debugVar('this.database', this.database);
 	}
 
 	/**
 	 * The function returns an object containing data and expiration time for caching purposes.
 	 * @param {string} data - The `data` parameter is a string that represents the data that you want to
-	 * store in the cache object.
+	 * database in the cache object.
 	 * @param {number} expiration - The expiration parameter is a number that represents the duration in
 	 * milliseconds for which the cache object should be considered valid. After this duration has passed,
 	 * the cache object should be considered expired and should not be used.
 	 * @returns An object with properties "data" and "expiration" is being returned.
 	 */
-	private getCacheObject(data: string, expiration: number) {
-		return {
+	public getCacheObject(data: any, expiration: number) {
+		logger.debugFn(arguments);
+
+		const cacheObj = {
 			data,
 			expiration,
 		};
+		logger.debugVar('cacheObj', cacheObj);
+
+		return cacheObj;
 	}
 
 	/**
 	 * The addCache function adds a value to the cache with an optional expiration time.
 	 * @param {string} id - The `id` parameter is a string that represents the unique identifier for the
-	 * cache entry. It is used to store and retrieve the cache data.
-	 * @param {string} data - The `data` parameter is a string that represents the value to be stored in
+	 * cache entry. It is used to database and retrieve the cache data.
+	 * @param {string} data - The `data` parameter is a string that represents the value to be databased in
 	 * the cache.
 	 * @param {number} [expiration] - The `expiration` parameter is an optional parameter that specifies
 	 * the expiration time for the cache entry. It is a number representing the number of milliseconds
 	 * since the Unix epoch. If not provided, the default expiration time is set to 5 minutes (1000
 	 * milliseconds * 60 seconds * 5 minutes).
 	 */
-	private async addCache(id: string, data: string, expiration?: number) {
+	public async addCache(id: string, data: any, expiration?: number) {
+		logger.debugFn(arguments);
+
 		const _expiration = Date.now() + (1000 * 60 * 5);
+		logger.debugVar('_expiration', _expiration);
 
 		const value = this.getCacheObject(data, expiration || _expiration);
+		logger.debugVar('value', value);
 
-		logger.debug(`Add cache "${id}" as "${JSON.stringify(value)}"`);
-
-		await this.store.setPersistentValue(id, value);
+		await this.database.setPersistentValue(id, value);
 	}
 
 	/**
-	 * The function `getCache` retrieves a cached value from a store and checks if it has expired.
+	 * The function `getCache` retrieves a cached value from a database and checks if it has expired.
 	 * @param {string} id - The `id` parameter is a string that represents the unique identifier for the
-	 * cache. It is used to retrieve the cache object from the this.store.
+	 * cache. It is used to retrieve the cache object from the this.database.
 	 * @returns the `data` property of the `cache` object.
 	 */
-	private async getCache(id: string) {
-		const cache = await this.store.getPersistentValue<ReturnType<typeof this.getCacheObject>>(
+	public async getCache(id: string) {
+		logger.debugFn(arguments);
+
+		const cache = await this.database.getPersistentValue<
+			ReturnType<typeof this.getCacheObject>
+		>(
 			id,
 		);
+		logger.debugVar('cache', cache);
 
-		logger.debug(`Get cache "${id}" as "${JSON.stringify(cache)}"`);
-
-		if (Date.now() > (cache?.expiration || 0)) {
-			await this.store.removePersistentKey(id);
+		if (Date.now() > (cache?.value?.expiration || 0)) {
+			await this.database.removePersistentKey(id);
 			return undefined;
 		}
 
-		return cache.data;
+		const value = cache?.value?.data;
+		logger.debugVar('value', value);
+
+		return value;
 	}
 
 	/**
-	 * The function fetches releases from a GitHub repository, checks if the response is cached, and
-	 * returns the releases either from the cache or by making a request to the GitHub API.
-	 * @returns a Promise that resolves to an array of IReleases objects.
+	 * This TypeScript function fetches a list of releases from a GitHub repository, caches the response,
+	 * and returns the releases.
+	 * @returns The `fetchReleases` function returns an array of release objects (`IRelease[]`).
 	 */
 	public async fetchReleases() {
-		const cacheId = `${this.github.owner}-${this.github.repo}-fetchReleases`;
+		logger.debugFn(arguments);
+
+		const cacheId = `ListOfReleases`;
+		logger.debugVar('cacheId', cacheId);
+
 		const cache = await this.getCache(cacheId);
-		logger.debug(`Var cacheId: ${cacheId}`);
-		logger.debug(`Var cache: ${cache}`);
+		logger.debugVar('cache', cache);
 
 		if (cache) {
-			logger.debug(`Return cached response`);
-			return JSON.parse(cache) as IReleases[];
+			const cachedResponse = cache as IReleases[];
+			logger.debugVar('cachedResponse', cachedResponse);
+
+			return cachedResponse;
 		}
 
-		const url =
-			`${this.github.apiUrl}/repos/${this.github.owner}/${this.github.repo}/releases?per_page=20&page=1`;
-		const headers = {};
+		const releases: IRelease[] = [];
+		logger.debugVar('releases', releases);
 
-		logger.debug(`Var url: ${url}`);
-		logger.debug(`Var headers: ${JSON.stringify(headers)}`);
+		let page = 1;
+		logger.debugVar('page', page);
 
-		const req = await fetch(url, {
-			method: 'GET',
-			headers,
-		});
+		const perPage = 100;
+		logger.debugVar('perPage', perPage);
 
-		if (req.status == 404) {
-			throw 'Not found uniffo releases!';
+		while (true) {
+			const url =
+				`${this.github.apiUrl}/repos/${this.github.owner}/${this.github.repo}/releases?per_page=${perPage}&page=${page}`;
+			logger.debugVar('url', url);
+
+			const headers = {};
+			logger.debugVar('headers', headers);
+
+			const req = await fetch(url, {
+				method: 'GET',
+				headers,
+			});
+			logger.debugVar('req', req);
+
+			if (req.status.toString().slice(0, 1) != '2') {
+				const message = (await req.json())?.message || req;
+				logger.debugVar('message', message);
+
+				throw message;
+			}
+
+			const jsonResponse: IReleases[] = await req.json();
+			logger.debugVar('jsonResponse', jsonResponse);
+
+			jsonResponse.forEach((release) => {
+				const fitRelease = {
+					tag_name: release.tag_name,
+					published_at: release.published_at,
+					assets: release.assets.map((asset) => {
+						return {
+							name: asset.name,
+							browser_download_url: asset.browser_download_url,
+						};
+					}),
+				};
+				logger.debugVar('fitRelease', fitRelease);
+
+				releases.push(fitRelease);
+				logger.debugVar('releases', releases);
+			});
+
+			if (jsonResponse.length < perPage) {
+				break;
+			}
+
+			page++;
+			logger.debugVar('page', page);
 		}
 
-		const jsonResponse: Promise<IReleases[]> = req.json();
+		await this.addCache(cacheId, releases);
 
-		await this.addCache(cacheId, JSON.stringify(await jsonResponse));
-
-		return jsonResponse;
+		return releases;
 	}
 
 	/**
-	 * The function fetches a release from a GitHub repository based on a given tag name, and caches the
-	 * response for future use.
-	 * @param {string} tagName - The `tagName` parameter is a string that represents the name of the tag
-	 * for which you want to fetch the release.
-	 * @returns a Promise that resolves to an object of type IReleaseByTagName.
+	 * This function fetches a release by its tag name asynchronously.
+	 * @param {string} tagName - The `fetchReleaseByTagName` function is designed to fetch a release by
+	 * its tag name. The `tagName` parameter is a string that represents the tag name of the release you
+	 * want to retrieve.
+	 * @returns The `fetchReleaseByTagName` function is returning the release object that matches the
+	 * provided `tagName` from the list of releases fetched by the `fetchReleases` function.
 	 */
 	public async fetchReleaseByTagName(tagName: string) {
-		const cacheId = `${this.github.owner}-${this.github.repo}-fetchReleaseByTagName-${tagName}`;
-		const cache = await this.getCache(cacheId);
-		logger.debug(`Var cacheId: ${cacheId}`);
-		logger.debug(`Var cache: ${cache}`);
+		logger.debugFn(arguments);
 
-		if (cache) {
-			logger.debug(`Return cached response`);
-			return JSON.parse(cache) as IReleaseByTagName;
-		}
+		const release = (await this.fetchReleases()).find((predicate) =>
+			predicate.tag_name === tagName
+		);
+		logger.debugVar('release', release);
 
-		const url =
-			`${this.github.apiUrl}/repos/${this.github.owner}/${this.github.repo}/releases/tags/${tagName}`;
-		const headers = {};
-
-		logger.debug(`Var url: ${url}`);
-		logger.debug(`Var headers: ${JSON.stringify(headers)}`);
-
-		const req = await fetch(url, {
-			method: 'GET',
-			headers,
-		});
-
-		if (req.status == 404) {
-			throw `Not found uniffo release by tag name "${tagName}"!`;
-		}
-
-		const jsonResponse: Promise<IReleaseByTagName> = req.json();
-
-		await this.addCache(cacheId, JSON.stringify(await jsonResponse));
-
-		return jsonResponse;
+		return release;
 	}
 }

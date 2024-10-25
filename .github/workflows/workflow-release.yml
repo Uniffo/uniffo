@@ -70,14 +70,29 @@ jobs:
       - name: Create VERSION file
         run: echo "${{ steps.get_next_semantic_version.outputs.version }}" > "VERSION"
 
+      - name: Create SECRET_KEY file
+        env:
+          SUPER_SECRET: ${{ secrets.SECRET_KEY }}
+        run: echo "$SUPER_SECRET" > "SECRET_KEY"
+
       - name: Get deno version
         id: get_deno_version
         run: |
-          echo "dvm=$(cat .dvm)" >> "$GITHUB_OUTPUT"
+          echo "dvmrc=$(cat .dvmrc)" >> "$GITHUB_OUTPUT"
 
       - uses: denoland/setup-deno@v1
         with:
-          deno-version: "${{ steps.get_deno_version.outputs.dvm }}"
+          deno-version: "${{ steps.get_deno_version.outputs.dvmrc }}"
+
+      - name: Create secret key
+        run: |
+          echo "${{ secrets.SECRET_KEY }}" > SECRET_KEY
+
+          if [[ "$(cat SECRET_KEY)" != "" ]]; then
+            echo "Correct secret key file!"
+          else
+            echo "INVALID secret key file!"
+          fi
 
       - name: Compile
         run: "deno task compile"

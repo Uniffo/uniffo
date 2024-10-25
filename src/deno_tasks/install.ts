@@ -1,32 +1,69 @@
-import { logger } from '../services/logger.ts';
-import { session } from '../services/session.ts';
-import { uvm } from '../services/uvm.ts';
+// Copyright 2023-2024 Maciej Koralewski. All rights reserved. MIT license.
+
+import { classCliVersionManager } from '../classes/cli_version_manager/cli_version_manager.ts';
+import { classDatabase } from '../classes/database/database.ts';
+import { classDatabaseService } from '../classes/database_service/database_service.ts';
+import classDependencyChecker from '../classes/dependency_checker/dependency_checker.ts';
+import { classGitHubApiClient } from '../classes/github/gh_api_client.ts';
+import { CLI_DIR } from '../constants/CLI_DIR.ts';
+import { DB_SCHEMA } from '../constants/DB_SCHEMA.ts';
+import { DB_SERVER_SOCKET_PATH } from '../constants/DB_SERVER_SOCKET_PATH.ts';
+import { DB_SERVICE_NAME } from '../constants/DB_SERVICE_NAME.ts';
+import { logger } from '../global/logger.ts';
+import { generateUniqueBasename } from '../utils/generate_unique_basename/generate_unique_basename.ts';
+import meta from '../commands/service/db/start/start.ts';
 
 await (async function installer() {
-	logger.info('Initialize installer');
-	await session.init();
-	await uvm.init();
+	const tmpDir = `${CLI_DIR.tmp}/${await generateUniqueBasename({ basePath: CLI_DIR.tmp })}`;
+	const database = new classDatabase({
+		dbSchema: DB_SCHEMA,
+		dbServerSocketPath: DB_SERVER_SOCKET_PATH,
+	});
+	const gitHubApiClient = new classGitHubApiClient({ database });
+	const cliVersionManager = new classCliVersionManager({
+		cliDir: CLI_DIR,
+		gitHubApiClient,
+		tmpDir,
+	});
 
-	logger.info('Install latest version of uniffo');
-	const latest = await uvm.useLatest();
+	logger.info('Initializing cli version manager');
+	await cliVersionManager.init();
 
-	const shell = Deno.env.get('SHELL');
+	logger.info('Installing latest version of Uniffo');
+	const latest = await cliVersionManager.useLatest();
 
-	logger.info(`Add uniffo path to shell profile "${shell}"`);
+	const execArgs = meta.phrase.split(' ');
+	logger.debugVar('cmdStartArgs', execArgs);
+
+	logger.info(`Installing Uniffo database service`);
+	const dbService = new classDatabaseService({
+		name: DB_SERVICE_NAME,
+		description: 'Uniffo database service',
+		execPath: `${cliVersionManager.getDirInfo().main}/uniffo`,
+		execArgs: execArgs,
+		stdOutPath: `${CLI_DIR.localStorage}/logs/uniffodb/std.out.log`,
+		stdErrPath: `${CLI_DIR.localStorage}/logs/uniffodb/std.err.log`,
+	});
+
+	await dbService.install(true);
+
+	const shell = Deno.env.get('SHELL') || '';
+
+	logger.info(`Adding Uniffo path to shell profile "${shell}"`);
 
 	let profile = '';
-	switch (shell) {
-		case '/bin/zsh':
+	switch (shell.split('/').pop()) {
+		case 'zsh':
 			profile = '.zshrc';
 			break;
 
-		case '/bin/bash':
+		case 'bash':
 			profile = '.bashrc';
 			break;
 
 		default:
 			logger.error(
-				`Not supported shell "${shell}"! Please add manually uniffo path "${uvm.getDirInfo().main}" to your shell profile (${shell})`,
+				`Not supported shell "${shell}"! Please add manually Uniffo path "${cliVersionManager.getDirInfo().main}" to your shell profile (${shell})`,
 			);
 			break;
 	}
@@ -34,8 +71,8 @@ await (async function installer() {
 	if (profile) {
 		const profileFilename = `${Deno.env.get('HOME')}/${profile}`;
 		const profileContent = Deno.readTextFileSync(profileFilename);
-		const beginUniffoContent = '# UNIFFO - BEGIN';
-		const endUniffoContent = '# UNIFFO - END';
+		const beginUniffoContent = '# Uniffo - BEGIN';
+		const endUniffoContent = '# Uniffo - END';
 		const newContent: string[] = [];
 		let uniffoContentBoolean = false;
 		const splitedProfileContent = profileContent.split('\n');
@@ -59,7 +96,7 @@ await (async function installer() {
 		const addUninffoToPATH: string[] = [];
 
 		addUninffoToPATH.push(`${beginUniffoContent}`);
-		addUninffoToPATH.push(`PATH="\${PATH}:${uvm.getDirInfo().main}"`);
+		addUninffoToPATH.push(`PATH="\${PATH}:${cliVersionManager.getDirInfo().main}"`);
 		addUninffoToPATH.push(`${endUniffoContent}`);
 
 		newContent.push(...addUninffoToPATH);
@@ -74,20 +111,5 @@ await (async function installer() {
 		`Uniffo ${latest} successfully installed. Please restart terminal and try to execute "uniffo"`,
 	);
 
-	logger.info('Checking required dependencies');
-
-	if (!shell) {
-		logger.error(
-			`Can not verify required dependencies because "SHELL" environment variable "${shell}"!`,
-		);
-		return;
-	}
-
-	const checkDockerCmd = new TextDecoder().decode(
-		new Deno.Command(shell, { args: ['command', '-v', 'docker'] }).outputSync().stdout,
-	);
-
-	if (!checkDockerCmd) {
-		logger.error('"docker" is required!');
-	}
+	classDependencyChecker.check();
 })();

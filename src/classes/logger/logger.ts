@@ -1,18 +1,22 @@
-import { writeAllSync } from 'https://deno.land/std@0.201.0/streams/write_all.ts';
+// Copyright 2023-2024 Maciej Koralewski. All rights reserved. MIT license.
+
 import { ansiColors } from './colors.ts';
 import { getCallingFunctionName } from '../../utils/calling_function_name/calling_function_name.ts';
-import { formatDate } from '../../utils/date/format_date.ts';
+import { formatDate } from '../../utils/format_date/format_date.ts';
+import { _ } from '../../utils/lodash/lodash.ts';
+import { secretKey } from '../../pre_compiled/__secret_key.ts';
+import { generateCrptoKey } from '../../utils/generate_crypto_key/generate_crypto_key.ts';
 
 /* The `classLogger` class is a TypeScript class that provides logging functionality with configurable
 options. */
 export class classLogger {
-	private config = {
+	public config = {
 		omitStorage: false,
 		maxWeight: 1024 * 1024 * 100,
 		displayDebug: true,
 		displayDate: true,
 	};
-	private archive: ReturnType<typeof this.getLogLine>[] = [];
+	public archive: ReturnType<typeof this.getLogLine>[] = [];
 
 	/**
 	 * The constructor function initializes a Logger instance with optional configuration parameters.
@@ -53,12 +57,14 @@ export class classLogger {
 	 * message. It can have one of the following values: 'log', 'debug', 'error', 'info', or 'success'.
 	 * @returns The color code corresponding to the given log type.
 	 */
-	private getMessageColor(logType: string) {
+	public getMessageColor(logType: string) {
 		switch (logType) {
 			case 'log':
 				return ansiColors.Reset;
 
 			case 'debug':
+			case 'debugVar':
+			case 'debugFn':
 				return ansiColors.FgMagenta;
 
 			case 'error':
@@ -79,12 +85,9 @@ export class classLogger {
 	 * The function "keepLogsOptimized" checks if the weight of the logger exceeds the maximum weight, and
 	 * if so, shifts logs, omits storage, and recursively calls itself.
 	 */
-	private keepLogsOptimized() {
+	public keepLogsOptimized() {
 		if (this.getWeight() > this.config.maxWeight) {
 			this.archive.shift();
-			this.omitStorage(true);
-			this.debug('Shift logs because of logger size');
-			this.omitStorage(false);
 			this.keepLogsOptimized();
 		}
 	}
@@ -96,7 +99,26 @@ export class classLogger {
 	 * @param {string} message - A string representing the log message.
 	 * @returns An object with the properties "message" and "logType".
 	 */
-	private getLogLine(logType: string, message: string) {
+	// deno-lint-ignore no-explicit-any
+	public getLogLine(logType: string, data: any[]) {
+		const message = data.map((v) => {
+			let value = JSON.stringify(v);
+
+			if (!_.isString(value)) {
+				return value;
+			}
+
+			if (value.startsWith('"')) {
+				value = value.slice(1);
+			}
+
+			if (value.endsWith('"')) {
+				value = value.slice(0, -1);
+			}
+
+			return value;
+		}).join(', ');
+
 		return {
 			message,
 			logType,
@@ -104,7 +126,7 @@ export class classLogger {
 	}
 
 	/**
-	 * The primaryLogFunction is a private function in TypeScript that logs a message with a specified log
+	 * The primaryLogFunction is a public function in TypeScript that logs a message with a specified log
 	 * type and performs additional formatting and handling based on the configuration settings.
 	 * @param {string} message - The `message` parameter is a string that represents the log message that
 	 * you want to log.
@@ -112,38 +134,150 @@ export class classLogger {
 	 * message being passed to the `primaryLogFunction`. It is used to determine the color and formatting
 	 * of the log message.
 	 */
-	private primaryLogFunction(
-		message: string,
+	public primaryLogFunction(
+		// deno-lint-ignore no-explicit-any
+		data: any[],
 		logType: string,
+		// deno-lint-ignore no-explicit-any
+		callback: (...data: any[]) => void,
 	) {
-		const logLine = this.getLogLine(logType, message);
+		data = this.hashSecrets(data);
+
+		const logLine = this.getLogLine(logType, data);
 
 		!this.config.omitStorage && this.archive.push(logLine);
 
 		this.keepLogsOptimized();
 
-		const maxMsgLength = 300;
-		const truncatedMessage = message.length > maxMsgLength
-			? `${message.slice(0, maxMsgLength)}...`
-			: message;
 		const now = new Date();
 		const date = formatDate(now);
 		const MessageColor = this.getMessageColor(logType);
 		const dateColor = MessageColor;
 		const resetColor = ansiColors.Reset;
-		const extraDebugMsg = logType == 'debug' ? `${getCallingFunctionName()}(...): ` : '';
+		const debug = ['debug', 'debugVar', 'debugFn'].includes(logType);
+		const extraDebugMsg = debug ? ` ${getCallingFunctionName()}(...):` : '';
 		const extraDebugMsgColor = ansiColors.Dim;
 
-		const coloredText = `${
-			this.config.displayDate ? `${dateColor}[${date}]${resetColor}` : ''
-		}${MessageColor}[${logType}]:${resetColor} ${extraDebugMsgColor}${extraDebugMsg}${resetColor}${truncatedMessage}`;
+		data = debug ? data : this.truncateLogData(data);
 
-		const omitDebug = logType == 'debug' && !this.config.displayDebug;
+		const coloredText = [
+			`${
+				this.config.displayDate
+					? `${dateColor}[${date}]${resetColor}`
+					: ''
+			}${MessageColor}[${logType}]:${resetColor}${extraDebugMsgColor}${extraDebugMsg}${resetColor}`,
+			...data,
+		];
 
-		!omitDebug && writeAllSync(
-			logType == 'error' ? Deno.stderr : Deno.stdout,
-			new TextEncoder().encode(coloredText + '\n'),
-		);
+		const omitDebug = debug && !this.config.displayDebug;
+
+		if (omitDebug) {
+			return;
+		}
+
+		!omitDebug && callback(...coloredText);
+	}
+
+	/**
+	 * The `truncateLogData` function in TypeScript truncates strings in an array to a maximum length of
+	 * 200 characters.
+	 * @param {any[]} data - The `truncateLogData` function takes an array of any type of data as input
+	 * and truncates any string elements in the array to a maximum length of 200 characters. If a string
+	 * element exceeds 200 characters, it will be truncated to 197 characters and appended with ellipsis
+	 * ("...").
+	 * @returns The `truncateLogData` function takes an array of data and truncates any string elements in
+	 * the array to a maximum length of 200 characters. If a string element is longer than 200 characters,
+	 * it will be truncated to 197 characters followed by "...". The function then returns the modified
+	 * array with the truncated string elements.
+	 */
+	// deno-lint-ignore no-explicit-any
+	public truncateLogData(data: any[]) {
+		return data.map((d) => {
+			if (_.isString(d)) {
+				d = d.length <= 200 ? d : `${d.slice(0, 197)}...`;
+			}
+
+			return d;
+		});
+	}
+
+	/**
+	 * The `hashSecrets` function takes an array of data, replaces any secrets with asterisks, and returns
+	 * the modified data array.
+	 * @param {any[]} data - The `hashSecrets` function takes an array of data as input and replaces any
+	 * secrets found in the data with asterisks. It first checks if the data contains any secrets by
+	 * comparing it with a list of secrets obtained from the `getSecrets` method. If a secret is found, it
+	 * @returns The `hashSecrets` function takes an array of data as input, checks for any secrets in the
+	 * data, and replaces them with asterisks. If the data is a string, the function returns the hashed
+	 * string. If the data is a JSON object, it parses the hashed string and returns the parsed object. If
+	 * the data does not contain any secrets, it returns the original data.
+	 */
+	// deno-lint-ignore no-explicit-any
+	public hashSecrets(data: any[]) {
+		const secrets = this.getSecrets();
+
+		return data.map((d) => {
+			const stringifed: string = _.isString(d) ? d : JSON.stringify(d);
+
+			if (!this.stringContainsSecret(stringifed)) {
+				return d;
+			}
+
+			let hashed = stringifed;
+
+			for (let i = 0; i < secrets.length; i++) {
+				const secret = secrets[i];
+				hashed = hashed.replaceAll(secret, new Array(secret.length).fill('*').join(''));
+			}
+
+			if (_.isString(d)) {
+				return hashed;
+			}
+
+			try {
+				const parsed = JSON.parse(hashed);
+
+				return parsed;
+			} catch {
+				return hashed;
+			}
+		});
+	}
+
+	/**
+	 * The getSecrets function returns an array containing a secret key and a cryptographic key generated
+	 * from the secret key.
+	 * @returns The `getSecrets` function is returning an array containing the `secretKey` and the result
+	 * of calling the `generateCrptoKey` function with the `secretKey` as an argument.
+	 */
+	public getSecrets() {
+		return [
+			secretKey,
+			generateCrptoKey(secretKey),
+		];
+	}
+
+	/**
+	 * The function checks if a given string contains any secrets from a list of secrets.
+	 * @param {string} x - The `x` parameter in the `stringContainsSecret` function is a string that
+	 * represents the text to be checked for the presence of any secrets.
+	 * @returns The `stringContainsSecret` function returns a boolean value - `true` if the input string
+	 * `x` contains any of the secrets obtained from `this.getSecrets()`, otherwise it returns `false`.
+	 */
+	public stringContainsSecret(x: string) {
+		const secrets = this.getSecrets();
+
+		for (let i = 0; i < secrets.length; i++) {
+			const secret = secrets[i];
+
+			if (!x?.includes(secret)) {
+				continue;
+			}
+
+			return true;
+		}
+
+		return false;
 	}
 
 	/**
@@ -180,8 +314,9 @@ export class classLogger {
 	 * @param {string} message - The parameter "message" is of type string. It is used to pass a message
 	 * that will be logged.
 	 */
-	public log(message: string) {
-		this.primaryLogFunction(message, 'log');
+	// deno-lint-ignore no-explicit-any
+	public log(...data: any[]) {
+		this.primaryLogFunction(data, 'log', console.log);
 	}
 
 	/**
@@ -189,8 +324,9 @@ export class classLogger {
 	 * @param {string} message - The parameter "message" is of type string. It is used to pass a message
 	 * that will be logged as an information message.
 	 */
-	public info(message: string) {
-		this.primaryLogFunction(message, 'info');
+	// deno-lint-ignore no-explicit-any
+	public info(...data: any[]) {
+		this.primaryLogFunction(data, 'info', console.log);
 	}
 
 	/**
@@ -198,8 +334,36 @@ export class classLogger {
 	 * @param {string} message - The parameter "message" is of type string. It is used to pass a debug
 	 * message that needs to be logged or displayed for debugging purposes.
 	 */
-	public debug(message: string) {
-		this.primaryLogFunction(message, 'debug');
+	// deno-lint-ignore no-explicit-any
+	public debug(...data: any[]) {
+		this.primaryLogFunction(data, 'debug', console.debug);
+	}
+
+	/**
+	 * The `debugVar` function in TypeScript logs the variable name and its data to the console using
+	 * `console.debug`.
+	 * @param {string} name - The `name` parameter in the `debugVar` function is a string that represents
+	 * the name of the variable or data being debugged.
+	 * @param {any[]} data - The `data` parameter in the `debugVar` function is a rest parameter,
+	 * indicated by the use of the spread operator `...`. This means that it can accept an arbitrary
+	 * number of arguments as an array. In this case, it allows you to pass multiple values of any type as
+	 * arguments when
+	 */
+	// deno-lint-ignore no-explicit-any
+	public debugVar(name: string, ...data: any[]) {
+		this.primaryLogFunction([`Var "${name}":`, ...data], 'debugVar', console.debug);
+	}
+
+	/**
+	 * The `debugFn` function calls the `primaryLogFunction` method with an empty array, 'debug', and
+	 * `console.debug` as arguments.
+	 */
+	public debugFn(args: IArguments = [] as unknown as IArguments) {
+		this.primaryLogFunction(
+			args.length > 0 ? ['Arguments:', [...args]] : [],
+			'debugFn',
+			console.debug,
+		);
 	}
 
 	/**
@@ -207,8 +371,9 @@ export class classLogger {
 	 * @param {string} message - The parameter "message" is a string that represents the success message
 	 * that you want to log.
 	 */
-	public success(message: string) {
-		this.primaryLogFunction(message, 'success');
+	// deno-lint-ignore no-explicit-any
+	public success(...data: any[]) {
+		this.primaryLogFunction(data, 'success', console.log);
 	}
 
 	/**
@@ -216,8 +381,9 @@ export class classLogger {
 	 * @param {string} message - The parameter "message" is of type string and represents the error
 	 * message that you want to log.
 	 */
-	public error(message: string) {
-		this.primaryLogFunction(message, 'error');
+	// deno-lint-ignore no-explicit-any
+	public error(...data: any[]) {
+		this.primaryLogFunction(data, 'error', console.error);
 	}
 
 	/**

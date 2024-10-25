@@ -6,6 +6,9 @@
 # 2: first commit sha from range to analyse
 # 3: last commit sha from range to analyse
 
+_FILENAME=$(awk '{gsub(/ /, "\\ "); print}' <<< "$(readlink -f "$0")")
+_WORKDIR=$(eval dirname $_FILENAME)
+
 _MAJOR="0"
 _MAJOR_UPDATED="0"
 _MINOR="0"
@@ -40,14 +43,14 @@ _COMMITS_TO_ANALYZE="$( eval "${_CMD_GET_COMMITS_TO_ANALYZE}" )"
 while IFS= read -r _COMMIT; do
     _COMMIT_MSG="$( git log --oneline --format="%s" -n 1 "${_COMMIT}" | tr '[:upper:]' '[:lower:]' )"
 
-    if [[ "$(./.github/workflows/shell-scripts/is_commit_header.sh "breaking change" "${_COMMIT_MSG}")" == "1" && "${_MAJOR_UPDATED}" == "0" ]]; then
+    if [[ "$($_WORKDIR/is_commit_header.sh "breaking change" "${_COMMIT_MSG}")" == "1" && "${_MAJOR_UPDATED}" == "0" ]]; then
         _MAJOR="$(( $_MAJOR + 1 ))"
         _MAJOR_UPDATED="1"
         _MINOR_UPDATED="1"
         _PATH_UPDATED="1"
         _MINOR="0"
         _PATH="0"
-    elif [[ ( "$(./.github/workflows/shell-scripts/is_commit_header.sh "feat" "${_COMMIT_MSG}")" == "1" || "$(./.github/workflows/shell-scripts/is_commit_header.sh "feature" "${_COMMIT_MSG}")" == "1" ) && "${_MINOR_UPDATED}" == "0" ]]; then
+    elif [[ ( "$($_WORKDIR/is_commit_header.sh "feat" "${_COMMIT_MSG}")" == "1" || "$($_WORKDIR/is_commit_header.sh "feature" "${_COMMIT_MSG}")" == "1" ) && "${_MINOR_UPDATED}" == "0" ]]; then
         _MINOR="$(( $_MINOR + 1 ))"
         _MINOR_UPDATED="1"
         _PATH_UPDATED="1"

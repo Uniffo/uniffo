@@ -1,3 +1,5 @@
+// Copyright 2023-2024 Maciej Koralewski. All rights reserved. MIT license.
+
 export const ansiColors = {
 	Reset: '\x1b[0m',
 	Bright: '\x1b[1m',

@@ -1,52 +1,70 @@
-import debounce from "npm:lodash.debounce"
+// Copyright 2023-2024 Maciej Koralewski. All rights reserved. MIT license.
 
-const watcher = Deno.watchFs(["src"]);
+import { _ } from '../utils/lodash/lodash.ts';
+import { pathExistSync } from '../utils/path_exist/path_exist.ts';
+
+const watcher = Deno.watchFs(['src']);
 
 const delay = 50;
 
-const pathExist = (path: string) => {
-	try {
-		Deno.statSync(path)
+const runTestFile = async (filename: string) => {
+	const preCmd = new Deno.Command(Deno.execPath(), {
+		args: ['task', 'pre:compile'],
+	});
 
-		return true;
-	} catch {
-		return false;
-	}
+	const cmd = new Deno.Command(Deno.execPath(), {
+		args: ['test', ...Deno.args, filename, '--', '--debug'],
+	});
+
+	preCmd.outputSync();
+
+	const process = cmd.spawn();
+
+	await process.status;
 };
 
-const dispatchEvent = debounce((event: Deno.FsEvent) => {
-  for (const path of event.paths) {
-    const pathSegments = path.split('/');
-    const dirname = pathSegments.slice(0, pathSegments.length - 1).join('/');
-    const basename = pathSegments.slice(-1)[0];
-    const ext = basename.split('.').slice(-1)[0];
+const runDefinitionFile = async (filename: string) => {
+	const preCmd = new Deno.Command(Deno.execPath(), {
+		args: ['task', 'pre:compile'],
+	});
 
-    if(ext != 'ts') {
-      continue;
-    }
+	const cmd = new Deno.Command(Deno.execPath(), {
+		args: ['run', ...Deno.args, filename, '--', '--debug'],
+	});
 
-    let runFilename = "";
+	preCmd.outputSync();
 
-    if(basename.includes('.test.ts')) {
-      runFilename = path;
-    } else {
-      runFilename = `${dirname}/${basename.replace(`.${ext}`, `.test.${ext}`)}`
-    }
+	const process = cmd.spawn();
 
-    if (!pathExist(runFilename)) {
-      continue
-    }
+	await process.status;
+};
 
-    const cmd = new Deno.Command(Deno.execPath(), {
-      args: ['test', ...Deno.args, runFilename, '--', '--debug']
-    });
+const dispatchEvent = _.debounce(async (event: Deno.FsEvent) => {
+	for (const path of event.paths) {
+		const pathSegments = path.split('/');
+		const dirname = pathSegments.slice(0, pathSegments.length - 1).join('/');
+		const basename = pathSegments.slice(-1)[0];
 
-    console.clear();
+		if (dirname.includes('src/pre_compiled')) {
+			continue;
+		}
 
-    cmd.spawn();
-  }
+		const testFile = `${dirname}/${basename.split('.').at(0)}.test.ts`;
+		const definitionFile = `${dirname}/${basename.split('.').at(0)}.ts`;
+
+		if (pathExistSync(testFile)) {
+			console.clear();
+			console.error(`Run test file!`, testFile);
+			await runTestFile(testFile);
+		} else if (pathExistSync(definitionFile)) {
+			console.clear();
+			console.error(`Test file doesn't exist!`, testFile);
+			console.error(`Run definition file!`, definitionFile);
+			await runDefinitionFile(definitionFile);
+		}
+	}
 }, delay);
 
 for await (const event of watcher) {
-  dispatchEvent(event);
+	await dispatchEvent(event);
 }
