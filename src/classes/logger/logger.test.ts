@@ -1,18 +1,27 @@
-import { assertEquals } from 'https://deno.land/std@0.201.0/assert/assert_equals.ts';
+// Copyright 2023-2024 Maciej Koralewski. All rights reserved. MIT license.
+
 import { classLogger } from './logger.ts';
-import { assertGreater } from 'https://deno.land/std@0.201.0/assert/assert_greater.ts';
 import { ansiColors } from './colors.ts';
-import { noError } from '../../utils/error/no_error.ts';
-import { assert } from 'https://deno.land/std@0.162.0/_util/assert.ts';
+import { noError } from '../../utils/no_error/no_error.ts';
+import { assert, assertEquals, assertGreater } from '@std/assert';
+import { _ } from '../../utils/lodash/lodash.ts';
 
 Deno.test('classLogger', async function testClassLogger() {
 	const logger = new classLogger();
-	const logsData: ReturnType<typeof logger.getAllLogs> = [{
+	const logsData = [{
 		message: 'log',
 		logType: 'log',
 	}, {
 		message: 'debug',
 		logType: 'debug',
+	}, {
+		message: 'Var \\"myVar\\":, my custom value',
+		args: ['myVar', 'my custom value'],
+		logType: 'debugVar',
+	}, {
+		message: 'Arguments:, ["arg1","arg2"]',
+		args: [['arg1', 'arg2']],
+		logType: 'debugFn',
 	}, {
 		message: 'info',
 		logType: 'info',
@@ -26,7 +35,8 @@ Deno.test('classLogger', async function testClassLogger() {
 
 	logsData.forEach((log) => {
 		// deno-lint-ignore no-explicit-any
-		(logger as any)[log.logType](log.message);
+		const args = log?.args || log.message;
+		(logger as any)[log.logType](...(_.isArray(args) ? args : [args]));
 	});
 
 	logger.omitStorage(true);
@@ -40,11 +50,15 @@ Deno.test('classLogger', async function testClassLogger() {
 	const logs = logger.getAllLogs();
 	const lastLog = logger.getLastLog();
 
-	assertEquals(logsLength, 5, 'logs length');
+	assertEquals(logsLength, logsData.length, 'logs length');
 	assertGreater(logsWeight, 0, 'logs weight');
 	assertEquals(logsWeightKb, logsWeight / 1024, 'logs weight kb');
 	assertEquals(logsWeightMb, logsWeight / 1024 / 1024, 'logs weight mb');
-	assertEquals(logs, logsData, 'logs storage');
+	assertEquals(
+		logs,
+		logsData.map((ld) => ({ message: ld.message, logType: ld.logType })),
+		'logs storage',
+	);
 	assertEquals(lastLog, logsData[logsData.length - 1], 'last log');
 
 	const logger1 = new classLogger({ omitStorage: false, maxWeight: 0 });
@@ -67,7 +81,7 @@ Deno.test('classLogger', async function testClassLogger() {
 		'display date',
 	);
 
-	logger1.info('info message!');
+	logger1.info('info message!', { my_test: 'v1' });
 
 	const maxWeight = 1024 * 1024 * 2;
 	const logger2 = new classLogger({ omitStorage: false, maxWeight });
