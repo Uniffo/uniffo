@@ -1,10 +1,14 @@
 // Copyright 2023-2024 Maciej Koralewski. All rights reserved. MIT license.
 
 import { parseCliArgs } from '../../utils/parser/parser.ts';
+import type { classCliVersionManager } from '../cli_version_manager/cli_version_manager.ts';
+import type { classDatabase } from '../database/database.ts';
 
 export type TCommandArgs = {
 	commandArgs: ReturnType<typeof parseCliArgs>;
 	documentation?: string;
+	database: classDatabase;
+	cliVersionManager: classCliVersionManager;
 };
 
 export type TCommandMeta<T> = {

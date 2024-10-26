@@ -136,6 +136,8 @@ export class classCommandInvokerFacade {
 		const command = new commandClass({
 			commandArgs: this.commandArguments,
 			documentation: commandMeta.documentation,
+			database: this.database,
+			cliVersionManager: this.cliVersionManager,
 		});
 		logger.debugVar('command', command);
 

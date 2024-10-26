@@ -1,6 +1,5 @@
 // Copyright 2023-2024 Maciej Koralewski. All rights reserved. MIT license.
 
-import { parseCliArgs } from '../../../utils/parser/parser.ts';
 import { assert } from '@std/assert';
 import { noError } from '../../../utils/no_error/no_error.ts';
 import { COMMANDS_META } from '../../../pre_compiled/__commands_meta.ts';
@@ -10,28 +9,36 @@ import { cwd } from '../../../utils/cwd/cwd.ts';
 import { _ } from '../../../utils/lodash/lodash.ts';
 import { pathExist } from '../../../utils/path_exist/path_exist.ts';
 import { getError } from '../../../utils/get_error/get_error.ts';
-import { initProject } from '../../../utils/init_project/init_project.ts';
 import { logger } from '../../../global/logger.ts';
 import { shell } from '../../../utils/shell/shell.ts';
 import { prepareCmd } from '../../../utils/prepare_command_to_execution/prepare_command_to_execution.ts';
+import _commandMetaInit from '../init/init.ts';
 
 Deno.test('commandProjectEnvAdd', async function testCommandProjectEnvAdd(t) {
 	const testDir = `${cwd()}/${await generateUniqueBasename({
 		basePath: cwd(),
-		prefix: `test_command_project_env_add_`,
+		prefix: `test_cp_ea_`,
 	})}`;
 
 	Deno.mkdirSync(testDir);
 
+	const projectName = 'uniffo-test-project';
+
+	const args: string[] = [
+		'--debug',
+		`--project-name="${projectName}"`,
+		`--no-change-dir`,
+	];
+
+	const { command, destroy } = await prepareCmd(_commandMetaInit, args);
+
 	Deno.chdir(testDir);
 
 	await t.step(async function _initProject() {
-		const projectName = 'uniffo-test-project';
-
 		logger.log(await shell('realpath', '.'));
 		logger.log(await shell('ls', '-la'));
 
-		await initProject(projectName);
+		await command._exec();
 
 		logger.log(await shell('realpath', '.'));
 		logger.log(await shell('ls', '-la'));
@@ -40,12 +47,17 @@ Deno.test('commandProjectEnvAdd', async function testCommandProjectEnvAdd(t) {
 
 		logger.log(await shell('realpath', '.'));
 		logger.log(await shell('ls', '-la'));
+
+		await destroy();
 	});
 
 	await t.step(async function validEnvName() {
 		const envName = 'my-custom-env-name';
 
-		const command = prepareCmd(_commandMeta, ['--debug', `--env-name="${envName}"`]);
+		const { command, destroy } = await prepareCmd(_commandMeta, [
+			'--debug',
+			`--env-name="${envName}"`,
+		]);
 
 		assert(await noError(async () => await command._exec()), 'Check command execution');
 
@@ -55,16 +67,23 @@ Deno.test('commandProjectEnvAdd', async function testCommandProjectEnvAdd(t) {
 			) === true,
 			'Check if config file exists',
 		);
+
+		await destroy();
 	});
 
 	await t.step(async function invalidEnvName() {
 		for (const envName of ['my-custom invalid -env-name', 'my-custom-$-env-name', '$%%%']) {
-			const command = prepareCmd(_commandMeta, ['--debug', `--env-name="${envName}"`]);
+			const { command, destroy } = await prepareCmd(_commandMeta, [
+				'--debug',
+				`--env-name="${envName}"`,
+			]);
 
 			assert(
 				await getError(async () => await command._exec()),
 				`Command should throw an error for env name: "${envName}"`,
 			);
+
+			await destroy();
 		}
 	});
 
@@ -81,12 +100,7 @@ Deno.test('commandProjectEnvAdd', async function testCommandProjectEnvAdd(t) {
 			'--debug',
 			`--env-name="${envName}"`,
 		];
-		const command = new commandMeta.class(
-			{
-				commandArgs: parseCliArgs(args),
-				documentation: commandMeta.documentation,
-			},
-		);
+		const { command, destroy } = await prepareCmd(commandMeta, args);
 
 		const _cwd = cwd();
 
@@ -98,6 +112,8 @@ Deno.test('commandProjectEnvAdd', async function testCommandProjectEnvAdd(t) {
 		);
 
 		Deno.chdir(`${_cwd}`);
+
+		await destroy();
 	});
 
 	Deno.chdir(`${testDir}/../`);
