@@ -7,6 +7,7 @@ import {
 	generateCommandsMetaFeed,
 	generateEmptyCommandsMetaFeedFile,
 } from './generate_commands_feed.ts';
+import { generateDockerContainersDefinitions } from './generate_docker_containers_definitions.ts';
 
 const PRECOMPILED_DIR = `${cwd()}/src/pre_compiled`;
 
@@ -19,4 +20,5 @@ await (async function () {
 		`${PRECOMPILED_DIR}/__commands_meta_feed.ts`,
 	);
 	await generateCommandsMeta(`${cwd()}/src/commands`, `${PRECOMPILED_DIR}/__commands_meta.ts`);
+	await generateDockerContainersDefinitions(PRECOMPILED_DIR);
 })();
