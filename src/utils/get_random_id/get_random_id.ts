@@ -1,4 +1,4 @@
-// Copyright 2023-2024 Maciej Koralewski. All rights reserved. MIT license.
+// Copyright 2023-2024 Maciej Koralewski. All rights reserved. EULA license.
 
 /**
  * The getRandomId function generates a random string of characters with a specified length.

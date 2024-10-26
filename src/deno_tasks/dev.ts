@@ -1,4 +1,4 @@
-// Copyright 2023-2024 Maciej Koralewski. All rights reserved. MIT license.
+// Copyright 2023-2024 Maciej Koralewski. All rights reserved. EULA license.
 
 import { _ } from '../utils/lodash/lodash.ts';
 import { pathExistSync } from '../utils/path_exist/path_exist.ts';

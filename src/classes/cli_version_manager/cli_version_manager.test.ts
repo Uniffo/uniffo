@@ -1,4 +1,4 @@
-// Copyright 2023-2024 Maciej Koralewski. All rights reserved. MIT license.
+// Copyright 2023-2024 Maciej Koralewski. All rights reserved. EULA license.
 
 import { CLI_PVFB } from '../../constants/CLI_PVFB.ts';
 import createProjectStructure from '../../utils/create_project_structure/create_project_structure.ts';

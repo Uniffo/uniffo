@@ -1,4 +1,4 @@
-// Copyright 2023-2024 Maciej Koralewski. All rights reserved. MIT license.
+// Copyright 2023-2024 Maciej Koralewski. All rights reserved. EULA license.
 
 import { assertEquals } from '@std/assert';
 import { loopOnProjectStructure } from './loop_on_project_structure.ts';
