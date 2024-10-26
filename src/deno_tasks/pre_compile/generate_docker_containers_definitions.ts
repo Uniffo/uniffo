@@ -1,3 +1,5 @@
+// Copyright 2023-2024 Maciej Koralewski. All rights reserved. EULA license.
+
 import { extname } from '@std/path/extname';
 import { recursiveReaddir } from 'https://deno.land/x/recursive_readdir@v2.0.0/mod.ts';
 import { logger } from '../../global/logger.ts';
