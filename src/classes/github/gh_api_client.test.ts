@@ -5,7 +5,7 @@ import { getDbForTests } from '../../utils/get_db_for_tests/get_db_for_tests.ts'
 import { getGhApiClientForTests } from '../../utils/get_gh_api_client_for_tests/get_gh_api_client_for_tests.ts';
 
 Deno.test('classGitHubApiClient', async function testClassGitHubApiClient() {
-	const { database, server } = await getDbForTests();
+	const { database, destroy } = await getDbForTests();
 
 	const ghApi = getGhApiClientForTests(database);
 
@@ -21,6 +21,5 @@ Deno.test('classGitHubApiClient', async function testClassGitHubApiClient() {
 		'ghApi.fetchReleaseByTagName(releaseTagName) return object',
 	);
 
-	await database.destroySession();
-	await server.stop();
+	await destroy();
 });

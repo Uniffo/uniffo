@@ -15,20 +15,23 @@ Deno.test('commandServiceStart', async (t) => {
 
     Deno.mkdirSync(testDir);
 
-    const produceCommand = () => {
-        const cmd = prepareCmd(_commandMeta, ['--debug']);
+    const produceCommand = async () => {
+        const { command, destroy } = await prepareCmd(_commandMeta, ['--debug']);
 
-        cmd.dbServer.sqlLiteDatabase.destroy();
+        command.dbServer.sqlLiteDatabase.destroy();
 
-        cmd.dbServerSocketPath = `${testDir}/db.sock`;
-        cmd.dbPath = `${testDir}`;
+        command.dbServerSocketPath = `${testDir}/db.sock`;
+        command.dbPath = `${testDir}`;
 
-        cmd.recreateDbServer();
+        command.recreateDbServer();
 
-        return cmd;
+        return { command, destroy };
     };
 
-    const startServer = async (command: ReturnType<typeof produceCommand>, testName: string) => {
+    const startServer = async (
+        command: Awaited<ReturnType<typeof produceCommand>>['command'],
+        testName: string,
+    ) => {
         assert(
             await noError(async () => {
                 command._exec();
@@ -42,7 +45,7 @@ Deno.test('commandServiceStart', async (t) => {
     };
 
     await t.step('SIGTERM', async (t) => {
-        const command = produceCommand();
+        const { command, destroy } = await produceCommand();
 
         await startServer(command, t.name);
 
@@ -55,9 +58,11 @@ Deno.test('commandServiceStart', async (t) => {
         );
         assert(!command.running, 'Command is running');
         assert(!command.dbServer.listening, 'DB server is listening');
+
+        await destroy();
     });
     await t.step('SIGINT', async (t) => {
-        const command = produceCommand();
+        const { command, destroy } = await produceCommand();
 
         await startServer(command, t.name);
 
@@ -70,9 +75,11 @@ Deno.test('commandServiceStart', async (t) => {
         );
         assert(!command.running, 'Command is running');
         assert(!command.dbServer.listening, 'DB server is listening');
+
+        await destroy();
     });
     await t.step('SIGHUP', async (t) => {
-        const command = produceCommand();
+        const { command, destroy } = await produceCommand();
 
         await startServer(command, t.name);
 
@@ -94,6 +101,8 @@ Deno.test('commandServiceStart', async (t) => {
             'Error on handle signal SIGTERM',
         );
         assert(!command.running, 'Command is running');
+
+        await destroy();
     });
 
     await Deno.remove(testDir, { recursive: true });

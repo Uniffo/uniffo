@@ -28,7 +28,7 @@ Deno.test('classCliVersionManager', async function testClassCliVersionManager() 
 
 	await createProjectStructure(`${testData.dir.project}`);
 
-	const { database, server } = await getDbForTests();
+	const { database, destroy } = await getDbForTests();
 
 	const gitHubApiClient = getGhApiClientForTests(database);
 
@@ -100,9 +100,7 @@ Deno.test('classCliVersionManager', async function testClassCliVersionManager() 
 
 	Deno.chdir(_cwd);
 
-	await database.destroySession();
-
-	await server.stop();
+	await destroy();
 
 	await Deno.remove(testDir, { recursive: true });
 });

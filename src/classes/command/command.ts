@@ -11,6 +11,8 @@ export abstract class classCommand {
 	public args;
 	public documentation;
 	public stopExecution = false;
+	public database;
+	public cliVersionManager;
 
 	constructor(args: TCommandArgs) {
 		logger.debugFn(arguments);
@@ -20,6 +22,12 @@ export abstract class classCommand {
 
 		this.documentation = args.documentation;
 		logger.debugVar('this.documentation', this.documentation);
+
+		this.database = args.database;
+		logger.debugVar('this.database', this.database);
+
+		this.cliVersionManager = args.cliVersionManager;
+		logger.debugVar('this.cliVersionManager', this.cliVersionManager);
 	}
 
 	/**

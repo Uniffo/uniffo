@@ -29,7 +29,7 @@ Deno.test('classCommandInvokerFacade', async function testClassCommandInvokerFac
 
 	const tmpDir = testData.dir.cli.tmp;
 	const commandArguments = parseCliArgs(['./', '--debug']);
-	const { database, server } = await getDbForTests();
+	const { database, destroy } = await getDbForTests();
 
 	const gitHubApiClient = getGhApiClientForTests(database);
 	const cliVersionManager = new classCliVersionManager({
@@ -76,8 +76,7 @@ Deno.test('classCommandInvokerFacade', async function testClassCommandInvokerFac
 
 	await commandInvokerFacade.exec();
 	await commandInvokerFacade.destroy();
-	await database.destroySession();
-	await server.stop();
+	await destroy();
 
 	await Deno.remove(testDir, { recursive: true });
 });

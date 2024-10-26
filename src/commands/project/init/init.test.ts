@@ -1,6 +1,5 @@
 // Copyright 2023-2024 Maciej Koralewski. All rights reserved. MIT license.
 
-import { parseCliArgs } from '../../../utils/parser/parser.ts';
 import { assert } from '@std/assert';
 import { noError } from '../../../utils/no_error/no_error.ts';
 import { COMMANDS_META } from '../../../pre_compiled/__commands_meta.ts';
@@ -13,6 +12,7 @@ import { CLI_PROJECT_STRUCTURE } from '../../../constants/CLI_PROJECT_STRUCTURE.
 import { logger } from '../../../global/logger.ts';
 import { pathExist } from '../../../utils/path_exist/path_exist.ts';
 import { getError } from '../../../utils/get_error/get_error.ts';
+import { prepareCmd } from '../../../utils/prepare_command_to_execution/prepare_command_to_execution.ts';
 
 Deno.test('commandProjectInit', async function testCommandProjectInit(t) {
 	const testDir = `${cwd()}/${await generateUniqueBasename({
@@ -34,37 +34,28 @@ Deno.test('commandProjectInit', async function testCommandProjectInit(t) {
 
 		await t.step('Display help', async function testCommandInitHelp() {
 			const args: string[] = [
-				_commandMeta.phrase,
 				'-h',
 				'--help',
 				'--debug',
 			];
-			const command = new commandMeta.class(
-				{
-					commandArgs: parseCliArgs(args),
-					documentation: commandMeta.documentation,
-				},
-			);
+			const { command, destroy } = await prepareCmd(commandMeta, args);
 
 			assert(
 				await noError(async () => await command._exec()),
 				'Check command help execution',
 			);
+
+			await destroy();
 		});
 
 		await t.step('execution', async function testCommandInitHelp() {
 			const projectName = 'my own project name';
 			const args: string[] = [
-				_commandMeta.phrase,
 				'--debug',
 				`--project-name="${projectName}"`,
 			];
-			const command = new commandMeta.class(
-				{
-					commandArgs: parseCliArgs(args),
-					documentation: commandMeta.documentation,
-				},
-			);
+			const { command, destroy } = await prepareCmd(commandMeta, args);
+
 			assert(await noError(async () => await command._exec()), 'Check command execution');
 			Deno.chdir(`${testDir}`);
 			assert(
@@ -87,6 +78,8 @@ Deno.test('commandProjectInit', async function testCommandProjectInit(t) {
 					`Validate project init dir structure - "${path}"`,
 				);
 			}
+
+			await destroy();
 		});
 	} catch (e) {
 		error = e;
