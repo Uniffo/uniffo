@@ -1,4 +1,4 @@
-// Copyright 2023-2024 Maciej Koralewski. All rights reserved. MIT license.
+// Copyright 2023-2024 Maciej Koralewski. All rights reserved. EULA license.
 
 import { TCommandArgs } from './command.d.ts';
 import { logger } from '../../global/logger.ts';

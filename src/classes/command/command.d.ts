@@ -1,4 +1,4 @@
-// Copyright 2023-2024 Maciej Koralewski. All rights reserved. MIT license.
+// Copyright 2023-2024 Maciej Koralewski. All rights reserved. EULA license.
 
 import { parseCliArgs } from '../../utils/parser/parser.ts';
 import type { classCliVersionManager } from '../cli_version_manager/cli_version_manager.ts';

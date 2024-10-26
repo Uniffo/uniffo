@@ -1,4 +1,4 @@
-// Copyright 2023-2024 Maciej Koralewski. All rights reserved. MIT license.
+// Copyright 2023-2024 Maciej Koralewski. All rights reserved. EULA license.
 
 import createProjectStructure from './create_project_structure.ts';
 import { getError } from '../get_error/get_error.ts';

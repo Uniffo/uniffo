@@ -26,7 +26,7 @@ _(TO DO: Add usage instructions for the project)_
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the EULA License - see the [LICENSE](LICENSE) file for details.
 
 ## Author
 

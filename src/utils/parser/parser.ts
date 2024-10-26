@@ -1,4 +1,4 @@
-// Copyright 2023-2024 Maciej Koralewski. All rights reserved. MIT license.
+// Copyright 2023-2024 Maciej Koralewski. All rights reserved. EULA license.
 
 import { COMMANDS_META } from '../../pre_compiled/__commands_meta.ts';
 import { logger } from '../../global/logger.ts';

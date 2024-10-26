@@ -1,4 +1,4 @@
-// Copyright 2023-2024 Maciej Koralewski. All rights reserved. MIT license.
+// Copyright 2023-2024 Maciej Koralewski. All rights reserved. EULA license.
 
 import { logger } from '../global/logger.ts';
 
@@ -9,11 +9,11 @@ function updateCopyrights() {
     logger.debugVar('currentYear', currentYear);
 
     const copyrightLine =
-        `// Copyright 2023-${currentYear} Maciej Koralewski. All rights reserved. MIT license.`;
+        `// Copyright 2023-${currentYear} Maciej Koralewski. All rights reserved. EULA license.`;
     logger.debugVar('copyrightLine', copyrightLine);
 
     const hasCopyrightRegexp = new RegExp(
-        `// Copyright [0-9]{1,}-[0-9]{1,} Maciej Koralewski. All rights reserved. MIT license.`,
+        `// Copyright [0-9]{1,}-[0-9]{1,} Maciej Koralewski. All rights reserved. EULA license.`,
     );
     logger.debugVar('hasCopyrightRegexp', hasCopyrightRegexp);
 
