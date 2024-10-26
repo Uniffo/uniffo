@@ -1,6 +1,6 @@
 ## Project Description
 
-Uniffo is a tool for unifying WordPress runtime environments, aimed at reducing the time needed to create a WordPress runtime environment and enabling the sharing of such environments.
+Uniffo is a tool designed to standardize WordPress runtime environments, reducing the time required for setup and enabling seamless sharing.
 
 ## Installation
 
