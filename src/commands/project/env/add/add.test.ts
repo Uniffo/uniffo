@@ -1,18 +1,17 @@
 // Copyright 2023-2024 Maciej Koralewski. All rights reserved. MIT license.
 
 import { assert } from '@std/assert';
-import { noError } from '../../../utils/no_error/no_error.ts';
-import { COMMANDS_META } from '../../../pre_compiled/__commands_meta.ts';
-import _commandMeta from './env-add.ts';
-import { generateUniqueBasename } from '../../../utils/generate_unique_basename/generate_unique_basename.ts';
-import { cwd } from '../../../utils/cwd/cwd.ts';
-import { _ } from '../../../utils/lodash/lodash.ts';
-import { pathExist } from '../../../utils/path_exist/path_exist.ts';
-import { getError } from '../../../utils/get_error/get_error.ts';
-import { logger } from '../../../global/logger.ts';
-import { shell } from '../../../utils/shell/shell.ts';
-import { prepareCmd } from '../../../utils/prepare_command_to_execution/prepare_command_to_execution.ts';
-import _commandMetaInit from '../init/init.ts';
+import { noError } from '../../../../utils/no_error/no_error.ts';
+import _commandMeta from './add.ts';
+import { generateUniqueBasename } from '../../../../utils/generate_unique_basename/generate_unique_basename.ts';
+import { cwd } from '../../../../utils/cwd/cwd.ts';
+import { _ } from '../../../../utils/lodash/lodash.ts';
+import { pathExist } from '../../../../utils/path_exist/path_exist.ts';
+import { getError } from '../../../../utils/get_error/get_error.ts';
+import { logger } from '../../../../global/logger.ts';
+import { shell } from '../../../../utils/shell/shell.ts';
+import { prepareCmd } from '../../../../utils/prepare_command_to_execution/prepare_command_to_execution.ts';
+import _commandMetaInit from '../../init/init.ts';
 
 Deno.test('commandProjectEnvAdd', async function testCommandProjectEnvAdd(t) {
 	const testDir = `${cwd()}/${await generateUniqueBasename({
@@ -88,19 +87,12 @@ Deno.test('commandProjectEnvAdd', async function testCommandProjectEnvAdd(t) {
 	});
 
 	await t.step(async function invalidLocation() {
-		const commandMeta = COMMANDS_META.find((item) => item.phrase === _commandMeta.phrase);
-
-		if (!commandMeta) {
-			throw `Can not find command by phrase "${_commandMeta.phrase}"!`;
-		}
-
 		const envName = 'my-custom-env-name';
 		const args: string[] = [
-			_commandMeta.phrase,
 			'--debug',
 			`--env-name="${envName}"`,
 		];
-		const { command, destroy } = await prepareCmd(commandMeta, args);
+		const { command, destroy } = await prepareCmd(_commandMeta, args);
 
 		const _cwd = cwd();
 
