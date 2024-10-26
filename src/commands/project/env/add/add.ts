@@ -1,12 +1,12 @@
 // Copyright 2023-2024 Maciej Koralewski. All rights reserved. MIT license.
 
-import { TCommandArgs, TCommandMeta } from '../../../classes/command/command.d.ts';
-import { classCommand } from '../../../classes/command/command.ts';
-import { logger } from '../../../global/logger.ts';
-import { generateUniqueBasename } from '../../../utils/generate_unique_basename/generate_unique_basename.ts';
-import { pathExist } from '../../../utils/path_exist/path_exist.ts';
-import { pwd } from '../../../utils/pwd/pwd.ts';
-import { commandProjectEnvAddDocs, description } from './env-add.docs.ts';
+import { TCommandArgs, TCommandMeta } from '../../../../classes/command/command.d.ts';
+import { classCommand } from '../../../../classes/command/command.ts';
+import { logger } from '../../../../global/logger.ts';
+import { generateUniqueBasename } from '../../../../utils/generate_unique_basename/generate_unique_basename.ts';
+import { pathExist } from '../../../../utils/path_exist/path_exist.ts';
+import { pwd } from '../../../../utils/pwd/pwd.ts';
+import { commandProjectEnvAddDocs, description } from './add.docs.ts';
 
 const phrase = 'project env add';
 
