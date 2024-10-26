@@ -1,3 +1,5 @@
+// Copyright 2023-2024 Maciej Koralewski. All rights reserved. MIT license.
+
 import { classCommandInvokerFacade } from '../classes/command_invoker_facade/command_invoker_facade.ts';
 import { cliVersionManager } from './cli_version_manager.ts';
 import { commandArguments } from './command_arguments.ts';

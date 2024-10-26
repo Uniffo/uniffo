@@ -1,3 +1,5 @@
+// Copyright 2023-2024 Maciej Koralewski. All rights reserved. MIT license.
+
 import { assert } from '@std/assert';
 import { prepareCmd } from '../../../../utils/prepare_command_to_execution/prepare_command_to_execution.ts';
 import meta from './version.ts';

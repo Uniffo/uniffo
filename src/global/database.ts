@@ -1,3 +1,5 @@
+// Copyright 2023-2024 Maciej Koralewski. All rights reserved. MIT license.
+
 import { classDatabase } from '../classes/database/database.ts';
 import { DB_SCHEMA } from '../constants/DB_SCHEMA.ts';
 import { DB_SERVER_SOCKET_PATH } from '../constants/DB_SERVER_SOCKET_PATH.ts';

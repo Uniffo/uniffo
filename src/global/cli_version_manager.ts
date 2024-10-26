@@ -1,3 +1,5 @@
+// Copyright 2023-2024 Maciej Koralewski. All rights reserved. MIT license.
+
 import { classCliVersionManager } from '../classes/cli_version_manager/cli_version_manager.ts';
 import { CLI_DIR } from '../constants/CLI_DIR.ts';
 import { gitHubApiClient } from './github_api_client.ts';
